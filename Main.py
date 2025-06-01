@@ -19,5 +19,6 @@ image = cv2.resize(image, (1920, 1080))
 koordinate = position(image)
 map = preprocessing(image)
 
+cv2.imshow('Hasil', map)
 cv2.waitKey(0)  # Tunggu tombol ditekan
 cv2.destroyAllWindows()
