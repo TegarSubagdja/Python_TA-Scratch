@@ -31,8 +31,6 @@ def position(image):
 
                 # # Tandai pada gambar
                 cv2.circle(image, (center_x, center_y), 30, (255, 255, 255), -1)
-                # cv2.putText(image, f"ID {marker_id}", (center_x + 10, center_y),
-                #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
                 # Simpan koordinat ke dict
                 if marker_id == 1:

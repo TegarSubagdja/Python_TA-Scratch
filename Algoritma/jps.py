@@ -220,6 +220,7 @@ def method(matrix, start, goal, hchoice):
 
     while open_list:
 
+        print(open_list)
         current = heapq.heappop(open_list)[1]
         if current == goal:
             data = []
