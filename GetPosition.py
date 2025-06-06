@@ -7,30 +7,39 @@ def position(image):
     aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
     parameters = aruco.DetectorParameters()
 
+    # Dictionary untuk menyimpan koordinat ID 1 dan 7
+    koordinat = {'start': None, 'goal': None}
+
     if image is None:
         print("Gagal membaca gambar.")
+        return koordinat
+
+    # Konversi ke grayscale
+    detector = aruco.ArucoDetector(aruco_dict, parameters)
+    corners, ids, _ = detector.detectMarkers(image)
+
+    if ids is not None:
+        aruco.drawDetectedMarkers(image, corners, ids)
+        print("Marker terdeteksi dengan ID:", ids.flatten())
+
+        for i, marker_id in enumerate(ids.flatten()):
+            if marker_id in [1, 7]:
+                marker_corners = corners[i][0]
+                center_x = int(np.mean(marker_corners[:, 0]))
+                center_y = int(np.mean(marker_corners[:, 1]))
+                print(f"ID {marker_id}: posisi tengah = ({center_x}, {center_y})")
+
+                # # Tandai pada gambar
+                cv2.circle(image, (center_x, center_y), 30, (255, 255, 255), -1)
+                # cv2.putText(image, f"ID {marker_id}", (center_x + 10, center_y),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+                # Simpan koordinat ke dict
+                if marker_id == 1:
+                    koordinat['start'] = (center_x, center_y)
+                elif marker_id == 7:
+                    koordinat['goal'] = (center_x, center_y)
     else:
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        detector = aruco.ArucoDetector(aruco_dict, parameters)
-        corners, ids, _ = detector.detectMarkers(gray)
+        print("Tidak ada marker terdeteksi.")
 
-        if ids is not None:
-            aruco.drawDetectedMarkers(image, corners, ids)
-            print("Marker terdeteksi dengan ID:", ids.flatten())
-
-            # Loop dan cari posisi marker ID 1 dan 7
-            for i, marker_id in enumerate(ids.flatten()):
-                if marker_id in [1, 7]:
-                    # Ambil koordinat sudut-sudut marker
-                    marker_corners = corners[i][0]  # shape (4, 2) 
-                    # Hitung titik tengah (x, y)
-                    center_x = int(np.mean(marker_corners[:, 0]))
-                    center_y = int(np.mean(marker_corners[:, 1]))
-                    print(f"ID {marker_id}: posisi tengah = ({center_x}, {center_y})")
-
-                    # Tambahkan titik di gambar
-                    cv2.circle(image, (center_x, center_y), 10, (0, 255, 0), -1)
-                    cv2.putText(image, f"ID {marker_id}", (center_x + 10, center_y),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        else:
-            print("Tidak ada marker terdeteksi.")
+    return koordinat
