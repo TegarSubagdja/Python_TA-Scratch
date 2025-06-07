@@ -29,9 +29,6 @@ def position(image):
                 center_y = int(np.mean(marker_corners[:, 1]))
                 print(f"ID {marker_id}: posisi tengah = ({center_x}, {center_y})")
 
-                # # Tandai pada gambar
-                cv2.circle(image, (center_x, center_y), 30, (255, 255, 255), -1)
-
                 # Simpan koordinat ke dict
                 if marker_id == 1:
                     koordinat['start'] = (center_x, center_y)
