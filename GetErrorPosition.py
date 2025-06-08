@@ -6,7 +6,7 @@ def normalize_angle(angle):
     """Normalisasi sudut ke rentang [-pi, pi]."""
     return (angle + np.pi) % (2 * np.pi) - np.pi
 
-def error(image):
+def Error(image):
     aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
     parameters = aruco.DetectorParameters()
     detector = aruco.ArucoDetector(aruco_dict, parameters)

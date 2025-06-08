@@ -26,7 +26,7 @@ plt.tight_layout()
 plt.subplots_adjust(top=0.90)
 plt.show()
 
-#Deteksi Aruco Market dan Axis
+## Deteksi Aruco Market dan Axis
 import cv2
 import numpy as np
 
