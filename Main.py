@@ -7,7 +7,8 @@ from GetPosition import Position
 from GetErrorPosition import Error
 from GetPreprocessing import Preprocessing
 # Optimasi
-from MethodOptimasi.PathPolylineOptimization import prunning
+from Method.PathPolylineOptimization import prunning
+from Method.Guideline import guidline, titik_proyeksi_ke_garis
 
 # Baca gambar dalam grayscale
 scale = 3
@@ -37,10 +38,10 @@ image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 for i in range(1, len(path)):
     y1, x1 = path[i - 1]
     y2, x2 = path[i]
-    cv2.line(image, (x1, y1), (x2, y2), (0,255,0), 5)  # 255 = warna putih, 2 = ketebalan
+    cv2.line(image, (x1, y1), (x2, y2), (0,255,0), 5) 
 
 for y, x in path:
-    cv2.circle(image, (x, y), 2, (0,0,255), -1)  # Note: (x, y) karena OpenCV pakai (x, y) order
+    cv2.circle(image, (x, y), 16, (0,0,255), -1)  
 
 cv2.imwrite('Output/Output.jpg', image)
 cv2.waitKey(0)

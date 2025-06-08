@@ -55,13 +55,13 @@ if koordinat['start'] and koordinat['goal'] and orientasi_robot is not None:
     goal = koordinat['goal']
 
     # Garis dari start ke goal
-    cv2.line(image, start, goal, (0, 0, 255), 2)
+    cv2.line(image, start, goal, (0, 255, 0), 2)
 
     # Arah orientasi robot
     panjang_panah = 100
     orientasi_x = int(start[0] + panjang_panah * np.cos(orientasi_robot))
     orientasi_y = int(start[1] + panjang_panah * np.sin(orientasi_robot))
-    cv2.arrowedLine(image, start, (orientasi_x, orientasi_y), (255, 0, 0), 2, tipLength=0.2)
+    cv2.arrowedLine(image, start, (orientasi_x, orientasi_y), (0, 0, 255), 2, tipLength=0.2)
 
     # Hitung error orientasi
     dx = goal[0] - start[0]
@@ -82,6 +82,6 @@ else:
 
 # --- Tampilkan dan Simpan Hasil ---
 cv2.imshow("Hasil Deteksi dan Orientasi", image)
-cv2.imwrite("output_orientasi.jpg", image)
+cv2.imwrite("Output/Output.jpg", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()

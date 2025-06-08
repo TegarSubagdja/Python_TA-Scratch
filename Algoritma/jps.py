@@ -1,5 +1,5 @@
 import math, time, heapq
-from MethodOptimasi import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
+from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
 
 def heuristic(start, goal, hchoice):
     if hchoice == 255:
