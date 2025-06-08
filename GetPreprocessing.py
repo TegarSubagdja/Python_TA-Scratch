@@ -1,25 +1,24 @@
 import numpy as np
 import cv2
+from Z_Test.Contuor import Contuor
 
-def Preprocessing(image, pos):
+def Preprocessing(image, pos, scale):
 
-    #Mengubah kedalam bentuk biner dan menghilangkan objek kecil dan noise
-    _, biner = cv2.threshold(image, 100, 255, cv2.THRESH_BINARY_INV)
-    kernel3x3 = np.ones((3,3), np.uint8)
-    erosi = cv2.erode(biner, kernel3x3, iterations=6)
-    kernel = np.ones((3,3), np.uint8)
-    dilasi = cv2.dilate(erosi, kernel, iterations=30)
-    cv2.circle(dilasi, pos['start'], 128, 0, -1)
-    cv2.circle(dilasi, pos['goal'], 128, 0, -1)
-    dilasi = cv2.resize(dilasi, (dilasi.shape[1]//2, dilasi.shape[0]//2))
+    cv2.circle(image, pos['start'], 128, 255, -1)
+    cv2.circle(image, pos['goal'], 128, 255, -1)
 
-    #Pengubah posisi ke ukuran baru
+    safe = Contuor(image)
+
+    # Merubah Ukuran Gambar
+    dilasi = cv2.resize(safe, (safe.shape[1]//scale, safe.shape[0]//scale))
+    
+    # Pengubah posisi ke ukuran baru
     pos = {
-        key: (x // 2, y // 2)
+        key: (x // scale, y // scale)
         for key, (x, y) in pos.items()
     }
 
-    #Merubah Citra kedalam array numpy
+    # Merubah Citra kedalam array numpy
     map = np.array(dilasi)
 
     # Asumsikan pos['start'] dan pos['goal'] dalam format (x, y)

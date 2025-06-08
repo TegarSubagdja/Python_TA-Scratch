@@ -58,7 +58,7 @@ def supercover_line(awal, akhir):
 def lompatanAman(awal, akhir, peta):
     """Check if any node in the path is an obstacle (1)."""
     nodes = supercover_line(awal, akhir)
-    if(any(peta[x][y] == 1 for x, y in nodes)):
+    if(any(peta[x][y] == 255 for x, y in nodes)):
         return False
     else:
         return True
@@ -78,7 +78,7 @@ def is_45_degree(awal, akhir):
     if x2 - x1 == 0:  # Menghindari pembagian dengan nol (garis vertikal)
         return False
     slope = (y2 - y1) / (x2 - x1)
-    return slope == 1 or slope == -1
+    return slope == 255 or slope == -1
 
 def prunning(jalur, peta):
     awal = 0
