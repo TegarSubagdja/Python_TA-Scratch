@@ -4,8 +4,8 @@ from Z_Test.Contuor import Contuor
 
 def Preprocessing(image, pos, scale):
 
-    cv2.circle(image, pos['start'], 128, 255, -1)
-    cv2.circle(image, pos['goal'], 128, 255, -1)
+    # cv2.circle(image, pos['start'], 128, 255, -1)
+    # cv2.circle(image, pos['goal'], 128, 255, -1)
 
     safe = Contuor(image)
 

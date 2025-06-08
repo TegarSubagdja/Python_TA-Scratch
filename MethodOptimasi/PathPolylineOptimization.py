@@ -55,10 +55,45 @@ def supercover_line(awal, akhir):
 
     return points
 
-def lompatanAman(awal, akhir, peta):
+def bresenham_line(awal, akhir):
+    x1, y1 = awal
+    x2, y2 = akhir
+
+    points = []
+    dx = abs(x2 - x1)
+    dy = abs(y2 - y1)
+    x, y = x1, y1
+
+    sx = 1 if x2 > x1 else -1
+    sy = 1 if y2 > y1 else -1
+
+    if dx > dy:
+        err = dx // 2
+        while x != x2:
+            points.append((x, y))
+            err -= dy
+            if err < 0:
+                y += sy
+                err += dx
+            x += sx
+    else:
+        err = dy // 2
+        while y != y2:
+            points.append((x, y))
+            err -= dx
+            if err < 0:
+                x += sx
+                err += dy
+            y += sy
+
+    points.append((x2, y2))  # Tambahkan titik akhir
+    return points
+
+
+def lompatanAman(awal, akhir, map):
     """Check if any node in the path is an obstacle (1)."""
-    nodes = supercover_line(awal, akhir)
-    if(any(peta[x][y] == 255 for x, y in nodes)):
+    nodes = bresenham_line(awal, akhir)
+    if(any(map[x][y] == 255 for x, y in nodes)):
         return False
     else:
         return True
@@ -78,9 +113,9 @@ def is_45_degree(awal, akhir):
     if x2 - x1 == 0:  # Menghindari pembagian dengan nol (garis vertikal)
         return False
     slope = (y2 - y1) / (x2 - x1)
-    return slope == 255 or slope == -1
+    return slope == 1 or slope == -1
 
-def prunning(jalur, peta):
+def prunning(jalur, map):
     awal = 0
     akhir = 1
     awal_t = awal
@@ -88,7 +123,7 @@ def prunning(jalur, peta):
     jalur_prunning = [jalur[awal]]
     while True:
         while akhir <= len(jalur)-1:
-            if not (lompatanAman(jalur[awal], jalur[akhir], peta)):
+            if not (lompatanAman(jalur[awal], jalur[akhir], map)):
                 if (is_45_degree(jalur[awal], jalur[akhir])):
                     akhir += 1
                     break
