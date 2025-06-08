@@ -21,15 +21,15 @@ print("Setelah di flip : ", pos)
 
 # Pencarian Jalur
 path, _ = jps.method(map, pos['start'], pos['goal'], 2)
-print(path)
+print("Path Asli : ", path)
 
 # Optimasi
 path = prunning(path, map)
-cv2.imwrite('Output/map.jpg', map)
+print("Path Hasil Prunning : ", path)
 
 # Mengubah Koordinat Jalur ke Ukuran Asli
 path = [(y * scale, x * scale) for y, x in path]
-print(path)
+print("Path Hasil Scale : ", path)
 
 #Menggambar Path di Image Ukuran Asli
 image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
