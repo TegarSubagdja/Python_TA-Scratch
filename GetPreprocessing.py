@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from Z_Test.Contuor import Contuor
+from GetContuor import Contuor
 
 def Preprocessing(image, pos, scale):
 
