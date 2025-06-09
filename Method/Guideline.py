@@ -9,7 +9,7 @@ def guidline(awal=0, akhir=0, posisi=0):
     denominator = math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2)
     return numerator / denominator
 
-def titik_proyeksi_ke_garis(awal, akhir, posisi):
+def jarakGaris(awal, akhir, posisi):
     """
     Menghitung titik proyeksi dari `posisi` ke garis yang dibentuk oleh `awal` dan `akhir`.
 
@@ -45,4 +45,4 @@ def titik_proyeksi_ke_garis(awal, akhir, posisi):
     proj_x = x1 + t * dx
     proj_y = y1 + t * dy
 
-    return (proj_x, proj_y)
+    return (int(round(proj_x)), int(round(proj_y)))

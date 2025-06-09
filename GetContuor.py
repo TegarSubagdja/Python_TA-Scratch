@@ -20,8 +20,8 @@ def Contuor(image):
         if cv2.contourArea(contour) > 10000:
             rect = cv2.minAreaRect(contour)
             (cx, cy), (w, h), angle = rect
-            w_enlarged = w + 250
-            h_enlarged = h + 250
+            w_enlarged = w + 260
+            h_enlarged = h + 260
             enlarged_rect = ((cx, cy), (w_enlarged, h_enlarged), angle)
             box = cv2.boxPoints(enlarged_rect)
             box = np.array(box, dtype=np.int32)
@@ -38,6 +38,6 @@ def Contuor(image):
     blended = cv2.addWeighted(image_bgr, 1.0, output_colored, 0.2, 0)
 
     # Simpan hasil akhir
-    cv2.imwrite('../Output/Overlay.jpg', blended)
+    cv2.imwrite('./Output/Overlay.jpg', blended)
 
     return output
