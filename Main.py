@@ -21,8 +21,10 @@ map, pos = Preprocessing(image, pos, scale)
 print("Setelah di flip : ", pos)
 
 # Pencarian Jalur
-path, _ = jps.method(map, pos['start'], pos['goal'], 2)
+(path, time), open_list, close_list = jps.method(map, pos['start'], pos['goal'], 2)
 print("Path Asli : ", path)
+print(f"Open List adalah : {open_list}")
+print(f"Close List adalah : {close_list}")
 
 # Optimasi
 path = prunning(path, map)
@@ -43,12 +45,12 @@ for i in range(1, len(path)):
 for y, x in path:
     cv2.circle(image, (x, y), 16, (255,0,255), -1) 
 
-cpos = (1800, 1300)
-awal = np.flip(path[0])
-akhir = np.flip(path[1])
-proyeksi = jarakGaris(awal, akhir, cpos)
-cv2.circle(image, cpos, 30, (255,0,255), -1)
-cv2.line(image, cpos, proyeksi, (255, 0, 255), 3)
+# cpos = (1800, 1300)
+# awal = np.flip(path[0])
+# akhir = np.flip(path[1])
+# proyeksi = jarakGaris(awal, akhir, cpos)
+# cv2.line(image, cpos, proyeksi, (255,200,200), 3)
+# cv2.circle(image, cpos, 16, (255,0,255), -1)
 
 cv2.imwrite('Output/Output.jpg', image)
 cv2.waitKey(0)

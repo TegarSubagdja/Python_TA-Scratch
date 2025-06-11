@@ -229,7 +229,7 @@ def method(matrix, start, goal, hchoice):
             data.append(start)
             data = data[::-1]
             endtime = time.time()
-            return (data, round(endtime - starttime, 6))
+            return (data, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
 
