@@ -12,7 +12,6 @@ from GetPosition import Position
 from GetErrorPosition import Error
 from GetPreprocessing import Preprocessing
 from GetVisualize import Visualize
-from GetContuor import Contours
 from Method.PathPolylineOptimization import prunning
 from Method.Guideline import guidline, jarakGaris
 
@@ -20,6 +19,6 @@ from Method.Guideline import guidline, jarakGaris
 __all__ = [
     'sys', 'cv2', 'aruco', 'np', 'pd', 'pygame',
     'jps', 'astar',
-    'Position', 'Error', 'Preprocessing', 'Visualize', 'Contours',
+    'Position', 'Error', 'Preprocessing', 'Visualize',
     'prunning', 'guidline', 'jarakGaris'
 ]

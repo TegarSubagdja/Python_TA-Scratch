@@ -18,6 +18,8 @@ print(f"Close List adalah : {close_list}")
 
 # Optimasi
 path = prunning(path, map)
+path = prunning(path, map)
+path = prunning(path, map)
 print("Path Hasil Prunning : ", path)
 
 # Mengubah Koordinat Jalur ke Ukuran Asli
@@ -33,7 +35,7 @@ for i in range(1, len(path)):
     cv2.line(image, (x1, y1), (x2, y2), (255,200,200), 5) 
 
 for y, x in path:
-    cv2.circle(image, (x, y), 16, (255,0,255), -1) 
+    cv2.circle(image, (x, y), 8, (255,0,255), -1) 
 
 # cpos = (1800, 1300)
 # awal = np.flip(path[0])

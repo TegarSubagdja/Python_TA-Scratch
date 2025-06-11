@@ -19,8 +19,8 @@ def Contours(image):
         if cv2.contourArea(contour) > 10000:
             rect = cv2.minAreaRect(contour)
             (cx, cy), (w, h), angle = rect
-            w_enlarged = w + 260
-            h_enlarged = h + 260
+            w_enlarged = w + 320
+            h_enlarged = h + 320
             enlarged_rect = ((cx, cy), (w_enlarged, h_enlarged), angle)
             box = cv2.boxPoints(enlarged_rect)
             box = np.array(box, dtype=np.int32)
