@@ -57,7 +57,7 @@ def method(matrix, start, goal, hchoice):
             path = path[::]
             #print(gscore[goal])
             endtime = time.time()
-            return (path, round(endtime - starttime, 6))
+            return (path, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
         for dX, dY in [

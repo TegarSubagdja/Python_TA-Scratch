@@ -2,7 +2,7 @@ import numpy as np
 from GetVisualize import visualize_matrix
 
 data = np.load("upscaled_matrices.npz")
-print(data.files)  # Menampilkan semua nama matrix yang tersimpan
+print(data.files)  
 
 """
 Varian Size 

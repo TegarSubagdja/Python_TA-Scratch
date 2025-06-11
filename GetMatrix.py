@@ -74,43 +74,16 @@ def draw_matrix_interactive(rows=16, cols=16, cell_size=40, margin=1):
                 keys = pygame.key.get_pressed()
                 if (keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]) and event.key == pygame.K_s:
                     print(matrix)
+                    matrices = {
+                        "matrix_16x16": matrix
+                    }
+                    for size in [32, 64, 128, 256, 512]:
+                        scale = size // 16
+                        matrices[f"matrix_{size}x{size}"] = upscale_matrix(matrix, scale)
+                    np.savez("VarianMatrix.npz", **matrices)
+                    print("Semua matrix disimpan ke 'Matrixs.npz'")
 
     pygame.quit()
     sys.exit()
 
 draw_matrix_interactive()
-
-# Matrix awal 16x16
-matrix = np.array([
-    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0], 
-     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-     [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], 
-     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], 
-     [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0], 
-     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0], 
-     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0], 
-     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0], 
-     [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-     [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0], 
-     [1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-     [0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], 
-     [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-])
-
-# Dictionary untuk semua matrix
-matrices = {
-    "matrix_16x16": matrix
-}
-
-# Upscale dan tambahkan ke dictionary
-for size in [32, 64, 128, 256, 512, 1024]:
-    scale = size // 16
-    matrices[f"matrix_{size}x{size}"] = upscale_matrix(matrix, scale)
-
-# Simpan semua matrix ke satu file .npz
-np.savez("VarianMatrix.npz", **matrices)
-
-print("Semua matrix disimpan ke 'upscaled_matrices.npz'")
