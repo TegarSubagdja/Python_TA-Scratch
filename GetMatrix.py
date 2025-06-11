@@ -2,6 +2,11 @@ import numpy as np
 import pygame
 import sys
 
+def hex_to_rgb(hex_code):
+    """Mengubah kode HEX menjadi tuple RGB."""
+    hex_code = hex_code.lstrip('#')
+    return tuple(int(hex_code[i:i + 2], 16) for i in (0, 2, 4))
+
 def upscale_matrix(matrix, scale_factor):
     return np.repeat(np.repeat(matrix, scale_factor, axis=0), scale_factor, axis=1)
 
@@ -10,8 +15,8 @@ def draw_matrix_interactive(rows=16, cols=16, cell_size=40, margin=1):
 
     # Warna
     color_map = {
-        0: (255, 255, 255),  # Putih (kosong/jalan)
-        1: (0, 0, 0),        # Hitam (rintangan)
+        0: (255, 255, 255),  
+        1: (0, 0, 0),        
     }
 
     matrix = [[0 for _ in range(cols)] for _ in range(rows)]
@@ -106,6 +111,6 @@ for size in [32, 64, 128, 256, 512, 1024]:
     matrices[f"matrix_{size}x{size}"] = upscale_matrix(matrix, scale)
 
 # Simpan semua matrix ke satu file .npz
-np.savez("upscaled_matrices.npz", **matrices)
+np.savez("VarianMatrix.npz", **matrices)
 
-print("✅ Semua matrix disimpan ke 'upscaled_matrices.npz'")
+print("Semua matrix disimpan ke 'upscaled_matrices.npz'")

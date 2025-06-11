@@ -62,3 +62,5 @@ def visualize_matrix(matrix, cell_size=40, margin=1, title="Matrix Visualization
 
     pygame.quit()
     sys.exit()
+
+    visualize_matrix()
