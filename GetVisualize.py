@@ -1,5 +1,4 @@
-import pygame
-import sys
+from Utils import *
 
 def hex_to_rgb(hex_code):
     """Mengubah kode HEX menjadi tuple RGB."""
@@ -9,7 +8,7 @@ def hex_to_rgb(hex_code):
 def save_matrix():
     None
 
-def visualize_matrix(matrix, cell_size=40, margin=1, title="Matrix Visualization"):
+def Visualize(matrix, cell_size=20, margin=1, title="Matrix Visualization"):
     pygame.init()
 
     # Skema warna lengkap
@@ -63,4 +62,20 @@ def visualize_matrix(matrix, cell_size=40, margin=1, title="Matrix Visualization
     pygame.quit()
     sys.exit()
 
-    visualize_matrix()
+# #Penggunaan Secara Langsung
+
+# """
+# Varian Size 
+# 'matrix_16x16', 
+# 'matrix_32x32', 
+# 'matrix_64x64', 
+# 'matrix_128x128', 
+# 'matrix_256x256', 
+# 'matrix_512x512', 
+# 'matrix_1024x1024'
+# """
+# data = np.load('VarianMatrix.npz')
+
+# matrix = data['matrix_64x64']
+
+# Visualize(matrix, cell_size=10)

@@ -1,6 +1,4 @@
-import numpy as np
-import pygame
-import sys
+from Utils import *
 
 def hex_to_rgb(hex_code):
     """Mengubah kode HEX menjadi tuple RGB."""
@@ -77,7 +75,7 @@ def draw_matrix_interactive(rows=16, cols=16, cell_size=40, margin=1):
                     matrices = {
                         "matrix_16x16": matrix
                     }
-                    for size in [32, 64, 128, 256, 512]:
+                    for size in [32, 64, 128, 256, 512, 1024]:
                         scale = size // 16
                         matrices[f"matrix_{size}x{size}"] = upscale_matrix(matrix, scale)
                     np.savez("VarianMatrix.npz", **matrices)

@@ -1,5 +1,4 @@
-import numpy as np
-from GetVisualize import visualize_matrix
+from Utils import *
 
 data = np.load("upscaled_matrices.npz")
 print(data.files)  
@@ -17,4 +16,4 @@ Varian Size
 
 # Akses matrix 256x256
 mat256 = data["matrix_256x256"]
-visualize_matrix(mat256, cell_size=2)
+Visualize(mat256, cell_size=2)

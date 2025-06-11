@@ -1,13 +1,12 @@
-import numpy as np
-import cv2
-from GetContuor import Contuor
+from Utils import *
+from GetContuor import Contours
 
 def Preprocessing(image, pos, scale):
 
     # cv2.circle(image, pos['start'], 128, 255, -1)
     # cv2.circle(image, pos['goal'], 128, 255, -1)
 
-    safe = Contuor(image)
+    safe = Contours(image)
 
     # Merubah Ukuran Gambar
     dilasi = cv2.resize(safe, (safe.shape[1]//scale, safe.shape[0]//scale))

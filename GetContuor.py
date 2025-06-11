@@ -1,10 +1,9 @@
-import cv2
-import numpy as np
+from Utils import *
 
 # Load gambar grayscale
 image = cv2.imread('../Image/2.jpg', cv2.IMREAD_GRAYSCALE)
 
-def Contuor(image):
+def Contours(image):
     # Threshold dan erosi
     _, thresh = cv2.threshold(image, 80, 255, cv2.THRESH_BINARY_INV)
     kernel = np.ones((3,3), np.uint8)

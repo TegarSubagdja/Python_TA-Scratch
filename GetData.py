@@ -1,6 +1,4 @@
-import numpy as np
-from Algoritma import astar
-from Algoritma import jps
+from Utils import *
 
 fileName = './Data/Jps'
 
