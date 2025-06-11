@@ -9,7 +9,7 @@ def Preprocessing(image, pos, scale):
     safe = Contours(image)
 
     # Merubah Ukuran Gambar
-    dilasi = cv2.resize(safe, (safe.shape[1]//scale, safe.shape[0]//scale))
+    dilasi = cv2.resize(safe, (safe.shape[1]//scale, safe.shape[0]//scale), interpolation=cv2.INTER_NEAREST)
     
     # Pengubah posisi ke ukuran baru
     pos = {

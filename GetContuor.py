@@ -24,7 +24,7 @@ def Contours(image):
             enlarged_rect = ((cx, cy), (w_enlarged, h_enlarged), angle)
             box = cv2.boxPoints(enlarged_rect)
             box = np.array(box, dtype=np.int32)
-            cv2.drawContours(output, [box], 0, 255, -1)  # Warna putih
+            cv2.drawContours(output, [box], 0, 255, -1, lineType=cv2.LINE_8)
 
     # Ubah gambar ke BGR untuk overlay warna
     image_bgr = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)

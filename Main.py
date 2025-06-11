@@ -32,7 +32,7 @@ image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 for i in range(1, len(path)):
     y1, x1 = path[i - 1]
     y2, x2 = path[i]
-    cv2.line(image, (x1, y1), (x2, y2), (255,200,200), 5) 
+    cv2.line(image, (x1, y1), (x2, y2), (255,200,200), 8) 
 
 for y, x in path:
     cv2.circle(image, (x, y), 8, (255,0,255), -1) 
@@ -44,6 +44,6 @@ for y, x in path:
 # cv2.line(image, cpos, proyeksi, (255,200,200), 3)
 # cv2.circle(image, cpos, 16, (255,0,255), -1)
 
-cv2.imwrite('Output/Output.jpg', image)
+cv2.imwrite('Output/Output.png', image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
