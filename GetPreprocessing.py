@@ -1,12 +1,9 @@
 from Utils import *
-from GetContuor import Contours
+from GetContuor import Contour
 
 def Preprocessing(image, pos, scale):
 
-    # cv2.circle(image, pos['start'], 128, 255, -1)
-    # cv2.circle(image, pos['goal'], 128, 255, -1)
-
-    safe = Contours(image)
+    safe = Contour(image)
 
     # Merubah Ukuran Gambar
     dilasi = cv2.resize(safe, (safe.shape[1]//scale, safe.shape[0]//scale), interpolation=cv2.INTER_NEAREST)

@@ -7,10 +7,11 @@ import pandas as pd
 import pygame
 
 # Internal modules
-from Algoritma import jps, astar
+from Algoritma import jps, astar, Astar_Komentar_Bidirectional, JPS_Komentar_Bidirectional
 from GetPosition import Position
 from GetErrorPosition import Error
 from GetPreprocessing import Preprocessing
+from GetContuor import Contour
 from GetVisualize import Visualize
 from Method.PathPolylineOptimization import prunning
 from Method.Guideline import guidline, jarakGaris
@@ -20,5 +21,5 @@ __all__ = [
     'sys', 'cv2', 'aruco', 'np', 'pd', 'pygame',
     'jps', 'astar',
     'Position', 'Error', 'Preprocessing', 'Visualize',
-    'prunning', 'guidline', 'jarakGaris'
+    'prunning', 'guidline', 'jarakGaris', 'Contour', 'Astar_Komentar_Bidirectional', 'JPS_Komentar_Bidirectional'
 ]

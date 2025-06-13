@@ -7,22 +7,22 @@ def blocked(cX, cY, dX, dY, matrix):
     if cY + dY < 0 or cY + dY >= matrix.shape[1]:
         return True
     if dX != 0 and dY != 0:
-        if matrix[cX + dX][cY] == 1 and matrix[cX][cY + dY] == 1:
+        if matrix[cX + dX][cY] == 255 and matrix[cX][cY + dY] == 255:
             return True
-        if matrix[cX + dX][cY + dY] == 1:
+        if matrix[cX + dX][cY + dY] == 255:
             return True
     else:
         if dX != 0:
-            if matrix[cX + dX][cY] == 1:
+            if matrix[cX + dX][cY] == 255:
                 return True
         else:
-            if matrix[cX][cY + dY] == 1:
+            if matrix[cX][cY + dY] == 255:
                 return True
     return False
 
 
 def heuristic(start, goal, hchoice):
-    if hchoice == 1:
+    if hchoice == 255:
         xdist = math.fabs(goal[0] - start[0])
         ydist = math.fabs(goal[1] - start[1])
         if xdist > ydist:
@@ -76,7 +76,7 @@ def method(matrix, start, goal, hchoice):
 
             neighbour = current[0] + dX, current[1] + dY
 
-            if hchoice == 1:
+            if hchoice == 255:
                 if dX != 0 and dY != 0:
                     tentative_gn = gn[current] + 14
                 else:
