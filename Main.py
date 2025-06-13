@@ -2,7 +2,7 @@ from Utils import *
 
 # Baca gambar dalam grayscale
 scale = 10
-image = cv2.imread('Image/2.jpg', 0)
+image = cv2.imread('Image/4.jpg', 0)
 
 # Preprocessing
 pos = Position(image)
