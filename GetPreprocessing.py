@@ -13,6 +13,11 @@ def Preprocessing(image, pos, scale):
         for key, (x, y) in pos.items()
     }
 
+    residu = {
+        key: (x % scale, y % scale)
+        for key, (x, y) in pos.items()
+    }
+
     # Merubah Citra kedalam array numpy
     map = np.array(dilasi)
 
@@ -24,4 +29,4 @@ def Preprocessing(image, pos, scale):
     pos['start'] = (Ys, Xs)
     pos['goal'] = (Yg, Xg)
 
-    return map, pos
+    return map, pos, residu

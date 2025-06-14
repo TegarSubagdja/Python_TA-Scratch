@@ -1,14 +1,19 @@
 from Utils import *
 
 # Baca gambar dalam grayscale
-scale = 10
-image = cv2.imread('Image/4.jpg', 0)
+scale = 40
+image = cv2.imread('Image/5.jpg', 0)
 
 # Preprocessing
-pos = Position(image)
-print("Posisi Awal : ", pos)
-map, pos = Preprocessing(image, pos, scale)
+posa = Position(image)
+print("Posisi Awal : ", posa)
+map, pos, residu = Preprocessing(image, posa, scale)
 print("Setelah di flip : ", pos)
+
+print("Nilai:", pos["start"])
+print("Nilai:", pos["goal"])
+print("Residu:", residu['start'])
+print("Residu:", residu['goal'])
 
 # Pencarian Jalur
 (path, time), open_list, close_list = jps.method(map, pos['start'], pos['goal'], 2)
@@ -24,10 +29,14 @@ print("Path Hasil Prunning : ", path)
 
 # Mengubah Koordinat Jalur ke Ukuran Asli
 path = [(y * scale, x * scale) for y, x in path]
+# Koreksi titik awal dan akhir
+path[0] = np.flip(posa["start"])
+path[-1] = np.flip(posa['goal'])
 print("Path Hasil Scale : ", path)
 
 #Menggambar Path di Image Ukuran Asli
-image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+# image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+image = cv2.imread("Output/Overlay.jpg")
 
 for i in range(1, len(path)):
     y1, x1 = path[i - 1]
