@@ -34,6 +34,7 @@ def heuristic(start, goal, hchoice):
 
 
 def method(matrix, start, goal, hchoice):
+
     close_list = set()
     came_from = {}
     gn = {start: 0}
@@ -54,7 +55,7 @@ def method(matrix, start, goal, hchoice):
                 path.append(current)
                 current = came_from[current]
             path.append(start)
-            path = path[::]
+            path = path[::-1]
             #print(gscore[goal])
             endtime = time.time()
             return (path, round(endtime - starttime, 6)), open_list, close_list
