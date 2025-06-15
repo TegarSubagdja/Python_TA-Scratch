@@ -56,7 +56,6 @@ def method(matrix, start, goal, hchoice):
                 current = came_from[current]
             path.append(start)
             path = path[::-1]
-            #print(gscore[goal])
             endtime = time.time()
             return (path, round(endtime - starttime, 6)), open_list, close_list
 

@@ -28,7 +28,7 @@ def Contour(image):
 
     # Buat output berwarna: kontur putih → misalnya warna biru
     output_colored = np.zeros_like(image_bgr)
-    output_colored[np.where(output == 255)] = (0, 0, 255)  # Merah
+    output_colored[np.where(output == 255)] = (255, 100, 255)  # Merah
 
     # Overlay dengan transparansi 20%
     blended = cv2.addWeighted(image_bgr, 1.0, output_colored, 0.2, 0)
