@@ -21,7 +21,7 @@ def Position(image):
         print("Marker terdeteksi dengan ID:", ids.flatten())
 
         for i, marker_id in enumerate(ids.flatten()):
-            if marker_id in [1, 7]:
+            if marker_id in [1, 2]:
                 marker_corners = corners[i][0]
                 center_x = int(np.mean(marker_corners[:, 0]))
                 center_y = int(np.mean(marker_corners[:, 1]))
@@ -30,7 +30,7 @@ def Position(image):
                 # Simpan koordinat ke dict
                 if marker_id == 1:
                     koordinat['start'] = (center_x, center_y)
-                elif marker_id == 7:
+                elif marker_id == 2:
                     koordinat['goal'] = (center_x, center_y)
     else:
         print("Tidak ada marker terdeteksi.")

@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Baca gambar dari file
-image_path = "Image/1.jpg"  # Ganti dengan path gambar kamu
+image_path = "Image/6.jpg"  # Ganti dengan path gambar kamu
 frame = cv2.imread(image_path)
 
 if frame is None:

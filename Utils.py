@@ -15,11 +15,13 @@ from GetContuor import Contour
 from GetVisualize import Visualize
 from Method.PathPolylineOptimization import prunning
 from Method.Guideline import guidline, jarakGaris
+from PID.Pid import PID
 
 # __all__ defines what will be imported via `from common import *`
 __all__ = [
     'sys', 'cv2', 'aruco', 'np', 'pd', 'pygame',
     'jps', 'astar',
     'Position', 'Error', 'Preprocessing', 'Visualize',
-    'prunning', 'guidline', 'jarakGaris', 'Contour', 'Astar_Komentar_Bidirectional', 'JPS_Komentar_Bidirectional'
+    'prunning', 'guidline', 'jarakGaris', 'Contour', 'Astar_Komentar_Bidirectional', 'JPS_Komentar_Bidirectional',
+    'PID'
 ]
