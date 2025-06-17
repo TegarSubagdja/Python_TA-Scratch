@@ -1,6 +1,6 @@
 from Utils import *
 
-def Position(image):
+def Position(image, idStart, idGoal):
     # Inisialisasi dictionary dan parameter
     aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
     parameters = aruco.DetectorParameters()
@@ -21,16 +21,16 @@ def Position(image):
         print("Marker terdeteksi dengan ID:", ids.flatten())
 
         for i, marker_id in enumerate(ids.flatten()):
-            if marker_id in [1, 2]:
+            if marker_id in [idStart, idGoal]:
                 marker_corners = corners[i][0]
                 center_x = int(np.mean(marker_corners[:, 0]))
                 center_y = int(np.mean(marker_corners[:, 1]))
                 print(f"ID {marker_id}: posisi tengah = ({center_x}, {center_y})")
 
                 # Simpan koordinat ke dict
-                if marker_id == 1:
+                if marker_id == idStart:
                     koordinat['start'] = (center_x, center_y)
-                elif marker_id == 2:
+                elif marker_id == idGoal:
                     koordinat['goal'] = (center_x, center_y)
     else:
         print("Tidak ada marker terdeteksi.")

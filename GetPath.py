@@ -6,7 +6,7 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
     # image = cv2.imread('Image/5.jpg', 0)
 
     # Preprocessing
-    posa = Position(image)
+    posa = Position(image, idStart, idGoal)
     print("Posisi Awal : ", posa)
     map, pos = Preprocessing(image, posa, scale)
     print("Setelah di flip : ", pos)
@@ -49,5 +49,5 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
     return path
 
 
-image = cv2.imread('Image/8.jpg', 0)
-getPath(image, 40)
+image = cv2.imread('Image/6.jpg', 0)
+getPath(image, 40, 2, 1)
