@@ -31,22 +31,6 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
     path[-1] = posa['goal'][::-1]
     print("Path Hasil Scale : ", path)
 
-    #Menggambar Path di Image Ukuran Asli
-    image = cv2.imread("Output/Overlay.jpg")
-
-    for i in range(1, len(path)):
-        y1, x1 = path[i - 1]
-        y2, x2 = path[i]
-        cv2.line(image, (x1, y1), (x2, y2), 127, 8) 
-
-    for y, x in path:
-        cv2.circle(image, (x, y), 16, (255,0,255), -1) 
-        cv2.putText(image, f"({y}, {x})", (x+30,y+30), 1, 1.5, (255,255,255), 3)
-
-    cv2.imwrite('Output/Output.jpg', image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
     return path
 
 
