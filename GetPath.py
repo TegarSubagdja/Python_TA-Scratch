@@ -1,12 +1,13 @@
 from Utils import *
 
 def getPath(image, scale=20, idStart=1, idGoal=7):
-    # Baca gambar dalam grayscale
-    # scale = 40
-    # image = cv2.imread('Image/5.jpg', 0)
 
     # Preprocessing
     posa = Position(image, idStart, idGoal)
+
+    if not posa:
+        return 0
+
     print("Posisi Awal : ", posa)
     map, pos = Preprocessing(image, posa, scale)
     print("Setelah di flip : ", pos)

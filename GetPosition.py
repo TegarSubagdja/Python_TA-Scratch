@@ -5,14 +5,13 @@ def Position(image, idStart, idGoal):
     aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
     parameters = aruco.DetectorParameters()
 
-    # Dictionary untuk menyimpan koordinat ID 1 dan 7
     koordinat = {'start': None, 'goal': None}
 
     if image is None:
         print("Gagal membaca gambar.")
-        return koordinat
+        return 0  # Gambar tidak valid, langsung return 0
 
-    # Konversi ke grayscale
+    # Konversi ke grayscale dan deteksi marker
     detector = aruco.ArucoDetector(aruco_dict, parameters)
     corners, ids, _ = detector.detectMarkers(image)
 
@@ -27,12 +26,16 @@ def Position(image, idStart, idGoal):
                 center_y = int(np.mean(marker_corners[:, 1]))
                 print(f"ID {marker_id}: posisi tengah = ({center_x}, {center_y})")
 
-                # Simpan koordinat ke dict
                 if marker_id == idStart:
                     koordinat['start'] = (center_x, center_y)
                 elif marker_id == idGoal:
                     koordinat['goal'] = (center_x, center_y)
     else:
         print("Tidak ada marker terdeteksi.")
+
+    # Cek apakah kedua koordinat ditemukan
+    if koordinat['start'] is None or koordinat['goal'] is None:
+        print("Start atau goal tidak ditemukan.")
+        return 0
 
     return koordinat
