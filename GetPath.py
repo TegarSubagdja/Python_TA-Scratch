@@ -49,5 +49,5 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
     return path
 
 
-image = cv2.imread('Image/6.jpg', 0)
-getPath(image, 40, 2, 1)
+# image = cv2.imread('Image/6.jpg', 0)
+# getPath(image, 40, 2, 1)

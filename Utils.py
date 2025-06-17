@@ -16,6 +16,7 @@ from GetVisualize import Visualize
 from Method.PathPolylineOptimization import prunning
 from Method.Guideline import guidline, jarakGaris
 from PID.Pid import PID
+from GetPath import getPath
 
 # __all__ defines what will be imported via `from common import *`
 __all__ = [
@@ -23,5 +24,5 @@ __all__ = [
     'jps', 'astar',
     'Position', 'Error', 'Preprocessing', 'Visualize',
     'prunning', 'guidline', 'jarakGaris', 'Contour', 'Astar_Komentar_Bidirectional', 'JPS_Komentar_Bidirectional',
-    'PID'
+    'PID', 'getPath'
 ]

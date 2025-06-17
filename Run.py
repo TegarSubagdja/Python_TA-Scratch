@@ -1,12 +1,6 @@
 from Utils import *
 
-pid = PID(Kp=1, Ki=1, Kd=1, dt=0.1, output_limit=255, integral_limit=200)
+image = cv2.imread('Image/7.jpg', 0)
 
-target = 10
-current = 20
+path = getPath(image, 40, 2, 1)
 
-correction = pid.calc(setpoint=target, current_value=current)
-
-print(correction)
-
-#Mulai
