@@ -8,7 +8,7 @@ import numpy as np
 def normalize_angle(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
 
-def GetOrientation(image, target_point, show_result=True, save_path=None):
+def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
 
     if image is None:
         raise FileNotFoundError(f"Gambar tidak ditemukan di path: {image}")
@@ -29,7 +29,7 @@ def GetOrientation(image, target_point, show_result=True, save_path=None):
             center_x = int(np.mean(marker_corners[:, 0]))
             center_y = int(np.mean(marker_corners[:, 1]))
 
-            if marker_id == 1:
+            if marker_id == id:
                 koordinat['start'] = (center_x, center_y)
                 vector = marker_corners[1] - marker_corners[0]
                 orientasi_robot = np.arctan2(vector[1], vector[0])
