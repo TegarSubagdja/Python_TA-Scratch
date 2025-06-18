@@ -11,7 +11,7 @@ def normalize_angle(angle):
 def GetOrientation(image, target_point, show_result=True, save_path=None):
 
     if image is None:
-        raise FileNotFoundError(f"Gambar tidak ditemukan di path: {image_path}")
+        raise FileNotFoundError(f"Gambar tidak ditemukan di path: {image}")
 
     aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
     parameters = aruco.DetectorParameters()
@@ -51,11 +51,11 @@ def GetOrientation(image, target_point, show_result=True, save_path=None):
         orientasi_x = int(start[0] + panjang_panah * np.cos(orientasi_robot))
         orientasi_y = int(start[1] + panjang_panah * np.sin(orientasi_robot))
 
-        cv2.line(image, start, goal, (255, 255, 255), 8)
+        cv2.line(image, start, goal, (255, 0, 255), 8)
         cv2.arrowedLine(image, start, (orientasi_x, orientasi_y), (255,64,64), 10, tipLength=0.2)
 
         teks_error = f"Error: {np.degrees(error_orientasi):.2f} deg"
-        cv2.putText(image, teks_error, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,0,255), 2)
+        cv2.putText(image, teks_error, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
 
     if save_path:
         cv2.imwrite(save_path, image)

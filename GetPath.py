@@ -8,12 +8,7 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
     if not posa:
         return 0
 
-    print("Posisi Awal : ", posa)
     map, pos = Preprocessing(image, posa, scale)
-    print("Setelah di flip : ", pos)
-
-    print("Nilai:", pos["start"])
-    print("Nilai:", pos["goal"])
 
     # Pencarian Jalur
     (path, time), open_list, close_list = jps.method(map, pos['start'], pos['goal'], 2)

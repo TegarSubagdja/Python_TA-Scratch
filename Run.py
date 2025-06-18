@@ -15,6 +15,6 @@ for i in range(1, len(path)):
 
 for y, x in path:
     cv2.circle(image, (x, y), 16, (255,0,255), -1) 
-    cv2.putText(image, f"({y}, {x})", (x+30,y+30), 1, 1.5, (255,0,255), 3)
+    cv2.putText(image, f"({y}, {x})", (x+30,y+30), 1, 1.5, (255,255,255), 3)
 
 result = GetOrientation(image, target_point=(path[0][1], path[0][0]), show_result=False, save_path="Output/Output.jpg")

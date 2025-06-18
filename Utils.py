@@ -5,6 +5,7 @@ import cv2.aruco as aruco
 import numpy as np
 import pandas as pd
 import pygame
+import math
 
 # Internal modules
 from Algoritma import jps, astar, Astar_Komentar_Bidirectional, JPS_Komentar_Bidirectional
@@ -25,5 +26,5 @@ __all__ = [
     'jps', 'astar',
     'Position', 'Error', 'Preprocessing', 'Visualize',
     'prunning', 'guidline', 'jarakGaris', 'Contour', 'Astar_Komentar_Bidirectional', 'JPS_Komentar_Bidirectional',
-    'PID', 'getPath', 'GetOrientation'
+    'PID', 'getPath', 'GetOrientation', 'math'
 ]
