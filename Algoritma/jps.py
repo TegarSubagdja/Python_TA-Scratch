@@ -266,7 +266,7 @@ def lenght(current, jumppoint, hchoice):
     moveY = math.fabs(moveY)
     lX = math.fabs(current[0] - jumppoint[0])
     lY = math.fabs(current[1] - jumppoint[1])
-    if hchoice == 255:
+    if hchoice == 1:
         if moveX != 0 and moveY != 0:
             lenght = lX * 14
             return lenght

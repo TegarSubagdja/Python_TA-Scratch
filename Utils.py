@@ -6,25 +6,25 @@ import numpy as np
 import pandas as pd
 import pygame
 import math
+import os
 
 # Internal modules
 from Algoritma import jps, astar, Astar_Komentar_Bidirectional, JPS_Komentar_Bidirectional
 from GetPosition import Position
-from GetErrorPosition import Error
 from GetPreprocessing import Preprocessing
 from GetContuor import Contour
-from GetVisualize import Visualize
 from Method.PathPolylineOptimization import prunning
+from GetVisualize import Visualize
 from Method.Guideline import guidline, jarakGaris
 from PID.Pid import PID
 from GetPath import getPath
-from Aruco.VisualisasiErrorOrientasi import GetOrientation
+from GetErrorPosition import GetOrientation
 
 # __all__ defines what will be imported via `from common import *`
 __all__ = [
-    'sys', 'cv2', 'aruco', 'np', 'pd', 'pygame',
+    'sys', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame',
     'jps', 'astar',
-    'Position', 'Error', 'Preprocessing', 'Visualize',
+    'Position', 'Preprocessing', 'Visualize',
     'prunning', 'guidline', 'jarakGaris', 'Contour', 'Astar_Komentar_Bidirectional', 'JPS_Komentar_Bidirectional',
     'PID', 'getPath', 'GetOrientation', 'math'
 ]

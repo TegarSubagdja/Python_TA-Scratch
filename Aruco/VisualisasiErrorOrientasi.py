@@ -65,11 +65,14 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    return {
-        "koordinat": koordinat,
-        "orientasi_robot": orientasi_robot,
-        "target_point": target_point,
-        "error_orientasi_radian": error_orientasi,
-        "error_orientasi_derajat": np.degrees(error_orientasi) if error_orientasi is not None else None,
-        "image": image
-    }
+    if ids is not None:
+        return {
+            "koordinat": koordinat,
+            "orientasi_robot": orientasi_robot,
+            "target_point": target_point,
+            "error_orientasi_radian": error_orientasi,
+            "error_orientasi_derajat": np.degrees(error_orientasi) if error_orientasi is not None else None,
+            "image": image
+        }
+    else:
+        return 0

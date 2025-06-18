@@ -1,7 +1,5 @@
 from Utils import *
 
-fileName = './Data/Jps'
-
 def generate():
     # Load matrix dari file
     data = np.load("VarianMatrix.npz")
@@ -62,4 +60,5 @@ def show():
     for key in hasils.files:
         print(f"{key}: {hasils[key]}")
 
+fileName = './Data/Astar'
 show()
