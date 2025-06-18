@@ -1,4 +1,4 @@
-import math, time, heapq
+import math, time, heapq, sys
 from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
 
 def heuristic(start, goal, hchoice):
@@ -245,6 +245,7 @@ def method(matrix, start, goal, hchoice):
             ):  # and tentative_gn >= gn.get(jumpPoint,0):
                 continue
 
+            guidline = gl.guidline(start, goal, jumpPoint)
             tentative_gn = gn[current] + lenght(
                 current, jumpPoint, hchoice
             )
@@ -254,7 +255,7 @@ def method(matrix, start, goal, hchoice):
             ) or jumpPoint not in [j[1] for j in open_list]:
                 came_from[jumpPoint] = current
                 gn[jumpPoint] = tentative_gn
-                fn[jumpPoint] = tentative_gn + heuristic(jumpPoint, goal, hchoice) 
+                fn[jumpPoint] = tentative_gn + heuristic(jumpPoint, goal, hchoice) + guidline
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
         endtime = time.time()
     return (0, round(endtime - starttime, 6))

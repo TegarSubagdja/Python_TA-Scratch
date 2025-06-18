@@ -249,12 +249,19 @@ def method(matrix, start, goal, hchoice):
                 current, jumpPoint, hchoice
             )
 
+            barier = br.barrierRaster(jumpPoint, goal, matrix)
+
+            if barier <= 0:
+                hnf = heuristic(jumpPoint, goal, hchoice)
+            else:
+                hnf = (heuristic(jumpPoint, goal, hchoice) * (1-math.log(barier)))
+
             if tentative_gn < gn.get(
                 jumpPoint, 0
             ) or jumpPoint not in [j[1] for j in open_list]:
                 came_from[jumpPoint] = current
                 gn[jumpPoint] = tentative_gn
-                fn[jumpPoint] = tentative_gn + heuristic(jumpPoint, goal, hchoice) 
+                fn[jumpPoint] = tentative_gn + hnf
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
         endtime = time.time()
     return (0, round(endtime - starttime, 6))

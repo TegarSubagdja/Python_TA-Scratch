@@ -7,9 +7,11 @@ import pandas as pd
 import pygame
 import math
 import os
+import heapq
+import time
 
 # Internal modules
-from Algoritma import jps, astar, Astar_Komentar_Bidirectional, JPS_Komentar_Bidirectional
+from Algoritma import astar_gl, jps, astar, jps_gl, astar_br, jps_br
 from GetPosition import Position
 from GetPreprocessing import Preprocessing
 from GetContuor import Contour
@@ -22,9 +24,9 @@ from GetErrorPosition import GetOrientation
 
 # __all__ defines what will be imported via `from common import *`
 __all__ = [
-    'sys', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame',
+    'sys', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'time',
     'jps', 'astar',
     'Position', 'Preprocessing', 'Visualize',
     'prunning', 'guidline', 'jarakGaris', 'Contour', 'Astar_Komentar_Bidirectional', 'JPS_Komentar_Bidirectional',
-    'PID', 'getPath', 'GetOrientation', 'math'
+    'PID', 'getPath', 'GetOrientation', 'math', 'jps_gl', 'astar_gl', 'astar_br', 'jps_br'
 ]

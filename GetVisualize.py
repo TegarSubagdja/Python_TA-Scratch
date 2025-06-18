@@ -84,6 +84,7 @@ def Visualize(matrix, title="Matrix Visualization", path=None, algo_name="unknow
                 running = False
 
     pygame.quit()
+    sys.exit()
 
 # ==== CONTOH PENGGUNAAN ====
 
@@ -97,8 +98,9 @@ matrix = data[size]
 matrix[matrix == 1] = 255
 
 # Ganti dengan algoritma lain jika perlu
-method = jps  # misalnya jps, dfs, bfs
-(points, time), open, close = method.method(matrix, start, goal, 2)
+method = astar
+
+(points, time)= method.method(matrix, start, goal, 2)
 
 # Tandai jalur di matrix
 for (x, y) in points:

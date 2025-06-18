@@ -8,7 +8,7 @@ def barrierRaster(awal, akhir, peta):
 
     for i in range(y1, min(y2, max_y)):
         for j in range(x1, min(x2, max_x)):
-            if peta[i][j] == 1:
+            if peta[i][j] == 255:
                 jumlah += 1
 
     lebar = x2 - x1

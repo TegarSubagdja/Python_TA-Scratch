@@ -1,5 +1,5 @@
 import math, heapq, time
-
+from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
 
 def blocked(cX, cY, dX, dY, matrix):
     if cX + dX < 0 or cX + dX >= matrix.shape[0]:
@@ -87,6 +87,8 @@ def method(matrix, start, goal, hchoice):
                 else:
                     tentative_gn = gn[current] + 1
 
+            guidline = gl.guidline(start, goal, neighbour)
+
             if (
                 neighbour in close_list
             ):  # and tentative_g_score >= gscore.get(neighbour,0):
@@ -99,7 +101,7 @@ def method(matrix, start, goal, hchoice):
                 gn[neighbour] = tentative_gn
                 fn[neighbour] = tentative_gn + heuristic(
                     neighbour, goal, hchoice
-                )
+                ) + guidline
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
         endtime = time.time()
     return (0, round(endtime - starttime, 6))
