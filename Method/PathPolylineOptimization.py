@@ -115,30 +115,30 @@ def is_45_degree(awal, akhir):
     slope = (y2 - y1) / (x2 - x1)
     return slope == 1 or slope == -1
 
-def prunning(jalur, map):
-    awal = 0
-    akhir = 1
-    awal_t = awal
-    akhir_t = akhir
-    jalur_prunning = [jalur[awal]]
+def prunning(path, map):
+    start = 0
+    goal = 1
+    start_t = start
+    goal_t = goal
+    jalur_prunning = [path[start]]
     while True:
-        while akhir <= len(jalur)-1:
-            if not (lompatanAman(jalur[awal], jalur[akhir], map)):
-                if (is_45_degree(jalur[awal], jalur[akhir])):
-                    akhir += 1
+        while goal <= len(path)-1:
+            if not (lompatanAman(path[start], path[goal], map)):
+                if (is_45_degree(path[start], path[goal])):
+                    goal += 1
                     break
-                elif akhir == len(jalur):
-                    jalur_prunning.append(jalur[akhir])
+                elif goal == len(path):
+                    jalur_prunning.append(path[goal])
                     break
                 else:
-                    jalur_prunning.append(jalur[akhir-1])
-                    awal = akhir - 1
+                    jalur_prunning.append(path[goal-1])
+                    start = goal - 1
                     break
             else:
-                akhir += 1
-        if (awal_t == awal and akhir_t == akhir):
+                goal += 1
+        if (start_t == start and goal_t == goal):
             break
-        awal_t = awal
-        akhir_t = akhir
-    jalur_prunning.append(jalur[len(jalur)-1])
+        start_t = start
+        goal_t = goal
+    jalur_prunning.append(path[len(path)-1])
     return jalur_prunning
