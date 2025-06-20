@@ -1,5 +1,10 @@
 from Utils import *
 
+def euclidian(pos, target):
+    p1, p2 = pos
+    q1, q2 = target
+    return math.sqrt((p1 - q1)**2 + (p2 - q2)**2)
+
 def normalize_angle(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
 
@@ -17,6 +22,7 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
     koordinat = {'start': None}
     orientasi_robot = None
     error_orientasi = None
+    distance = None
 
     if ids is not None:
         for i, marker_id in enumerate(ids.flatten()):
@@ -35,6 +41,9 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
     if koordinat['start'] and orientasi_robot is not None:
         start = koordinat['start']
         goal = target_point  # Gunakan target_point dari parameter
+
+        #hitung jarak
+        distance = euclidian(start, goal)
 
         dx = goal[0] - start[0]
         dy = goal[1] - start[1]
@@ -64,6 +73,7 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
             "target_point": target_point,
             "error_orientasi_radian": error_orientasi,
             "error_orientasi_derajat": np.degrees(error_orientasi) if error_orientasi is not None else None,
+            "distance": distance,
             "image": image
         }
     else:
