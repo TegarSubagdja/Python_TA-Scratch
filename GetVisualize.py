@@ -88,27 +88,27 @@ def Visualize(matrix, title="Matrix Visualization", path=None, algo_name="unknow
 
 # ==== CONTOH PENGGUNAAN ====
 
-data = np.load('VarianMatrix.npz')
+# data = np.load('VarianMatrix.npz')
 
-start = (2, 2)
-goal = (62, 62)
-size = "matrix_64x64"
+# start = (2, 2)
+# goal = (62, 62)
+# size = "matrix_64x64"
 
-matrix = data[size]
-matrix[matrix == 1] = 255
+# matrix = data[size]
+# matrix[matrix == 1] = 255
 
-# Ganti dengan algoritma lain jika perlu
-method = astar
+# # Ganti dengan algoritma lain jika perlu
+# method = jps_tp
 
-(points, time)= method.method(matrix, start, goal, 2)
+# (points, time)= method.method(matrix, start, goal, 2)
 
-# Tandai jalur di matrix
-for (x, y) in points:
-    matrix[x, y] = 6
+# # Tandai jalur di matrix
+# for (x, y) in points:
+#     matrix[x, y] = 6
 
-matrix[matrix == 255] = 1
+# matrix[matrix == 255] = 1
 
-# Nama algoritma otomatis
-algo_name = method.__name__.capitalize()
+# # Nama algoritma otomatis
+# algo_name = method.__name__.capitalize()
 
-Visualize(matrix, path=points, algo_name=algo_name, matrix_name=size)
+# Visualize(matrix, path=points, algo_name=algo_name, matrix_name=size)

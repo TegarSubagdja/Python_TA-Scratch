@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def calibrate(showPics=True):
     root = os.getcwd()
-    calibrationDir = os.path.join(root, 'demoImage', 'calibration')
+    calibrationDir = os.path.join(root, 'calibration')
     imagePathList = glob.glob(os.path.join(calibrationDir, '*.jpg'))
 
     # Ukuran pola papan catur (jumlah sudut dalam baris dan kolom)
@@ -72,7 +72,7 @@ def calibrate(showPics=True):
 
 def removeDistortion(camMatrix, distCoeff):
     root = os.getcwd()
-    imgPath = os.path.join(root, 'demoImage', 'demo2.jpg')
+    imgPath = os.path.join(root, 'demo2.jpg')
     img = cv2.imread(imgPath)
     if img is None:
         raise FileNotFoundError(f"Gambar tidak ditemukan: {imgPath}")

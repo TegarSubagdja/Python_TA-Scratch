@@ -1,6 +1,6 @@
 from Utils import *
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 target_point = (100, 100)
 
 if not cap.isOpened():
@@ -18,7 +18,7 @@ while True:
 
     print(result)
 
-    if result:
+    if result and result['error_orientasi_derajat'] != None:
         frame = result['image']
         center = result['koordinat']
         flipped_frame = cv2.flip(frame, 1)

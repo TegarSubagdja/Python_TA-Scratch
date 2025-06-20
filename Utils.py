@@ -11,7 +11,7 @@ import heapq
 import time
 
 # Internal modules
-from Algoritma import astar_gl, jps, astar, jps_gl, astar_br, jps_br
+from Algoritma import astar_gl, jps, astar, jps_gl, astar_br, jps_br, astar_tp, jps_tp
 from GetPosition import Position
 from GetPreprocessing import Preprocessing
 from GetContuor import Contour
@@ -27,6 +27,6 @@ __all__ = [
     'sys', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'time',
     'jps', 'astar',
     'Position', 'Preprocessing', 'Visualize',
-    'prunning', 'guidline', 'jarakGaris', 'Contour', 'Astar_Komentar_Bidirectional', 'JPS_Komentar_Bidirectional',
-    'PID', 'getPath', 'GetOrientation', 'math', 'jps_gl', 'astar_gl', 'astar_br', 'jps_br'
+    'prunning', 'guidline', 'jarakGaris', 'Contour',
+    'PID', 'getPath', 'GetOrientation', 'math', 'jps_gl', 'astar_gl', 'astar_br', 'jps_br', 'astar_tp', 'jps_tp'
 ]
