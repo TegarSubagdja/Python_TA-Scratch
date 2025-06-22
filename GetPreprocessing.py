@@ -1,5 +1,4 @@
 from Utils import *
-from GetContuor import Contour
 
 def Preprocessing(image, pos, scale):
 
