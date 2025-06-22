@@ -9,8 +9,6 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
 
     map, pos = Preprocessing(image, posa, scale)
 
-    cv2.imwrite('Output.jpg', map)
-
     path, time = jps.method(map, pos['start'], pos['goal'], 2)
     print(f"Path dihasilkan : {path}")
 
@@ -25,7 +23,9 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
 
     return path
 
-# cam = cv2.imread('1.jpg', 0)
+# cap = cv2.VideoCapture(2)
+# ret, cam = cap.read()  
+# cam = cv2.cvtColor(cam, cv2.COLOR_BGR2GRAY)
 # path = getPath(cam, 1, 0, 1)
 # print(path)
 # sys.exit()
