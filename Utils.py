@@ -13,8 +13,8 @@ import time
 # Internal modules
 from Algoritma import astar_gl, jps, astar, jps_gl, astar_br, jps_br, astar_tp, jps_tp
 from GetPosition import Position
-from GetPreprocessing import Preprocessing
 from GetContuor import Contour
+from GetPreprocessing import Preprocessing
 from Method.PathPolylineOptimization import prunning
 from GetVisualize import Visualize
 from Method.Guideline import guidline, jarakGaris
@@ -25,8 +25,8 @@ from GetErrorPosition import GetOrientation
 # __all__ defines what will be imported via `from common import *`
 __all__ = [
     'sys', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'time',
-    'jps', 'astar',
+    'jps', 'astar', 'Contour',
     'Position', 'Preprocessing', 'Visualize',
-    'prunning', 'guidline', 'jarakGaris', 'Contour',
+    'prunning', 'guidline', 'jarakGaris', 
     'PID', 'getPath', 'GetOrientation', 'math', 'jps_gl', 'astar_gl', 'astar_br', 'jps_br', 'astar_tp', 'jps_tp'
 ]

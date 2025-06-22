@@ -1,41 +1,69 @@
 import cv2
 import numpy as np
-from cv2 import aruco
+from Utils import *
 
-# Inisialisasi webcam
-cap = cv2.VideoCapture(2)  # Ganti 0 sesuai nomor kamera kamu
+# Konfigurasi awal
+target_point = (100, 100)
 
-# Setup ArUco
-aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
-parameters = aruco.DetectorParameters()
-detector = aruco.ArucoDetector(aruco_dict, parameters)
+# Inisialisasi kamera (ubah ke 0 jika webcam utama)
+cap = cv2.VideoCapture(2)
+ret, cam = cap.read()
 
-print("Tekan ESC untuk keluar.")
+# Load parameter kalibrasi dari file .npz
+data = np.load("Calibration/calibration.npz")
+camMatrix = data['camMatrix']
+distCoeff = data['distCoeff']
+
+gray = cv2.cvtColor(cam, cv2.COLOR_BGR2GRAY)
+
+# Koreksi distorsi sebelum diproses
+cam = cv2.undistort(gray, camMatrix, distCoeff)
+
+path = getPath(gray, 1, 0, 1)
+
+# Cek apakah kamera berhasil dibuka
+if not cap.isOpened():
+    print("Tidak dapat membuka webcam.")
+    exit()
 
 while True:
-    ret, frame = cap.read()
+    ret, cam = cap.read()
     if not ret:
-        print("Gagal membaca frame.")
+        print("Gagal membaca frame dari webcam.")
         break
 
-    # Deteksi ArUco
-    corners, ids, _ = detector.detectMarkers(frame)
+    gray = cv2.cvtColor(cam, cv2.COLOR_BGR2GRAY)
 
-    if ids is not None:
-        aruco.drawDetectedMarkers(frame, corners, ids)
-        print("ID Marker Terdeteksi:", ids.flatten())
-    else:
-        print("Tidak ada marker terdeteksi.")
+    # Koreksi distorsi sebelum diproses
+    cam = cv2.undistort(gray, camMatrix, distCoeff)
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    _, binary = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
+    # Jalankan orientasi menggunakan ArUco
+    result = GetOrientation(cam, id=0, target_point=path[0], show_result=False)
 
-    # Tampilkan hasil
-    cv2.imshow("Deteksi ArUco", binary)
+    # Inisialisasi path (hanya sekali di awal)
+    if path is None:
+        path = getPath(cam, 10, 0, 1)  # Sesuaikan parameter jika per lu
+
+    # Jika orientasi valid
+    if result and result['error_orientasi_derajat'] is not None:
+        frame = result['image']
+        center = result['koordinat']
+        error = f"{int(result['error_orientasi_derajat'])}"
+        distance = f"{int(result['distance'])}"
+
+        # Visualisasi
+        cv2.circle(cam, path[0], 10, (255, 128, 255), -1)
+        cv2.putText(cam, f"Error: {error} deg", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+        cv2.putText(cam, f"Dist: {distance}", (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+
+    # Tampilkan frame
+    cv2.imshow('Realtime ArUco Tracking', cam)
 
     # Tekan ESC untuk keluar
     if cv2.waitKey(1) & 0xFF == 27:
+        print("Tombol ESC ditekan, keluar dari program.")
         break
 
+# Tutup kamera dan jendela
 cap.release()
 cv2.destroyAllWindows()
