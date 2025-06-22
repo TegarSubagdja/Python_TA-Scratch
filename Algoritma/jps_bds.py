@@ -156,70 +156,70 @@ def reconstruct_path(came_from_forward, came_from_backward, intersection_node, s
     
 def method(matrix, start, goal, hchoice):
     came_from_forward = {}
-    close_set_forward = set()
-    gscore_forward = {start: 0}
-    fscore_forward = {start: heuristic(start, goal, hchoice)}
-    open_set_forward = []
-    heapq.heappush(open_set_forward, (fscore_forward[start], start))
+    open_list_forward = []
+    close_list_forward = set()
+    gn_forward = {start: 0}
+    fn_forward = {start: heuristic(start, goal, hchoice)}
+    heapq.heappush(open_list_forward, (fn_forward[start], start))
     came_from_backward = {}
-    close_set_backward = set()
-    gscore_backward = {goal: 0}
-    fscore_backward = {goal: heuristic(goal, start, hchoice)}
-    open_set_backward = []
-    heapq.heappush(open_set_backward, (fscore_backward[goal], goal))
+    open_list_backward = []
+    close_list_backward = set()
+    gn_backward = {goal: 0}
+    fn_backward = {goal: heuristic(goal, start, hchoice)}
+    heapq.heappush(open_list_backward, (fn_backward[goal], goal))
     starttime = time.time()
     intersection = None
     best_path_length = float('inf')
-    while open_set_forward and open_set_backward:
-        current_forward = heapq.heappop(open_set_forward)[1]
-        if current_forward in close_set_backward:
-            path_length = gscore_forward[current_forward] + gscore_backward[current_forward]
+    while open_list_forward and open_list_backward:
+        current_forward = heapq.heappop(open_list_forward)[1]
+        if current_forward in close_list_backward:
+            path_length = gn_forward[current_forward] + gn_backward[current_forward]
             if path_length < best_path_length:
                 best_path_length = path_length
                 intersection = current_forward
-        close_set_forward.add(current_forward)
+        close_list_forward.add(current_forward)
         successors_forward = identifySuccessors(current_forward[0], current_forward[1], came_from_forward, matrix, goal)
         for successor in successors_forward:
             jumpPoint = successor
-            if jumpPoint in close_set_forward:
+            if jumpPoint in close_list_forward:
                 continue
-            tentative_g_score = gscore_forward[current_forward] + lenght(current_forward, jumpPoint, hchoice)
-            if tentative_g_score < gscore_forward.get(jumpPoint, float('inf')) or jumpPoint not in [j[1] for j in open_set_forward]:
+            tentative_g_score = gn_forward[current_forward] + lenght(current_forward, jumpPoint, hchoice)
+            if tentative_g_score < gn_forward.get(jumpPoint, float('inf')) or jumpPoint not in [j[1] for j in open_list_forward]:
                 came_from_forward[jumpPoint] = current_forward
-                gscore_forward[jumpPoint] = tentative_g_score
-                fscore_forward[jumpPoint] = tentative_g_score + heuristic(jumpPoint, goal, hchoice)
-                heapq.heappush(open_set_forward, (fscore_forward[jumpPoint], jumpPoint))
-                if jumpPoint in close_set_backward:
-                    path_length = gscore_forward[jumpPoint] + gscore_backward[jumpPoint]
+                gn_forward[jumpPoint] = tentative_g_score
+                fn_forward[jumpPoint] = tentative_g_score + heuristic(jumpPoint, goal, hchoice)
+                heapq.heappush(open_list_forward, (fn_forward[jumpPoint], jumpPoint))
+                if jumpPoint in close_list_backward:
+                    path_length = gn_forward[jumpPoint] + gn_backward[jumpPoint]
                     if path_length < best_path_length:
                         best_path_length = path_length
                         intersection = jumpPoint
-        current_backward = heapq.heappop(open_set_backward)[1]
-        if current_backward in close_set_forward:
-            path_length = gscore_forward[current_backward] + gscore_backward[current_backward]
+        current_backward = heapq.heappop(open_list_backward)[1]
+        if current_backward in close_list_forward:
+            path_length = gn_forward[current_backward] + gn_backward[current_backward]
             if path_length < best_path_length:
                 best_path_length = path_length
                 intersection = current_backward
-        close_set_backward.add(current_backward)
+        close_list_backward.add(current_backward)
         successors_backward = identifySuccessors(current_backward[0], current_backward[1], came_from_backward, matrix, start)
         for successor in successors_backward:
             jumpPoint = successor
-            if jumpPoint in close_set_backward:
+            if jumpPoint in close_list_backward:
                 continue
-            tentative_g_score = gscore_backward[current_backward] + lenght(current_backward, jumpPoint, hchoice)
-            if tentative_g_score < gscore_backward.get(jumpPoint, float('inf')) or jumpPoint not in [j[1] for j in open_set_backward]:
+            tentative_g_score = gn_backward[current_backward] + lenght(current_backward, jumpPoint, hchoice)
+            if tentative_g_score < gn_backward.get(jumpPoint, float('inf')) or jumpPoint not in [j[1] for j in open_list_backward]:
                 came_from_backward[jumpPoint] = current_backward
-                gscore_backward[jumpPoint] = tentative_g_score
-                fscore_backward[jumpPoint] = tentative_g_score + heuristic(jumpPoint, start, hchoice)
-                heapq.heappush(open_set_backward, (fscore_backward[jumpPoint], jumpPoint))
-                if jumpPoint in close_set_forward:
-                    path_length = gscore_forward[jumpPoint] + gscore_backward[jumpPoint]
+                gn_backward[jumpPoint] = tentative_g_score
+                fn_backward[jumpPoint] = tentative_g_score + heuristic(jumpPoint, start, hchoice)
+                heapq.heappush(open_list_backward, (fn_backward[jumpPoint], jumpPoint))
+                if jumpPoint in close_list_forward:
+                    path_length = gn_forward[jumpPoint] + gn_backward[jumpPoint]
                     if path_length < best_path_length:
                         best_path_length = path_length
                         intersection = jumpPoint
         if intersection and best_path_length < float('inf'):
-            min_f_forward = open_set_forward[0][0] if open_set_forward else float('inf')
-            min_f_backward = open_set_backward[0][0] if open_set_backward else float('inf')
+            min_f_forward = open_list_forward[0][0] if open_list_forward else float('inf')
+            min_f_backward = open_list_backward[0][0] if open_list_backward else float('inf')
             if min_f_forward + min_f_backward >= best_path_length:
                 path = reconstruct_path(came_from_forward, came_from_backward, intersection, start, goal)
                 endtime = time.time()

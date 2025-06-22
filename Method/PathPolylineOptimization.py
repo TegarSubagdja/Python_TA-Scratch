@@ -120,7 +120,7 @@ def prunning(path, map):
     goal = 1
     start_t = start
     goal_t = goal
-    jalur_prunning = [path[start]]
+    path_prunning = [path[start]]
     while True:
         while goal <= len(path)-1:
             if not (lompatanAman(path[start], path[goal], map)):
@@ -128,10 +128,10 @@ def prunning(path, map):
                     goal += 1
                     break
                 elif goal == len(path):
-                    jalur_prunning.append(path[goal])
+                    path_prunning.append(path[goal])
                     break
                 else:
-                    jalur_prunning.append(path[goal-1])
+                    path_prunning.append(path[goal-1])
                     start = goal - 1
                     break
             else:
@@ -140,5 +140,5 @@ def prunning(path, map):
             break
         start_t = start
         goal_t = goal
-    jalur_prunning.append(path[len(path)-1])
-    return jalur_prunning
+    path_prunning.append(path[len(path)-1])
+    return path_prunning
