@@ -1,69 +1,40 @@
 import cv2
+import cv2.aruco as aruco
 import numpy as np
-from Utils import *
 
-# Konfigurasi awal
-target_point = (100, 100)
+# Load gambar dari file atau webcam
+img = cv2.imread('Image/1.jpg')  # ganti dengan frame dari kamera jika perlu
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-# Inisialisasi kamera (ubah ke 0 jika webcam utama)
-cap = cv2.VideoCapture(2)
-ret, cam = cap.read()
+# Inisialisasi dictionary ArUco
+aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
+parameters = aruco.DetectorParameters()
 
-# Load parameter kalibrasi dari file .npz
-data = np.load("Calibration/calibration.npz")
-camMatrix = data['camMatrix']
-distCoeff = data['distCoeff']
+# Deteksi marker
+corners, ids, _ = aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
 
-gray = cv2.cvtColor(cam, cv2.COLOR_BGR2GRAY)
+if corners:
+    for i, marker_corners in enumerate(corners):
+        pts = marker_corners[0]
 
-# Koreksi distorsi sebelum diproses
-cam = cv2.undistort(gray, camMatrix, distCoeff)
+        # Hitung panjang sisi horizontal (lebar)
+        top_width = np.linalg.norm(pts[0] - pts[1])
+        bottom_width = np.linalg.norm(pts[2] - pts[3])
+        avg_width = (top_width + bottom_width) / 2
 
-path = getPath(gray, 1, 0, 1)
+        # Hitung panjang sisi vertikal (tinggi)
+        left_height = np.linalg.norm(pts[0] - pts[3])
+        right_height = np.linalg.norm(pts[1] - pts[2])
+        avg_height = (left_height + right_height) / 2
 
-# Cek apakah kamera berhasil dibuka
-if not cap.isOpened():
-    print("Tidak dapat membuka webcam.")
-    exit()
+        print(f"Marker {ids[i][0]}: Lebar = {avg_width:.2f} px, Tinggi = {avg_height:.2f} px")
 
-while True:
-    ret, cam = cap.read()
-    if not ret:
-        print("Gagal membaca frame dari webcam.")
-        break
+        # Opsional: Gambar marker dan tampilkan
+        cv2.polylines(img, [np.int32(pts)], True, (0, 255, 0), 2)
+        cv2.putText(img, f"{int(avg_width)}x{int(avg_height)} px", 
+                    (int(pts[0][0]), int(pts[0][1]) - 10), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
-    gray = cv2.cvtColor(cam, cv2.COLOR_BGR2GRAY)
-
-    # Koreksi distorsi sebelum diproses
-    cam = cv2.undistort(gray, camMatrix, distCoeff)
-
-    # Jalankan orientasi menggunakan ArUco
-    result = GetOrientation(cam, id=0, target_point=path[0], show_result=False)
-
-    # Inisialisasi path (hanya sekali di awal)
-    if path is None:
-        path = getPath(cam, 10, 0, 1)  # Sesuaikan parameter jika per lu
-
-    # Jika orientasi valid
-    if result and result['error_orientasi_derajat'] is not None:
-        frame = result['image']
-        center = result['koordinat']
-        error = f"{int(result['error_orientasi_derajat'])}"
-        distance = f"{int(result['distance'])}"
-
-        # Visualisasi
-        cv2.circle(cam, path[0], 10, (255, 128, 255), -1)
-        cv2.putText(cam, f"Error: {error} deg", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
-        cv2.putText(cam, f"Dist: {distance}", (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
-
-    # Tampilkan frame
-    cv2.imshow('Realtime ArUco Tracking', cam)
-
-    # Tekan ESC untuk keluar
-    if cv2.waitKey(1) & 0xFF == 27:
-        print("Tombol ESC ditekan, keluar dari program.")
-        break
-
-# Tutup kamera dan jendela
-cap.release()
-cv2.destroyAllWindows()
+    cv2.imwrite('Detected Marker.jpg', img)
+else:
+    print("Marker tidak ditemukan.")

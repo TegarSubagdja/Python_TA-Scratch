@@ -9,7 +9,7 @@ def Position(image, idStart, idGoal):
 
     if image is None:
         print("Gagal membaca gambar.")
-        return 0  # Gambar tidak valid, langsung return 0
+        return 0, 0  # Gambar tidak valid, langsung return 0
 
     # Konversi ke grayscale dan deteksi marker
     detector = aruco.ArucoDetector(aruco_dict, parameters)
@@ -36,6 +36,6 @@ def Position(image, idStart, idGoal):
     # Cek apakah kedua koordinat ditemukan
     if koordinat['start'] is None or koordinat['goal'] is None:
         print("Start atau goal tidak ditemukan.")
-        return 0
+        return 0, 0
 
-    return koordinat
+    return koordinat, corners

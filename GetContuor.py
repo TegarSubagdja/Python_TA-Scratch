@@ -1,6 +1,6 @@
 from Utils import *
 
-def Contour(image):
+def Contour(image, corners):
     # Threshold dan erosi
     _, thresh = cv2.threshold(image, 80, 255, cv2.THRESH_BINARY_INV)
     kernel = np.ones((3,3), np.uint8)
@@ -11,13 +11,18 @@ def Contour(image):
 
     # Canvas kosong
     output = np.zeros_like(image)
+    avg_width=None
+
+    if corners:
+        pts = corners[0][0]  # ambil corner dari marker pertama
+        avg_width = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
 
     for contour in contours:
-        if cv2.contourArea(contour) > 10000:
+        if cv2.contourArea(contour) > 1000:
             rect = cv2.minAreaRect(contour)
             (cx, cy), (w, h), angle = rect
-            w_enlarged = w #+ 320
-            h_enlarged = h #+ 320
+            w_enlarged = w + (2 * avg_width)
+            h_enlarged = h + (2 * avg_width)
             enlarged_rect = ((cx, cy), (w_enlarged, h_enlarged), angle)
             box = cv2.boxPoints(enlarged_rect)
             box = np.array(box, dtype=np.int32)

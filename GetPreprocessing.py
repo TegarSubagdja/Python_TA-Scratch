@@ -1,11 +1,11 @@
 from Utils import *
 
-def Preprocessing(image, pos, scale):
+def Preprocessing(image, pos, scale, corners):
 
-    safe = Contour(image)
+    Expantion_Distance = Contour(image, corners)
 
     # Merubah Ukuran Gambar
-    dilasi = cv2.resize(safe, (safe.shape[1]//scale, safe.shape[0]//scale), interpolation=cv2.INTER_NEAREST)
+    dilasi = cv2.resize(Expantion_Distance, (Expantion_Distance.shape[1]//scale, Expantion_Distance.shape[0]//scale), interpolation=cv2.INTER_NEAREST)
     
     # Pengubah posisi ke ukuran baru
     pos = {
