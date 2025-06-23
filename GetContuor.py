@@ -14,7 +14,7 @@ def Contour(image, corners):
     avg_width=None
 
     if corners:
-        pts = corners[0][0]  # ambil corner dari marker pertama
+        pts = corners[0][0] 
         avg_width = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
 
     for contour in contours:

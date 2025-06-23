@@ -39,7 +39,7 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
 # ret, cam = cap.read()  
 # cam = cv2.cvtColor(cam, cv2.COLOR_BGR2GRAY)
 
-cam = cv2.imread('Image/webcam1.jpg', 0)
+# cam = cv2.imread('Image/webcam1.jpg', 0)
 
-path = getPath(cam, 5, 0, 1)
-sys.exit()
+# path = getPath(cam, 5, 0, 1)
+# sys.exit()
