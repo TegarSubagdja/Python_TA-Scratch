@@ -1,8 +1,8 @@
 from Utils import *
 
-def getPath(image, scale=20, idStart=1, idGoal=7, camera_matrix=None, dist_coeffs=None):
+def getPath(image, scale=20, idStart=1, idGoal=7):
 
-    posa, rvec, tvec = Position(image, idStart, idGoal, 0.05, camera_matrix, dist_coeffs)
+    posa= Position(image, idStart, idGoal)
 
     if not posa:
         return 0
@@ -25,15 +25,15 @@ def getPath(image, scale=20, idStart=1, idGoal=7, camera_matrix=None, dist_coeff
 
     return path, rvec, tvec
 
-camera_matrix = np.array([
-    [800, 0, 320],
-    [0, 800, 240],
-    [0,   0,   1]
-], dtype=np.float32)
-dist_coeffs = np.zeros((5, 1))
+# camera_matrix = np.array([
+#     [800, 0, 320],
+#     [0, 800, 240],
+#     [0,   0,   1]
+# ], dtype=np.float32)
+# dist_coeffs = np.zeros((5, 1))
 
-cam = cv2.imread('Image/1.jpg', 0)
-path, rvec, tvec = getPath(cam, 40, 1, 7, camera_matrix, dist_coeffs)
-path3d = to3D(path, rvec, tvec, camera_matrix, dist_coeffs, 0)
-print(path3d)
-sys.exit()
+# cam = cv2.imread('Image/1.jpg', 0)
+# path, rvec, tvec = getPath(cam, 40, 1, 7, camera_matrix, dist_coeffs)
+# path3d = to3D(path, rvec, tvec, camera_matrix, dist_coeffs, 0)
+# print(path3d)
+# sys.exit()
