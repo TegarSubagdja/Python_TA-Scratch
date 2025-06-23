@@ -16,7 +16,7 @@ marker_length = 0.05  # 5 cm marker
 # Path ini tertanam pada bidang datar marker ID 0, dalam satuan meter
 locked_path_marker_frame = np.array([
     [0.02, 0.02, 0.0],  # 2 cm kanan, 2 cm bawah dari tengah marker
-    [0.04, 0.04, 0.0],
+    [0.15, 0.10, 0.0],
     [0.05, 0.05, 0.0],
     [0.07, 0.07, 0.0]
 ])
