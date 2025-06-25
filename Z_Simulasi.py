@@ -1,13 +1,9 @@
-import pygame
-import sys
-import cv2
-import numpy as np
-
+from Utils import*
 # Inisialisasi Pygame
 pygame.init()
 
 # Ukuran Window
-WIDTH, HEIGHT = 1920, 1024
+WIDTH, HEIGHT = 2000, 920
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Robot Follower")
 
@@ -17,7 +13,7 @@ background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
 # Gambar asli robot disimpan untuk rotasi berulang tanpa rusak kualitas
 robot_original = pygame.image.load("aruco.png")
-robot_original = pygame.transform.scale(robot_original, (64, 64))
+robot_original = pygame.transform.scale(robot_original, (100, 100))
 
 # Variabel untuk sudut rotasi
 rotation_angle = 0
@@ -38,7 +34,7 @@ while running:
                 screenshot = pygame.surfarray.array3d(pygame.display.get_surface())
                 screenshot = np.transpose(screenshot, (1, 0, 2))  # Swap axis width <-> height
                 screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2BGR)  # Konversi ke BGR OpenCV
-                filename = f"Output/screenshot_live.jpg"
+                filename = f"Output/normal.jpg"
                 cv2.imwrite(filename, screenshot)
                 print(f"Gambar disimpan sebagai {filename}")
 

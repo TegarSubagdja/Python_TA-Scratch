@@ -9,7 +9,7 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
 
     map, pos = Preprocessing(image, posa, scale, corners)
 
-    path, time = astar.method(map, pos['start'], pos['goal'], 2)
+    path, time = jps.method(map, pos['start'], pos['goal'], 2)
     print(f"Path dihasilkan : {path}")
 
     path = prunning(path, map)
@@ -35,11 +35,8 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
 
     return path
 
-# cap = cv2.VideoCapture(2)
-# ret, cam = cap.read()  
-# cam = cv2.cvtColor(cam, cv2.COLOR_BGR2GRAY)
+# # cam = cv2.imread('Output/image.jpg', 0)
+# cam = cv2.imread('Output/normal.jpg', 0)
 
-# cam = cv2.imread('Image/webcam1.jpg', 0)
-
-# path = getPath(cam, 5, 0, 1)
+# path = getPath(cam, 5, 0, 7)
 # sys.exit()

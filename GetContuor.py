@@ -2,7 +2,7 @@ from Utils import *
 
 def Contour(image, corners):
     # Threshold dan erosi
-    _, thresh = cv2.threshold(image, 80, 255, cv2.THRESH_BINARY_INV)
+    _, thresh = cv2.threshold(image, 100, 255, cv2.THRESH_BINARY_INV)
     kernel = np.ones((3,3), np.uint8)
     thresh = cv2.erode(thresh, kernel, iterations=30)
 
