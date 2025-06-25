@@ -9,17 +9,16 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
 
     map, pos = Preprocessing(image, posa, scale, corners)
 
-    path, time = jps.method(map, pos['start'], pos['goal'], 2)
-    print(f"Path dihasilkan : {path}")
+    path, time = astar.method(map, pos['start'], pos['goal'], 2)
+
+    if not path:
+        return 0
 
     path = prunning(path, map)
-    print("Path Asli : ", path)
-    print("Path Hasil Prunning : ", path)
 
     path = [(y * scale, x * scale) for y, x in path]
     path[0] = posa['start'][::-1]
     path[-1] = posa['goal'][::-1]
-    print("Path Hasil Scale : ", path)
 
     image = cv2.imread('Output/Overlay.jpg')
 
@@ -30,8 +29,6 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
 
     for (y,x) in path:
         cv2.circle(image, (x,y), 8, (255,0,255), -1)
-
-    cv2.imwrite('Output/Output.jpg', image)
 
     return path
 
