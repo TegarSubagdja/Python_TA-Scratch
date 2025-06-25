@@ -23,7 +23,7 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
     path[-1] = posa['goal'][::-1]
     print("Path Hasil Scale : ", path)
 
-    return path, rvec, tvec
+    return path
 
 # camera_matrix = np.array([
 #     [800, 0, 320],

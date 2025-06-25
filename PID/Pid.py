@@ -1,6 +1,3 @@
-import cv2
-import numpy as np
-
 class PID:
     def __init__(self, Kp, Ki, Kd, dt, output_limit=255, integral_limit=255):
         self.Kp = Kp
