@@ -4,7 +4,7 @@ def Contour(image, corners):
     # Threshold dan erosi
     _, thresh = cv2.threshold(image, 100, 255, cv2.THRESH_BINARY_INV)
     kernel = np.ones((3,3), np.uint8)
-    thresh = cv2.erode(thresh, kernel, iterations=30)
+    thresh = cv2.erode(thresh, kernel, iterations=3)
 
     # Temukan kontur
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

@@ -38,7 +38,7 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
         aruco.drawDetectedMarkers(image, corners, ids)
 
     # Hitung orientasi dan error terhadap titik target
-    if koordinat['start'] and orientasi_robot is not None:
+    if koordinat['start'] and koordinat["start"] is not None and orientasi_robot is not None:
         start = koordinat['start']
         goal = target_point  # Gunakan target_point dari parameter
 
@@ -57,6 +57,8 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
 
         cv2.line(image, start, goal, (255, 0, 255), 8)
         cv2.arrowedLine(image, start, (orientasi_x, orientasi_y), (255,64,64), 10, tipLength=0.2)
+    else:
+        return 0
 
     if save_path:
         cv2.imwrite(save_path, image)

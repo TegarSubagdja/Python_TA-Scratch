@@ -2,7 +2,7 @@ from Utils import *  # Pastikan ada getPath dan GetOrientation
 
 # ===== Inisialisasi Pygame =====
 pygame.init()
-WIDTH, HEIGHT = 2000, 920
+WIDTH, HEIGHT = 2000*2/3, 920*2/3
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Robot Follower")
 
@@ -11,7 +11,7 @@ background = pygame.image.load("Image/1.jpg")
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
 robot_original = pygame.image.load("aruco.png")
-robot_original = pygame.transform.scale(robot_original, (100, 100))
+robot_original = pygame.transform.scale(robot_original, (30, 30))
 
 font = pygame.font.SysFont('Arial', 30)  # Font untuk teks
 
@@ -56,7 +56,8 @@ while running:
 
     # ===== Hitung Path Jika Belum Ada =====
     if path is None:
-        path = getPath(screenshot_gray, 10, 0, 7)
+        path = getPath(screenshot_gray, 20, 0, 7)
+        print(path)
 
     # ===== Gambar ke Window =====
     window.blit(background, (0, 0))
@@ -75,14 +76,31 @@ while running:
         dt = GetOrientation(screenshot_gray, (x, y), 0, False)
         if dt and dt != 0:
             start = dt['koordinat']['start']
-            distance = dt['distance']
+            distance = int(dt['distance'])
+            error = int(dt['error_orientasi_derajat'])
+            orientation = int(dt['orientasi_robot'])
+
             if start:
                 pygame.draw.line(window, (64, 0, 64), start, (x, y), 3)
-                # Tampilkan Teks "ROBOT" di Posisi Start
-                text_surface = font.render("ROBOT", True, (255, 255, 255))
-                text_rect = text_surface.get_rect(center=start)
-                window.blit(text_surface, text_rect)
-            if distance <= 30:
+                
+                # Teks yang ingin ditampilkan
+                texts = [
+                    "ROBOT",
+                    f"Jarak: {distance} cm",
+                    f"Arah: {error}°",
+                    f"Orientasi: {orientation}"
+                ]
+
+                spacing = 30  # Jarak antar baris teks
+                margin_x = 20  # Jarak dari sisi kiri layar
+                margin_y = 20  # Jarak dari sisi bawah layar
+
+                for i, txt in enumerate(texts):
+                    text_surface = font.render(txt, True, (255, 255, 255))
+                    text_rect = text_surface.get_rect(topleft=(margin_x, window.get_height() - margin_y - (len(texts) - i) * spacing))
+                    window.blit(text_surface, text_rect)
+
+            if distance == None or distance <= 50:
                 path.pop(0)
             
     # ===== Gambar Robot =====
