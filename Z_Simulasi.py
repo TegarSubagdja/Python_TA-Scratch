@@ -2,7 +2,7 @@ from Utils import *  # Pastikan ada getPath dan GetOrientation
 
 # ===== Inisialisasi Pygame =====
 pygame.init()
-WIDTH, HEIGHT = 2000*2/3, 920*2/3
+WIDTH, HEIGHT = 2000, 920
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Robot Follower")
 
@@ -11,7 +11,7 @@ background = pygame.image.load("Image/1.jpg")
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
 robot_original = pygame.image.load("aruco.png")
-robot_original = pygame.transform.scale(robot_original, (30, 30))
+robot_original = pygame.transform.scale(robot_original, (50, 50))
 
 font = pygame.font.SysFont('Arial', 30)  # Font untuk teks
 
@@ -19,6 +19,7 @@ font = pygame.font.SysFont('Arial', 30)  # Font untuk teks
 rotation_angle = 0
 path = None
 idx = 0
+mark_size = None
 
 # ===== Loop Utama =====
 running = True
@@ -56,7 +57,7 @@ while running:
 
     # ===== Hitung Path Jika Belum Ada =====
     if path is None:
-        path = getPath(screenshot_gray, 20, 0, 7)
+        path, mark_size = getPath(screenshot_gray, 30, 0, 7)
         print(path)
 
     # ===== Gambar ke Window =====
@@ -100,7 +101,7 @@ while running:
                     text_rect = text_surface.get_rect(topleft=(margin_x, window.get_height() - margin_y - (len(texts) - i) * spacing))
                     window.blit(text_surface, text_rect)
 
-            if distance == None or distance <= 50:
+            if distance == None or distance <= mark_size+(mark_size/2):
                 path.pop(0)
             
     # ===== Gambar Robot =====

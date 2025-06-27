@@ -24,8 +24,6 @@ def Position(image, idStart, idGoal):
                 marker_corners = corners[i][0]
                 center_x = int(np.mean(marker_corners[:, 0]))
                 center_y = int(np.mean(marker_corners[:, 1]))
-                print(f"ID {marker_id}: posisi tengah = ({center_x}, {center_y})")
-
                 if marker_id == idStart:
                     koordinat['start'] = (center_x, center_y)
                 elif marker_id == idGoal:

@@ -2,19 +2,22 @@ from Utils import *
 
 def getPath(image, scale=20, idStart=1, idGoal=7):
 
+    mark_size=None
     posa, corners = Position(image, idStart, idGoal)
 
     if not posa:
-        return 0
+        return 0, 0
+    
+    if corners:
+        pts = corners[0][0] 
+        mark_size = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
 
-    map, pos = Preprocessing(image, posa, scale, corners)
+    map, pos = Preprocessing(image, posa, scale, mark_size)
 
-    path, time = astar.method(map, pos['start'], pos['goal'], 2)
+    path, time = jps.method(map, pos['start'], pos['goal'], 2)
 
     if not path:
-        return 0
-
-    path = prunning(path, map)
+        return 0, 0
 
     path = [(y * scale, x * scale) for y, x in path]
     path[0] = posa['start'][::-1]
@@ -30,4 +33,5 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
     for (y,x) in path:
         cv2.circle(image, (x,y), 8, (255,0,255), -1)
 
-    return path
+
+    return path, mark_size

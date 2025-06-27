@@ -1,28 +1,24 @@
 from Utils import *
 
-def Contour(image, corners):
+def Contour(image, mark_size):
     # Threshold dan erosi
+    iterate = int(mark_size / 10)
     _, thresh = cv2.threshold(image, 100, 255, cv2.THRESH_BINARY_INV)
     kernel = np.ones((3,3), np.uint8)
-    thresh = cv2.erode(thresh, kernel, iterations=3)
+    thresh = cv2.erode(thresh, kernel, iterations=iterate)
 
     # Temukan kontur
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # Canvas kosong
     output = np.zeros_like(image)
-    avg_width=None
-
-    if corners:
-        pts = corners[0][0] 
-        avg_width = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
 
     for contour in contours:
         if cv2.contourArea(contour) > 1000:
             rect = cv2.minAreaRect(contour)
             (cx, cy), (w, h), angle = rect
-            w_enlarged = w + (2 * avg_width)
-            h_enlarged = h + (2 * avg_width)
+            w_enlarged = w + (2 * mark_size)
+            h_enlarged = h + (2 * mark_size)
             enlarged_rect = ((cx, cy), (w_enlarged, h_enlarged), angle)
             box = cv2.boxPoints(enlarged_rect)
             box = np.array(box, dtype=np.int32)

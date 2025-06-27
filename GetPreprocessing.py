@@ -1,8 +1,8 @@
 from Utils import *
 
-def Preprocessing(image, pos, scale, corners):
+def Preprocessing(image, pos, scale, mark_size):
 
-    Expantion_Distance = Contour(image, corners)
+    Expantion_Distance = Contour(image, mark_size)
 
     # Merubah Ukuran Gambar
     dilasi = cv2.resize(Expantion_Distance, (Expantion_Distance.shape[1]//scale, Expantion_Distance.shape[0]//scale), interpolation=cv2.INTER_NEAREST)
