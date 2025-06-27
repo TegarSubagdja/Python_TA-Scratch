@@ -23,7 +23,7 @@ robot_original = pygame.transform.scale(robot_original, (100, 100))
 # Variabel untuk sudut rotasi
 rotation_angle = 0
 path = None
-idx = 1
+idx = 0
 
 # Loop Utama
 running = True
@@ -53,7 +53,7 @@ while running:
                 rotation_angle -= 10
 
             if event.key == pygame.K_r:
-                path = None  # Reset path, agar cari ulang
+                path = None  
 
     # Dapatkan posisi mouse
     mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -70,7 +70,6 @@ while running:
 
         # Pastikan getPath mengembalikan list atau None
         path = getPath(screenshot, 10, 0, 7)
-        print(f"Path ditemukan: {path}")
 
     # === Gambar ke Window ===
 
@@ -86,12 +85,13 @@ while running:
                 pygame.draw.line(window, (255, 0, 255), (y, x), (next_y, next_x), 3)
 
     if path != None and path != 0:
-        print(path[idx])
         cv2.imwrite('gambar.jpg', screenshot)
-        dt = GetOrientation(screenshot, path[idx], 0, False)
         y, x = path[idx]
-        start = dt['koordinat']['start']
-        pygame.draw.line(window, (255, 0, 255), start, (x, y), 3)
+        dt = GetOrientation(screenshot, path[idx], 0, False)
+        if dt and dt != 0:
+            start = dt['koordinat']['start']
+            if start != None:
+                pygame.draw.line(window, (128, 64, 128), start, (x, y), 3)
 
     # Gambar robot
     window.blit(rotated_robot, robot_rect.topleft)
