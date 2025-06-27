@@ -31,9 +31,3 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
         cv2.circle(image, (x,y), 8, (255,0,255), -1)
 
     return path
-
-# # cam = cv2.imread('Output/image.jpg', 0)
-# cam = cv2.imread('Output/normal.jpg', 0)
-
-# path = getPath(cam, 5, 0, 7)
-# sys.exit()

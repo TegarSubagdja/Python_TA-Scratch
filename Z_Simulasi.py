@@ -1,7 +1,3 @@
-import pygame
-import cv2
-import numpy as np
-import sys
 from Utils import *  # Pastikan ada getPath dan GetOrientation
 
 # ===== Inisialisasi Pygame =====
@@ -86,9 +82,9 @@ while running:
                 text_surface = font.render("ROBOT", True, (255, 255, 255))
                 text_rect = text_surface.get_rect(center=start)
                 window.blit(text_surface, text_rect)
-            if distance <= 100:
+            if distance <= 30:
                 path.pop(0)
-
+            
     # ===== Gambar Robot =====
     window.blit(rotated_robot, robot_rect.topleft)
 
