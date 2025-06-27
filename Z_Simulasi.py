@@ -74,21 +74,20 @@ while running:
                 next_x, next_y = path[i + 1]
                 pygame.draw.line(window, (255, 0, 255), (y, x), (next_y, next_x), 3)
 
-        # Simpan Screenshot
-        cv2.imwrite('gambar.jpg', screenshot_color)
-
         # Dapatkan Orientasi
         y, x = path[idx]
-        dt = GetOrientation(screenshot_gray, path[idx], 0, False)
+        dt = GetOrientation(screenshot_gray, (x, y), 0, False)
         if dt and dt != 0:
             start = dt['koordinat']['start']
+            distance = dt['distance']
             if start:
-                pygame.draw.line(window, (128, 64, 128), start, (x, y), 3)
-
+                pygame.draw.line(window, (64, 0, 64), start, (x, y), 3)
                 # Tampilkan Teks "ROBOT" di Posisi Start
                 text_surface = font.render("ROBOT", True, (255, 255, 255))
                 text_rect = text_surface.get_rect(center=start)
                 window.blit(text_surface, text_rect)
+            if distance <= 100:
+                path.pop(0)
 
     # ===== Gambar Robot =====
     window.blit(rotated_robot, robot_rect.topleft)
