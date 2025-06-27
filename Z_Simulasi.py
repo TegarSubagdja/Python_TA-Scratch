@@ -2,7 +2,7 @@ from Utils import *  # Pastikan ada getPath dan GetOrientation
 
 # ===== Inisialisasi Pygame =====
 pygame.init()
-WIDTH, HEIGHT = 2000, 920
+WIDTH, HEIGHT = 2000/2, 920/2
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Robot Follower")
 
@@ -11,7 +11,7 @@ background = pygame.image.load("Image/1.jpg")
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
 robot_original = pygame.image.load("aruco.png")
-robot_original = pygame.transform.scale(robot_original, (50, 50))
+robot_original = pygame.transform.scale(robot_original, (25, 25))
 
 font = pygame.font.SysFont('Arial', 30)  # Font untuk teks
 
