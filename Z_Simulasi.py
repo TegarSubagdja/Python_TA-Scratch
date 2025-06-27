@@ -23,10 +23,16 @@ robot_original = pygame.transform.scale(robot_original, (100, 100))
 # Variabel untuk sudut rotasi
 rotation_angle = 0
 path = None
+idx = 1
 
 # Loop Utama
 running = True
 while running:
+
+    screenshot = pygame.surfarray.array3d(pygame.display.get_surface())
+    screenshot = np.transpose(screenshot, (1, 0, 2))
+    screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2BGR)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -36,9 +42,6 @@ while running:
                 running = False
 
             if event.key == pygame.K_p:
-                screenshot = pygame.surfarray.array3d(pygame.display.get_surface())
-                screenshot = np.transpose(screenshot, (1, 0, 2))
-                screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2BGR)
                 filename = "Output/normal.jpg"
                 cv2.imwrite(filename, screenshot)
                 print(f"Gambar disimpan sebagai {filename}")
@@ -81,6 +84,14 @@ while running:
             if i < len(path) - 1:
                 next_x, next_y = path[i + 1]
                 pygame.draw.line(window, (255, 0, 255), (y, x), (next_y, next_x), 3)
+
+    if path != None and path != 0:
+        print(path[idx])
+        cv2.imwrite('gambar.jpg', screenshot)
+        dt = GetOrientation(screenshot, path[idx], 0, False)
+        y, x = path[idx]
+        start = dt['koordinat']['start']
+        pygame.draw.line(window, (255, 0, 255), start, (x, y), 3)
 
     # Gambar robot
     window.blit(rotated_robot, robot_rect.topleft)
