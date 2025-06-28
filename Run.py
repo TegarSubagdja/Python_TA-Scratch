@@ -33,8 +33,8 @@ while running:
     screenshot_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # Convert BGR OpenCV ke RGB untuk Pygame
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     frame_rgb = cv2.flip(frame, 1)
+    frame_rgb = cv2.cvtColor(frame_rgb, cv2.COLOR_BGR2RGB)
     frame_surface = pygame.surfarray.make_surface(np.rot90(frame_rgb))
 
     # ===== Event Handling =====
