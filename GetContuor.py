@@ -15,8 +15,8 @@ def Contour(image, corners):
     # Threshold dan erosi
     iterate = int(mark_size / 10)
     _, thresh = cv2.threshold(image, 115, 255, cv2.THRESH_BINARY_INV)
-    kernel = np.ones((3,3), np.uint8)
-    thresh = cv2.erode(thresh, kernel, iterations=iterate)
+    # kernel = np.ones((3,3), np.uint8)
+    # thresh = cv2.erode(thresh, kernel, iterations=iterate)
 
     # Temukan kontur
     cv2.imwrite('5-findContours.jpg', image)
