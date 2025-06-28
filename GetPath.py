@@ -2,17 +2,16 @@ from Utils import *
 
 def getPath(image, scale=20, idStart=1, idGoal=7):
 
-    mark_size=None
+    cv2.imwrite('2-Position.jpg', image)
     posa, corners = Position(image, idStart, idGoal)
 
     if not posa:
         return 0, 0
-    
-    if corners:
-        pts = corners[0][0] 
-        mark_size = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
 
-    map, pos = Preprocessing(image, posa, scale, mark_size)
+    cv2.imwrite('3-Preprocessing.jpg', image)
+    map, pos, mark_size = Preprocessing(image, posa, scale, corners)
+
+    cv2.imwrite('8-Map.jpg', map)
 
     path, time = jps.method(map, pos['start'], pos['goal'], 2)
 
@@ -33,5 +32,15 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
     for (y,x) in path:
         cv2.circle(image, (x,y), 8, (255,0,255), -1)
 
-
     return path, mark_size
+
+
+# # cap = cv2.VideoCapture(2)
+
+# # ret, frame = cap.read()
+
+# frame = cv2.imread("Image/1.jpg")
+
+# frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+# path, bo = getPath(frame, 10, 1, 7)

@@ -57,7 +57,7 @@ while running:
 
     # ===== Hitung Path Jika Belum Ada =====
     if path is None:
-        path, mark_size = getPath(screenshot_gray, 30, 0, 7)
+        path, mark_size = getPath(screenshot_gray, 20, 0, 7)
         print(path)
 
     # ===== Gambar ke Window =====

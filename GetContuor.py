@@ -1,13 +1,25 @@
 from Utils import *
 
-def Contour(image, mark_size):
+def Contour(image, corners):
+    mark_size = None
+    # Hitung Lebar Marker
+    if corners:
+        pts = corners[0][0] 
+        mark_size = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
+
+    # Hitangkan Aruco Marker
+    for corner in corners:
+        pts = corner[0].astype(int)  # Koordinat sudut marker dalam integer
+        cv2.fillPoly(image, [pts], (255, 255, 255))  # Putih di BGR
+
     # Threshold dan erosi
     iterate = int(mark_size / 10)
-    _, thresh = cv2.threshold(image, 100, 255, cv2.THRESH_BINARY_INV)
+    _, thresh = cv2.threshold(image, 115, 255, cv2.THRESH_BINARY_INV)
     kernel = np.ones((3,3), np.uint8)
     thresh = cv2.erode(thresh, kernel, iterations=iterate)
 
     # Temukan kontur
+    cv2.imwrite('5-findContours.jpg', image)
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # Canvas kosong
@@ -33,8 +45,9 @@ def Contour(image, mark_size):
 
     # Overlay dengan transparansi 20%
     blended = cv2.addWeighted(image_bgr, 1.0, output_colored, 0.2, 0)
+    cv2.imwrite('6-overleay.jpg', blended)
+    cv2.imwrite('7-OutputContour.jpg', output)
 
-    # Simpan hasil akhir
-    cv2.imwrite('./Output/Overlay.jpg', blended)
+    cv2.imwrite('Output/Overlay.jpg', output)
 
-    return output
+    return output, mark_size
