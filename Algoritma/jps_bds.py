@@ -223,11 +223,11 @@ def method(matrix, start, goal, hchoice):
             if min_f_forward + min_f_backward >= best_path_length:
                 path = reconstruct_path(came_from_forward, came_from_backward, intersection, start, goal)
                 endtime = time.time()
-                return (path, round(endtime - starttime, 6))
+                return (path, round(endtime - starttime, 6)), open_list, close_list
     endtime = time.time()
     if intersection:
         path = reconstruct_path(came_from_forward, came_from_backward, intersection, start, goal)
-        return (path, round(endtime - starttime, 6))
+        return (path, round(endtime - starttime, 6)), open_list, close_list
     else:
         return (0, round(endtime - starttime, 6))
         

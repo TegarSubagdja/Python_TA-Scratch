@@ -1,5 +1,4 @@
-import math, heapq, time, sys
-from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
+from Utils import *
 
 def blocked(cX, cY, dX, dY, matrix):
     if cX + dX < 0 or cX + dX >= matrix.shape[0]:
@@ -33,8 +32,9 @@ def heuristic(start, goal, hchoice):
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
 
-def method(matrix, start, goal, hchoice):
+def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False):
 
+    v1, v2, v3 = 0, 0, 0
     close_list = set()
     came_from = {}
     gn = {start: 0}
@@ -43,8 +43,6 @@ def method(matrix, start, goal, hchoice):
     open_list = []
 
     heapq.heappush(open_list, (fn[start], start))
-
-    # barier = br.barrierRaster(start, goal, matrix)
 
     starttime = time.time()
 
@@ -59,6 +57,8 @@ def method(matrix, start, goal, hchoice):
             path.append(start)
             path = path[::-1]
             endtime = time.time()
+            if ppom:
+                path = PPO(path, map)
             return (path, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
@@ -73,7 +73,7 @@ def method(matrix, start, goal, hchoice):
             (-1, -1),
         ]:
 
-            if blocked(current[0], current[1], dX, dY, matrix):
+            if blocked(current[0], current[1], dX, dY, map):
                 continue
 
             neighbour = current[0] + dX, current[1] + dY
@@ -93,19 +93,32 @@ def method(matrix, start, goal, hchoice):
                 neighbour in close_list
             ):  # and tentative_g_score >= gscore.get(neighbour,0):
                 continue
+            
+            if tpm:
+                v1 = TP(current, neighbour, 2)
+            if brm:
+                v2 = BR(start, goal, map) or 1
+            if glm:
+                v3 = GL(start, goal, neighbour)
 
             if tentative_gn < gn.get(
                 neighbour, 0
             ) or neighbour not in [i[1] for i in open_list]:
-                
-                tpf = tp.TurnPenalty(current, neighbour, 0.2)
-
-                if tpf <= 0:
-                    tpf = 0
-                
                 came_from[neighbour] = current
                 gn[neighbour] = tentative_gn
-                fn[neighbour] = tentative_gn + tpf
+
+                if brm:
+                    fn[neighbour] = tentative_gn + (heuristic(
+                        neighbour, 
+                        goal, 
+                        hchoice) * (1-math.log(v2)))
+                else:
+                    fn[neighbour] = tentative_gn + heuristic(
+                        neighbour, 
+                        goal, 
+                        hchoice
+                    ) + v1 + v3
+
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
         endtime = time.time()
     return (0, round(endtime - starttime, 6))

@@ -204,7 +204,7 @@ def bidirectional_search(matrix, start, goal, hchoice):
     if intersection:
         # Rekonstruksi jalur
         path = reconstruct_path(came_from_forward, came_from_backward, intersection)
-        return (path, round(endtime - starttime, 6))
+        return (path, round(endtime - starttime, 6)), open_list, close_list
     else:
         # Tidak ditemukan jalur
         return (0, round(endtime - starttime, 6))

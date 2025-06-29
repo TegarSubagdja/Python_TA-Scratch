@@ -1,0 +1,776 @@
+[
+    {
+        "size": 16,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.003118
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm"
+        ],
+        "waktu": 0.003178
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "tpm",
+            "brm",
+            "ppom"
+        ],
+        "waktu": 0.003114
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "tpm",
+            "brm"
+        ],
+        "waktu": 0.003052
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "tpm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.000446
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "tpm",
+            "glm"
+        ],
+        "waktu": 0.00044
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "tpm",
+            "ppom"
+        ],
+        "waktu": 0.00149
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "tpm"
+        ],
+        "waktu": 0.001132
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.003071
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "brm",
+            "glm"
+        ],
+        "waktu": 0.003106
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "brm",
+            "ppom"
+        ],
+        "waktu": 0.003054
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "brm"
+        ],
+        "waktu": 0.003053
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.000429
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "glm"
+        ],
+        "waktu": 0.000248
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "ppom"
+        ],
+        "waktu": 0.000228
+    },
+    {
+        "size": 16,
+        "aktif": [
+            "Tidak ada"
+        ],
+        "waktu": 0.000225
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.027364
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm"
+        ],
+        "waktu": 0.027138
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "tpm",
+            "brm",
+            "ppom"
+        ],
+        "waktu": 0.027073
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "tpm",
+            "brm"
+        ],
+        "waktu": 0.02695
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "tpm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.001238
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "tpm",
+            "glm"
+        ],
+        "waktu": 0.001235
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "tpm",
+            "ppom"
+        ],
+        "waktu": 0.004783
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "tpm"
+        ],
+        "waktu": 0.004495
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.027361
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "brm",
+            "glm"
+        ],
+        "waktu": 0.026937
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "brm",
+            "ppom"
+        ],
+        "waktu": 0.026826
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "brm"
+        ],
+        "waktu": 0.027382
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.000727
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "glm"
+        ],
+        "waktu": 0.000705
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "ppom"
+        ],
+        "waktu": 0.000629
+    },
+    {
+        "size": 32,
+        "aktif": [
+            "Tidak ada"
+        ],
+        "waktu": 0.00063
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.226358
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm"
+        ],
+        "waktu": 0.228172
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "tpm",
+            "brm",
+            "ppom"
+        ],
+        "waktu": 0.226159
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "tpm",
+            "brm"
+        ],
+        "waktu": 0.22575
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "tpm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.003805
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "tpm",
+            "glm"
+        ],
+        "waktu": 0.003828
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "tpm",
+            "ppom"
+        ],
+        "waktu": 0.019258
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "tpm"
+        ],
+        "waktu": 0.019195
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.224915
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "brm",
+            "glm"
+        ],
+        "waktu": 0.225054
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "brm",
+            "ppom"
+        ],
+        "waktu": 0.225626
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "brm"
+        ],
+        "waktu": 0.224261
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.002229
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "glm"
+        ],
+        "waktu": 0.002151
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "ppom"
+        ],
+        "waktu": 0.002031
+    },
+    {
+        "size": 64,
+        "aktif": [
+            "Tidak ada"
+        ],
+        "waktu": 0.002016
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 1.856649
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm"
+        ],
+        "waktu": 1.856541
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "tpm",
+            "brm",
+            "ppom"
+        ],
+        "waktu": 1.828269
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "tpm",
+            "brm"
+        ],
+        "waktu": 1.818099
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "tpm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.012371
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "tpm",
+            "glm"
+        ],
+        "waktu": 0.012352
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "tpm",
+            "ppom"
+        ],
+        "waktu": 0.077206
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "tpm"
+        ],
+        "waktu": 0.075175
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 1.847052
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "brm",
+            "glm"
+        ],
+        "waktu": 1.847569
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "brm",
+            "ppom"
+        ],
+        "waktu": 1.841061
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "brm"
+        ],
+        "waktu": 1.846666
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.007716
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "glm"
+        ],
+        "waktu": 0.007217
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "ppom"
+        ],
+        "waktu": 0.006809
+    },
+    {
+        "size": 128,
+        "aktif": [
+            "Tidak ada"
+        ],
+        "waktu": 0.007314
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 14.972914
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm"
+        ],
+        "waktu": 14.948937
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "tpm",
+            "brm",
+            "ppom"
+        ],
+        "waktu": 14.976137
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "tpm",
+            "brm"
+        ],
+        "waktu": 14.99414
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "tpm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.042509
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "tpm",
+            "glm"
+        ],
+        "waktu": 0.042296
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "tpm",
+            "ppom"
+        ],
+        "waktu": 0.290464
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "tpm"
+        ],
+        "waktu": 0.289424
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 14.943966
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "brm",
+            "glm"
+        ],
+        "waktu": 14.9913
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "brm",
+            "ppom"
+        ],
+        "waktu": 15.005673
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "brm"
+        ],
+        "waktu": 14.993267
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.024484
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "glm"
+        ],
+        "waktu": 0.024291
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "ppom"
+        ],
+        "waktu": 0.023908
+    },
+    {
+        "size": 256,
+        "aktif": [
+            "Tidak ada"
+        ],
+        "waktu": 0.023723
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 122.472568
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "tpm",
+            "brm",
+            "glm"
+        ],
+        "waktu": 126.526396
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "tpm",
+            "brm",
+            "ppom"
+        ],
+        "waktu": 121.974667
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "tpm",
+            "brm"
+        ],
+        "waktu": 121.731705
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "tpm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.154039
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "tpm",
+            "glm"
+        ],
+        "waktu": 0.156327
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "tpm",
+            "ppom"
+        ],
+        "waktu": 1.15228
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "tpm"
+        ],
+        "waktu": 1.14773
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "brm",
+            "glm",
+            "ppom"
+        ],
+        "waktu": 121.642598
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "brm",
+            "glm"
+        ],
+        "waktu": 121.758259
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "brm",
+            "ppom"
+        ],
+        "waktu": 121.178513
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "brm"
+        ],
+        "waktu": 121.308976
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "glm",
+            "ppom"
+        ],
+        "waktu": 0.089458
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "glm"
+        ],
+        "waktu": 0.090078
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "ppom"
+        ],
+        "waktu": 0.089605
+    },
+    {
+        "size": 512,
+        "aktif": [
+            "Tidak ada"
+        ],
+        "waktu": 0.089118
+    }
+]

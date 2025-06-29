@@ -57,7 +57,7 @@ def method(matrix, start, goal, hchoice):
             path.append(start)
             path = path[::-1]
             endtime = time.time()
-            return (path, round(endtime - starttime, 6))
+            return (path, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
         for dX, dY in [
