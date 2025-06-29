@@ -17,7 +17,6 @@ from GetPosition import Position
 from GetContuor import Contour
 from GetPreprocessing import Preprocessing
 from Method.PathPolylineOptimization import prunning
-from GetVisualize import Visualize
 from Method.Guideline import guidline, jarakGaris
 from PID.Pid import PID
 from GetPath import getPath
@@ -27,7 +26,7 @@ from GetErrorPosition import GetOrientation
 __all__ = [
     'sys', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'time', 'json',
     'jps', 'astar', 'Contour',
-    'Position', 'Preprocessing', 'Visualize',
+    'Position', 'Preprocessing',
     'prunning', 'guidline', 'jarakGaris', 
     'PID', 'getPath', 'GetOrientation', 'math', 'jps_gl', 'astar_gl', 'astar_br', 'jps_br', 'astar_tp', 'jps_tp'
 ]
