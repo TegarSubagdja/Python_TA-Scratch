@@ -9,6 +9,7 @@ import math
 import os
 import heapq
 import time
+import json
 
 # Internal modules
 from Algoritma import astar_gl, jps, astar, jps_gl, astar_br, jps_br, astar_tp, jps_tp
@@ -24,7 +25,7 @@ from GetErrorPosition import GetOrientation
 
 # __all__ defines what will be imported via `from common import *`
 __all__ = [
-    'sys', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'time',
+    'sys', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'time', 'json',
     'jps', 'astar', 'Contour',
     'Position', 'Preprocessing', 'Visualize',
     'prunning', 'guidline', 'jarakGaris', 

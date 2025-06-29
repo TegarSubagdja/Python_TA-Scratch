@@ -1,6 +1,3 @@
-import pygame
-import numpy as np
-import os
 from Utils import *  # Sesuaikan jika perlu
 
 def hex_to_rgb(hex_code):
@@ -9,6 +6,17 @@ def hex_to_rgb(hex_code):
     return tuple(int(hex_code[i:i + 2], 16) for i in (0, 2, 4))
 
 def Visualize(matrix, title="Matrix Visualization", path=None, algo_name="unknown", matrix_name="unknown", folder="Output/Data"):
+  import pygame
+import numpy as np
+import os
+from Utils import *  # Sesuaikan jika perlu
+
+def hex_to_rgb(hex_code):
+    hex_code = hex_code.lstrip('#')
+    return tuple(int(hex_code[i:i + 2], 16) for i in (0, 2, 4))
+
+def Visualize(matrix, title="Matrix Visualization", path=None, algo_name="unknown", matrix_name="unknown", folder="Output/Data"):
+    os.environ["SDL_VIDEODRIVER"] = "dummy"  # Mode headless, tidak munculkan window
     pygame.init()
 
     color_map = {
@@ -24,17 +32,14 @@ def Visualize(matrix, title="Matrix Visualization", path=None, algo_name="unknow
     rows = len(matrix)
     cols = len(matrix[0]) if rows > 0 else 0
 
-    # Konstan ukuran window
     window_size = 720
     margin = 1
     cell_size = (window_size - (cols * margin)) // cols
 
     width = height = window_size
-    screen = pygame.display.set_mode((width, height))
-    pygame.display.set_caption(title)
+    screen = pygame.Surface((width, height))  # Render langsung ke surface tanpa window
     screen.fill((214, 214, 214))
 
-    # Gambar grid
     for y in range(rows):
         for x in range(cols):
             value = matrix[y][x]
@@ -47,7 +52,6 @@ def Visualize(matrix, title="Matrix Visualization", path=None, algo_name="unknow
             )
             pygame.draw.rect(screen, color, rect)
 
-    # Gambar path
     if path:
         for i in range(1, len(path)):
             x1, y1 = path[i - 1]
@@ -66,49 +70,51 @@ def Visualize(matrix, title="Matrix Visualization", path=None, algo_name="unknow
                 max(1, cell_size // 3)
             )
 
-    pygame.display.flip()
-    pygame.time.wait(100)  # Delay untuk memastikan frame selesai dirender
-
-    # Simpan gambar
     os.makedirs(folder, exist_ok=True)
     file_name = f"{algo_name}_{matrix_name}.png"
     save_path = os.path.join(folder, file_name)
     pygame.image.save(screen, save_path)
     print(f"Gambar disimpan otomatis: {save_path}")
 
-    # Event loop (optional)
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
     pygame.quit()
-    sys.exit()
+
 
 # ==== CONTOH PENGGUNAAN ====
 
-# data = np.load('VarianMatrix.npz')
+data = np.load('VarianMatrix.npz')
 
-# start = (2, 2)
-# goal = (62, 62)
-# size = "matrix_64x64"
+start = (2, 2)
+goal = (62, 62)
+size = "matrix_64x64"
 
-# matrix = data[size]
-# matrix[matrix == 1] = 255
+matrix_ori = data[size]
+matrix_ori[matrix_ori == 1] = 255
 
-# # Ganti dengan algoritma lain jika perlu
-# method = jps_tp
+methods = [astar, jps, astar_br, jps_br, astar_gl, jps_gl, astar_tp, jps_tp]
 
-# (points, time)= method.method(matrix, start, goal, 2)
+result_times = {}  # Untuk menyimpan waktu eksekusi
 
-# # Tandai jalur di matrix
-# for (x, y) in points:
-#     matrix[x, y] = 6
+for method in methods:
+    matrix = matrix_ori.copy()
 
-# matrix[matrix == 255] = 1
+    (points, exec_time) = method.method(matrix, start, goal, 2)
 
-# # Nama algoritma otomatis
-# algo_name = method.__name__.capitalize()
+    for (x, y) in points:
+        matrix[x, y] = 6
 
-# Visualize(matrix, path=points, algo_name=algo_name, matrix_name=size)
+    matrix[matrix == 255] = 1
+
+    algo_name = method.__name__.capitalize()
+
+    Visualize(matrix, path=points, algo_name=algo_name, matrix_name=size)
+
+    print(f"{algo_name} selesai dalam waktu {exec_time:.4f} detik")
+
+    result_times[algo_name] = exec_time
+
+# Simpan ke file JSON
+os.makedirs("Output/Data", exist_ok=True)
+with open("Output/Data/waktu_eksekusi.json", "w") as f:
+    json.dump(result_times, f, indent=4)
+
+print("\nWaktu eksekusi semua algoritma disimpan di Output/Data/waktu_eksekusi.json")

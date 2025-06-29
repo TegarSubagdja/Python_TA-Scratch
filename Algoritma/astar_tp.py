@@ -98,7 +98,7 @@ def method(matrix, start, goal, hchoice):
                 neighbour, 0
             ) or neighbour not in [i[1] for i in open_list]:
                 
-                tpf = tp.TurnPenalty(current, neighbour, 10)
+                tpf = tp.TurnPenalty(current, neighbour, 0.2)
 
                 if tpf <= 0:
                     tpf = 0
