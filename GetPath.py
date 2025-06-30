@@ -13,7 +13,7 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
 
     cv2.imwrite('8-Map.jpg', map)
 
-    path, time = jps.method(map, pos['start'], pos['goal'], 2)
+    (path, time), open_list, close_list = jps.method(map, pos['start'], pos['goal'], 2)
 
     if not path:
         return 0, 0

@@ -1,10 +1,5 @@
 import math, time, heapq
 from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import Z_GetMap
-import pygame
 
 def heuristic(start, goal, hchoice):
     if hchoice == 255:
@@ -211,58 +206,111 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
 
 
 def method(matrix, start, goal, hchoice):
-    surface, cell_size = Z_GetMap.Init_Visual(matrix)
-    came_from = {}
-    close_list = set()
-    gn = {start: 0}
-    fn = {start: heuristic(start, goal, hchoice)}
-    open_list = []
-    heapq.heappush(open_list, (fn[start], start))
+    open_forward = []
+    open_backward = []
+
+    came_from_forward = {}
+    came_from_backward = {}
+
+    closed_forward = set()
+    closed_backward = set()
+
+    g_forward = {start: 0}
+    g_backward = {goal: 0}
+
+    f_forward = {start: heuristic(start, goal, hchoice)}
+    f_backward = {goal: heuristic(goal, start, hchoice)}
+
+    heapq.heappush(open_forward, (f_forward[start], start))
+    heapq.heappush(open_backward, (f_backward[goal], goal))
 
     starttime = time.time()
+    meet_point = None
 
-    running = True
-    clock = pygame.time.Clock()
+    while open_forward and open_backward:
 
-    while open_list and running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+        # Forward Search
+        _, current_forward = heapq.heappop(open_forward)
+        closed_forward.add(current_forward)
 
-        current = heapq.heappop(open_list)[1]
-        if current == goal:
-            data = []
-            while current in came_from:
-                data.append(current)
-                current = came_from[current]
-            data.append(start)
-            data = data[::-1]
+        successors_forward = identifySuccessors(
+            current_forward[0], current_forward[1], came_from_forward, matrix, goal
+        )
 
-            Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, data)
-            endtime = time.time()
-            return (data, round(endtime - starttime, 6))
-
-        close_list.add(current)
-        Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
-
-        successors = identifySuccessors(current[0], current[1], came_from, matrix, goal)
-        for successor in successors:
+        for successor in successors_forward:
             jumpPoint = successor
 
-            if jumpPoint in close_list:
+            if jumpPoint in closed_forward:
                 continue
 
-            tentative_gn = gn[current] + lenght(current, jumpPoint, hchoice)
-            if tentative_gn < gn.get(jumpPoint, 0) or jumpPoint not in [j[1] for j in open_list]:
-                came_from[jumpPoint] = current
-                gn[jumpPoint] = tentative_gn
-                fn[jumpPoint] = tentative_gn + heuristic(jumpPoint, goal, hchoice)
-                heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
+            tentative_g = g_forward[current_forward] + lenght(current_forward, jumpPoint, hchoice)
 
-        clock.tick(1)  # Biar smooth 60 FPS
+            if tentative_g < g_forward.get(jumpPoint, 0) or jumpPoint not in [j[1] for j in open_forward]:
+                came_from_forward[jumpPoint] = current_forward
+                g_forward[jumpPoint] = tentative_g
+                f_forward[jumpPoint] = tentative_g + heuristic(jumpPoint, goal, hchoice)
+                heapq.heappush(open_forward, (f_forward[jumpPoint], jumpPoint))
+
+            if jumpPoint in closed_backward:
+                meet_point = jumpPoint
+                break
+        if meet_point:
+            break
+
+        # Backward Search
+        _, current_backward = heapq.heappop(open_backward)
+        closed_backward.add(current_backward)
+
+        successors_backward = identifySuccessors(
+            current_backward[0], current_backward[1], came_from_backward, matrix, start
+        )
+
+        for successor in successors_backward:
+            jumpPoint = successor
+
+            if jumpPoint in closed_backward:
+                continue
+
+            tentative_g = g_backward[current_backward] + lenght(current_backward, jumpPoint, hchoice)
+
+            if tentative_g < g_backward.get(jumpPoint, 0) or jumpPoint not in [j[1] for j in open_backward]:
+                came_from_backward[jumpPoint] = current_backward
+                g_backward[jumpPoint] = tentative_g
+                f_backward[jumpPoint] = tentative_g + heuristic(jumpPoint, start, hchoice)
+                heapq.heappush(open_backward, (f_backward[jumpPoint], jumpPoint))
+
+            if jumpPoint in closed_forward:
+                meet_point = jumpPoint
+                break
+        if meet_point:
+            break
 
     endtime = time.time()
+
+    if meet_point:
+        # Rekonstruksi path dari start ke meet_point
+        path_forward = []
+        node = meet_point
+        while node in came_from_forward:
+            path_forward.append(node)
+            node = came_from_forward[node]
+        path_forward.append(start)
+        path_forward.reverse()
+
+        # Rekonstruksi path dari meet_point ke goal
+        path_backward = []
+        node = meet_point
+        while node in came_from_backward:
+            node = came_from_backward[node]
+            path_backward.append(node)
+
+        full_path = path_forward + path_backward
+
+        return (full_path, round(endtime - starttime, 6))
+
     return (0, round(endtime - starttime, 6))
+
+
 
 def lenght(current, jumppoint, hchoice):
     moveX, moveY = direction(current[0], current[1], jumppoint[0], jumppoint[1])

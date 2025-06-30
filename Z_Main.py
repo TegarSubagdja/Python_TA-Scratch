@@ -1,7 +1,7 @@
 from Utils import *
 import itertools
-import json
-import os
+from Algoritma import bds
+from Algoritma import jbds
 
 flag_names = ["tpm", "brm", "glm", "ppom"]
 jumlah_flag = len(flag_names)
@@ -64,7 +64,63 @@ def show_summary():
         print(f"  ⚡ Tercepat : {tercepat['waktu']} detik, Aktif: {', '.join(tercepat['aktif'])}")
         print(f"  🐢 Terlambat: {terlambat['waktu']} detik, Aktif: {', '.join(terlambat['aktif'])}")
 
+import random
+
+def get(grid_size, jumlah_rintangan):
+    grid = np.zeros((grid_size, grid_size), dtype=int)
+
+    for _ in range(jumlah_rintangan):
+        # Titik awal acak, pastikan aman untuk area 2x2
+        row = random.randint(0, grid_size - 2)
+        col = random.randint(0, grid_size - 2)
+
+        # Isi 4 titik berdekatan (2x2 area)
+        grid[row, col] = 255
+        grid[row + 1, col] = 255
+        grid[row, col + 1] = 255
+        grid[row + 1, col + 1] = 255
+
+    return grid
+
 
 # Contoh pemanggilan:
-run_experiment()
-show_summary()
+if __name__ == "__main__":
+    # run_experiment()
+    # show_summary()
+
+    size = 32
+
+    map = Visualize.load_grid()
+    print(map.shape)
+    print(map)
+    map = Visualize.upscale(map, size)
+    # print(map.shape)
+    map[map == 1] = 255
+
+    # map = get(512, 200)
+
+    cv2.imwrite('4K.jpg', map)
+
+    start = (0,0)
+    goal = (size-1,size-1)
+
+    first = [(5,5), (20, 30), (14,14)]
+    second = [(2,2), (3,4), (5,4)]
+
+    loop = 10
+    path_tradisional, times = bds.method(map, start, goal, 2)
+
+    # for i in range(1, loop):
+    #     path_tradisional, times = jps.method(map, start, goal, 2)
+    #     print(f"Astart Tradisional : {times}")
+    #     first.append(times)
+
+    # print("="*100)
+
+    # for i in range(1, loop):
+    #     path_tradisional, times = jbds.method(map, start, goal, 2)
+    #     print(f"Astart bds : {times}")
+    #     second.append(times)
+
+    print(f"Average First : {np.mean(first)}")
+    print(f"Average Second : {np.mean(second)}")

@@ -119,6 +119,6 @@ def method(matrix, start, goal, hchoice):
     endtime = time.time()
     if intersection:
         path = reconstruct_path(came_from_forward, came_from_backward, intersection)
-        return (path, round(endtime - starttime, 6)), open_list, close_list
+        return (path, round(endtime - starttime, 6))
     else:
         return (0, round(endtime - starttime, 6))

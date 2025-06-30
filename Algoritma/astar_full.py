@@ -19,9 +19,8 @@ def blocked(cX, cY, dX, dY, matrix):
                 return True
     return False
 
-
 def heuristic(start, goal, hchoice):
-    if hchoice == 255:
+    if hchoice == 1:
         xdist = math.fabs(goal[0] - start[0])
         ydist = math.fabs(goal[1] - start[1])
         if xdist > ydist:
@@ -30,7 +29,6 @@ def heuristic(start, goal, hchoice):
             return 14 * xdist + 10 * (ydist - xdist)
     if hchoice == 2:
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
-
 
 def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False):
 
@@ -78,7 +76,7 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
 
             neighbour = current[0] + dX, current[1] + dY
 
-            if hchoice == 255:
+            if hchoice == 1:
                 if dX != 0 and dY != 0:
                     tentative_gn = gn[current] + 14
                 else:
@@ -97,7 +95,7 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
             if tpm:
                 v1 = TP(current, neighbour, 2)
             if brm:
-                v2 = BR(start, goal, map) or 1
+                v2 = BR(neighbour, goal, map) or 1
             if glm:
                 v3 = GL(start, goal, neighbour)
 
@@ -121,4 +119,4 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
 
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
         endtime = time.time()
-    return (0, round(endtime - starttime, 6))
+    return (0, round(endtime - starttime, 6)), 0, 0

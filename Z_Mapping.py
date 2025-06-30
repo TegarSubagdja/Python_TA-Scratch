@@ -21,10 +21,10 @@ CIRCLE_RADIUS = 10  # Ukuran radius bulatan (dalam pixel)
 CIRCLE_COLOR = "#000000"  # Warna bulatan, misalnya tomat
 
 # Konfigurasi grid
-GRID_SIZE = 16
-CELL_SIZE = 40
-WIDTH = GRID_SIZE * CELL_SIZE
-HEIGHT = GRID_SIZE * CELL_SIZE
+GRID_SIZE = 8
+WIDTH = 512 #GRID_SIZE * CELL_SIZE
+HEIGHT = 512 #GRID_SIZE * CELL_SIZE
+CELL_SIZE = WIDTH//GRID_SIZE
 
 # Warna untuk setiap elemen grid dalam kode HEX
 colors = {
@@ -283,25 +283,9 @@ while running:
                         elif method == 2:
                             path_result, closet, pqueue = jps.method(map_grid, start, goal, 2)
                     else:
-                        path_result = JPS_Komentar_Bidirectional.method(map_grid, (0,0), (2,2), 2)
+                        path_result = jps.method(map_grid, (0,0), (2,2), 2)
                     path_result = path_result[0]
                     path_result = path_result[1:-1]
-
-                    for row, col in path_result:
-                        map_grid[row, col] = 5
-
-                    if pqueue:
-                        for _, (x, y) in pqueue:
-                            map_grid[x][y] = 5
-
-                    if closet:
-                        for row, col in closet:
-                            if map_grid[row][col] != 2:
-                                map_grid[row, col] = 6
-                                
-                    if path_result:
-                        for x, y in path_result:
-                            map_grid[x][y] = 7
 
                 elif event.key == pygame.K_n:
                     map_grid[(map_grid == 6) | (map_grid == 5) | (map_grid == 8)] = 0
@@ -342,7 +326,8 @@ while running:
                     method = 4
                 elif event.key == pygame.K_j:  # Ctrl + J untuk save ke JSON
                     save_grid_to_json()
-
+            elif event.key == pygame.K_ESCAPE:  
+                running = False
     # Gambar ulang layar
     screen.fill(hex_to_rgb("#FFFFFF"))
     draw_grid(map_grid)

@@ -20,13 +20,13 @@ from Method.PathPolylineOptimization import prunning
 from Method.Guideline import guidline, jarakGaris
 from Method.TurnPenaltyFunction import TurnPenalty as TP
 from PID.Pid import PID
-from GetPath import getPath
 from GetErrorPosition import GetOrientation
 import Z_GetMap as Visualize
 from Method.BarrierRasterCoefficient import barrierRaster as BR
 from Method.Guideline import guidline as GL
 from Method.PathPolylineOptimization import prunning as PPO
-from Algoritma import astar_gl, jps, astar, jps_gl, astar_br, jps_br, astar_tp, jps_tp, astar_full
+from Algoritma import astar_gl, jps, astar, jps_gl, astar_br, jps_br, astar_tp, jps_tp, astar_full, astar_bds
+from GetPath import getPath
 
 # __all__ defines what will be imported via `from common import *`
 __all__ = [
@@ -35,5 +35,5 @@ __all__ = [
     'Position', 'Preprocessing',
     'prunning', 'guidline', 'jarakGaris', 'Visualize',
     'PID', 'getPath', 'GetOrientation',
-    'astar_full', 'jps', 'astar','jps_gl', 'astar_gl', 'astar_br', 'jps_br', 'astar_tp', 'jps_tp'
+    'astar_full', 'jps', 'astar','jps_gl', 'astar_gl', 'astar_br', 'jps_br', 'astar_tp', 'jps_tp', 'astar_bds'
 ]

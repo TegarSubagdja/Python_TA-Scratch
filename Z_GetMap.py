@@ -49,6 +49,53 @@ def draw_grid(grid, surface, cell_size):
             pygame.draw.rect(surface, color, (col * cell_size, row * cell_size, cell_size, cell_size))
             pygame.draw.rect(surface, (200, 200, 200), (col * cell_size, row * cell_size, cell_size, cell_size), 1)
 
+# Visualisasi animasi grid + open, close, path
+def Init_Visual(grid):
+    pygame.init()
+    cell_size = 512 / grid.shape[0]
+    rows, cols = grid.shape
+    surface = pygame.display.set_mode((cols * cell_size, rows * cell_size))
+    return surface, cell_size
+
+def Render(surface, grid, cell_size, open_list, close_list, path=None):
+    rows, cols = grid.shape
+    surface.fill((255, 255, 255))
+
+    # Gambar grid dasar
+    for y in range(rows):
+        for x in range(cols):
+            value = grid[y, x]
+            
+            if value == 255:
+                color = (0, 0, 0)  # Hitam
+            else:
+                color = hex_to_rgb(colors.get(value, "#FFFFFF"))
+
+            pygame.draw.rect(surface, color, (x * cell_size, y * cell_size, cell_size, cell_size))
+            pygame.draw.rect(surface, (200, 200, 200), (x * cell_size, y * cell_size, cell_size, cell_size), 1)
+
+    # Open List
+    for item in open_list:
+        node = item[1] if isinstance(item, tuple) and len(item) > 1 else item
+        y, x = node
+        pygame.draw.rect(surface, hex_to_rgb(colors[5]),
+                         (x * cell_size, y * cell_size, cell_size, cell_size))
+
+    # Closed List
+    for node in close_list:
+        y, x = node
+        pygame.draw.rect(surface, hex_to_rgb(colors[6]),
+                         (x * cell_size, y * cell_size, cell_size, cell_size))
+
+    # Path
+    if path:
+        for node in path:
+            y, x = node
+            pygame.draw.rect(surface, hex_to_rgb(colors[4]),
+                             (x * cell_size, y * cell_size, cell_size, cell_size))
+
+    pygame.display.flip()
+
 # Tampilkan grid ke layar
 def show(grid, window_size=1024):
     rows, cols = grid.shape
