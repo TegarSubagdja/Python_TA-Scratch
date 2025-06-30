@@ -1,5 +1,4 @@
-import math, heapq, time
-from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
+from Utils import *
 
 def blocked(cX, cY, dX, dY, matrix):
     if cX + dX < 0 or cX + dX >= matrix.shape[0]:
@@ -33,8 +32,12 @@ def heuristic(start, goal, hchoice):
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
 
-def method(matrix, start, goal, hchoice):
+def method(matrix, start, goal, hchoice, show=False):
 
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        clock = pygame.time.Clock()
+        
     close_list = set()
     came_from = {}
     gn = {start: 0}
@@ -57,7 +60,7 @@ def method(matrix, start, goal, hchoice):
             path.append(start)
             path = path[::-1]
             endtime = time.time()
-            return (path, round(endtime - starttime, 6)), open_list, close_list
+            return (path, round(endtime - starttime, 6))
 
         close_list.add(current)
         for dX, dY in [
@@ -87,7 +90,7 @@ def method(matrix, start, goal, hchoice):
                 else:
                     tentative_gn = gn[current] + 1
 
-            guidline = gl.guidline(start, goal, neighbour)
+            guidline = GL(start, goal, neighbour)
 
             if (
                 neighbour in close_list
@@ -103,5 +106,11 @@ def method(matrix, start, goal, hchoice):
                     neighbour, goal, hchoice
                 ) + guidline
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
+
+        # # Visualisasi Step 
+        if show:       
+            Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
+            clock.tick(200)
+
         endtime = time.time()
     return (0, round(endtime - starttime, 6))

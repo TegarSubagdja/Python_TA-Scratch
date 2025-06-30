@@ -1,5 +1,4 @@
-import math, time, heapq
-from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
+from Utils import *
 
 def heuristic(start, goal, hchoice):
     if hchoice == 255:
@@ -205,7 +204,11 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
     return successors
 
 
-def method(matrix, start, goal, hchoice):
+def method(matrix, start, goal, hchoice, show=False):
+
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        clock = pygame.time.Clock()
 
     came_from = {}
     close_list = set()
@@ -229,7 +232,7 @@ def method(matrix, start, goal, hchoice):
             data.append(start)
             data = data[::-1]
             endtime = time.time()
-            return (data, round(endtime - starttime, 6)), open_list, close_list
+            return (data, round(endtime - starttime, 6))
 
         close_list.add(current)
 
@@ -249,7 +252,9 @@ def method(matrix, start, goal, hchoice):
                 current, jumpPoint, hchoice
             )
 
-            barier = br.barrierRaster(jumpPoint, goal, matrix)
+            barier = BR(jumpPoint, goal, matrix)
+
+            gl = GL(start, goal, jumpPoint)
 
             if barier <= 0:
                 hnf = heuristic(jumpPoint, goal, hchoice)
@@ -261,8 +266,13 @@ def method(matrix, start, goal, hchoice):
             ) or jumpPoint not in [j[1] for j in open_list]:
                 came_from[jumpPoint] = current
                 gn[jumpPoint] = tentative_gn
-                fn[jumpPoint] = tentative_gn + hnf
+                fn[jumpPoint] = tentative_gn + hnf + gl
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
+                
+            if show:
+                Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
+                clock.tick(200)  
+                
         endtime = time.time()
     return (0, round(endtime - starttime, 6))
 

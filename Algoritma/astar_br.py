@@ -1,5 +1,4 @@
-import math, heapq, time, sys
-from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
+from Utils import *
 
 def blocked(cX, cY, dX, dY, matrix):
     if cX + dX < 0 or cX + dX >= matrix.shape[0]:
@@ -33,7 +32,11 @@ def heuristic(start, goal, hchoice):
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
 
-def method(matrix, start, goal, hchoice):
+def method(matrix, start, goal, hchoice, show=False):
+
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        clock = pygame.time.Clock()
 
     close_list = set()
     came_from = {}
@@ -43,8 +46,6 @@ def method(matrix, start, goal, hchoice):
     open_list = []
 
     heapq.heappush(open_list, (fn[start], start))
-
-    # barier = br.barrierRaster(start, goal, matrix)
 
     starttime = time.time()
 
@@ -59,7 +60,7 @@ def method(matrix, start, goal, hchoice):
             path.append(start)
             path = path[::-1]
             endtime = time.time()
-            return (path, round(endtime - starttime, 6)), open_list, close_list
+            return (path, round(endtime - starttime, 6))
 
         close_list.add(current)
         for dX, dY in [
@@ -94,13 +95,11 @@ def method(matrix, start, goal, hchoice):
             ):  # and tentative_g_score >= gscore.get(neighbour,0):
                 continue
 
-            
-
             if tentative_gn < gn.get(
                 neighbour, 0
             ) or neighbour not in [i[1] for i in open_list]:
                 
-                barier = br.barrierRaster(neighbour, goal, matrix)
+                barier = BR(neighbour, goal, matrix)
 
                 if barier <= 0:
                     hnf = heuristic(neighbour, goal, hchoice)
@@ -111,5 +110,11 @@ def method(matrix, start, goal, hchoice):
                 gn[neighbour] = tentative_gn
                 fn[neighbour] = tentative_gn + hnf
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
+
+            # Visualisasi setiap langkah
+            if show:
+                Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
+                clock.tick(200)  # Batasi ke 60 FPS
+
         endtime = time.time()
     return (0, round(endtime - starttime, 6))

@@ -1,10 +1,4 @@
-import math, time, heapq
-from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import Z_GetMap
-import pygame
+from Utils import *
 
 def heuristic(start, goal, hchoice):
     if hchoice == 255:
@@ -210,8 +204,12 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
     return successors
 
 
-def method(matrix, start, goal, hchoice):
-    surface, cell_size = Z_GetMap.Init_Visual(matrix)
+def method(matrix, start, goal, hchoice, show=False):
+
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        clock = pygame.time.Clock()
+
     came_from = {}
     close_list = set()
     gn = {start: 0}
@@ -222,13 +220,8 @@ def method(matrix, start, goal, hchoice):
     starttime = time.time()
 
     running = True
-    clock = pygame.time.Clock()
 
     while open_list and running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
         current = heapq.heappop(open_list)[1]
         if current == goal:
             data = []
@@ -237,13 +230,10 @@ def method(matrix, start, goal, hchoice):
                 current = came_from[current]
             data.append(start)
             data = data[::-1]
-
-            Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, data)
             endtime = time.time()
             return (data, round(endtime - starttime, 6))
 
         close_list.add(current)
-        Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
 
         successors = identifySuccessors(current[0], current[1], came_from, matrix, goal)
         for successor in successors:
@@ -259,7 +249,9 @@ def method(matrix, start, goal, hchoice):
                 fn[jumpPoint] = tentative_gn + heuristic(jumpPoint, goal, hchoice)
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
 
-        clock.tick(1)  # Biar smooth 60 FPS
+        if show:
+            Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
+            clock.tick(200)  
 
     endtime = time.time()
     return (0, round(endtime - starttime, 6))

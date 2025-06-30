@@ -1,7 +1,4 @@
-import math, heapq, time, sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import Z_GetMap
-import pygame
+from Utils import *
 
 def blocked(cX, cY, dX, dY, matrix):
     if cX + dX < 0 or cX + dX >= matrix.shape[0]:
@@ -35,9 +32,12 @@ def heuristic(start, goal, hchoice):
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
 
-def method(matrix, start, goal, hchoice):
+def method(matrix, start, goal, hchoice, show=False):
 
-    surface, cell_size = Z_GetMap.Init_Visual(matrix)
+
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        clock = pygame.time.Clock()
 
     close_list = set()
     came_from = {}
@@ -48,13 +48,9 @@ def method(matrix, start, goal, hchoice):
     heapq.heappush(open_list, (fn[start], start))
 
     starttime = time.time()
-    clock = pygame.time.Clock()
     running = True
 
     while open_list and running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
 
         current = heapq.heappop(open_list)[1]
         
@@ -65,9 +61,6 @@ def method(matrix, start, goal, hchoice):
                 current = came_from[current]
             path.append(start)
             path = path[::-1]
-
-            Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, path)
-            clock.tick(60)
             endtime = time.time()
             return (path, round(endtime - starttime, 6))
 
@@ -99,8 +92,9 @@ def method(matrix, start, goal, hchoice):
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
 
         # Visualisasi setiap langkah
-        Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
-        clock.tick(30)  # Batasi ke 60 FPS
+        if show:
+            Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
+            clock.tick(200)  # Batasi ke 60 FPS
 
     endtime = time.time()
     return (0, round(endtime - starttime, 6))

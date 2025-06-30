@@ -88,18 +88,18 @@ if __name__ == "__main__":
     # run_experiment()
     # show_summary()
 
-    size = 32
+    size = 128
 
     map = Visualize.load_grid()
     print(map.shape)
-    print(map)
     map = Visualize.upscale(map, size)
+    print(map)
     # print(map.shape)
     map[map == 1] = 255
+    map[map == 2] = 0
+    map[map == 3] = 0
 
-    # map = get(512, 200)
-
-    cv2.imwrite('4K.jpg', map)
+    # map = get(128, 64)
 
     start = (0,0)
     goal = (size-1,size-1)
@@ -108,19 +108,75 @@ if __name__ == "__main__":
     second = [(2,2), (3,4), (5,4)]
 
     loop = 10
-    path_tradisional, times = bds.method(map, start, goal, 2)
 
-    # for i in range(1, loop):
-    #     path_tradisional, times = jps.method(map, start, goal, 2)
-    #     print(f"Astart Tradisional : {times}")
-    #     first.append(times)
+    arrAstar = []
+    arrAstarTP = []
+    arrAstarGL = []
+    arrAstarBR = []
 
-    # print("="*100)
+    arrJps = []
+    arrJpsTP = []
+    arrJpsGL = []
+    arrJpsBR = []
 
-    # for i in range(1, loop):
-    #     path_tradisional, times = jbds.method(map, start, goal, 2)
-    #     print(f"Astart bds : {times}")
-    #     second.append(times)
+    arrAll = [
+        ("Astar ORI", arrAstar),
+        ("Astar TP", arrAstarTP),
+        ("Astar GL", arrAstarGL),
+        ("Astar BR", arrAstarBR),
+        ("JPS ORI", arrJps),
+        ("JPS TP", arrJpsTP),
+        ("JPS GL", arrJpsGL),
+        ("JPS BR", arrJpsBR)
+    ]
 
-    print(f"Average First : {np.mean(first)}")
-    print(f"Average Second : {np.mean(second)}")
+    loop = 100
+
+    for i in range(loop):
+        _, times = astar.method(map, start, goal, 2, show=False)
+        print(f"Waktu ORI : {times}")
+        arrAstar.append(times)
+
+    for i in range(loop):
+        _, times = astar_tp.method(map, start, goal, 2, show=False)
+        print(f"Waktu TP : {times}")
+        arrAstarTP.append(times)
+
+    for i in range(loop):
+        _, times = astar_gl.method(map, start, goal, 2, show=False)
+        print(f"Waktu GL : {times}")
+        arrAstarGL.append(times)
+
+    for i in range(loop):
+        _, times = astar_br.method(map, start, goal, 2, show=False)
+        print(f"Waktu BR : {times}")
+        arrAstarBR.append(times)
+
+    for i in range(loop):
+        _, times = jps.method(map, start, goal, 2, show=False)
+        print(f"Waktu ORI : {times}")
+        arrJps.append(times)
+
+    for i in range(loop):
+        _, times = jps_tp.method(map, start, goal, 2, show=False)
+        print(f"Waktu TP : {times}")
+        arrJpsTP.append(times)
+
+    for i in range(loop):
+        _, times = jps_gl.method(map, start, goal, 2, show=False)
+        print(f"Waktu GL : {times}")
+        arrJpsGL.append(times)
+
+    for i in range(loop):
+        _, times = jps_br.method(map, start, goal, 2, show=False)
+        print(f"Waktu BR : {times}")
+        arrJpsBR.append(times)
+
+    # Rata-rata Waktu
+    import numpy as np
+
+    for nama, arr in arrAll:
+        if arr:
+            print(f"Avg time for {nama}: {np.mean(arr):.6f} detik")
+        else:
+            print(f"Tidak ada data untuk {nama}")

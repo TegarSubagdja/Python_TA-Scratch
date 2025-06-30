@@ -125,7 +125,7 @@ def method(matrix, start, goal, hchoice):
         combined_open = open_forward + open_backward
         combined_closed = closed_forward.union(closed_backward)
         Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_closed)
-        clock.tick(30)  # Contoh 30 FPS
+        clock.tick(200)  # Contoh 30 FPS
 
     end_time = time.time()
 
@@ -151,7 +151,7 @@ def method(matrix, start, goal, hchoice):
         combined_closed = closed_forward.union(closed_backward)
         Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_closed, full_path)
         time.sleep(5)
-        clock.tick(30)  # Contoh 30 FPS
+        clock.tick(200)  # Contoh 30 FPS
         return (full_path, round(end_time - start_time, 6))
     
     return (0, round(end_time - start_time, 6))

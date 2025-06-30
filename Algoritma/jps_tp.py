@@ -1,5 +1,4 @@
-import math, time, heapq, sys
-from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
+from Utils import *
 
 def heuristic(start, goal, hchoice):
     if hchoice == 255:
@@ -205,7 +204,11 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
     return successors
 
 
-def method(matrix, start, goal, hchoice):
+def method(matrix, start, goal, hchoice, show=False):
+
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        clock = pygame.time.Clock()
 
     came_from = {}
     close_list = set()
@@ -229,7 +232,7 @@ def method(matrix, start, goal, hchoice):
             data.append(start)
             data = data[::-1]
             endtime = time.time()
-            return (data, round(endtime - starttime, 6)), open_list, close_list
+            return (data, round(endtime - starttime, 6))
 
         close_list.add(current)
 
@@ -245,10 +248,10 @@ def method(matrix, start, goal, hchoice):
             ):  # and tentative_gn >= gn.get(jumpPoint,0):
                 continue
 
-            tpf = tp.TurnPenalty(current, jumpPoint, 10)
-
-            if tpf <= 0:
-                tpf = 0
+            if current in came_from:
+                tpf = TP(came_from[current], current, jumpPoint, 1)
+            else:
+                tpf = 0  # Start node tidak punya parent, jadi tidak ada penalti belok
 
             tentative_gn = gn[current] + lenght(
                 current, jumpPoint, hchoice
@@ -261,6 +264,11 @@ def method(matrix, start, goal, hchoice):
                 gn[jumpPoint] = tentative_gn
                 fn[jumpPoint] = tentative_gn + heuristic(jumpPoint, goal, hchoice) + tpf
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
+
+        if show:
+            Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
+            clock.tick(200)  
+
         endtime = time.time()
     return (0, round(endtime - starttime, 6))
 
