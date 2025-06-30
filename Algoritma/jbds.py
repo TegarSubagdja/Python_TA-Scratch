@@ -1,5 +1,4 @@
-import math, time, heapq
-from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
+from Utils import *
 
 def heuristic(start, goal, hchoice):
     if hchoice == 255:
@@ -205,7 +204,12 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
     return successors
 
 
-def method(matrix, start, goal, hchoice):
+def method(matrix, start, goal, hchoice, show=False):
+
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        clock = pygame.time.Clock()
+
     open_forward = []
     open_backward = []
 
@@ -285,6 +289,12 @@ def method(matrix, start, goal, hchoice):
         if meet_point:
             break
 
+        if show:
+            combined_open = open_forward + open_backward
+            combined_closed = closed_forward.union(closed_backward)
+            Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_closed)
+            clock.tick(120)  
+
     endtime = time.time()
 
     if meet_point:
@@ -309,8 +319,6 @@ def method(matrix, start, goal, hchoice):
         return (full_path, round(endtime - starttime, 6))
 
     return (0, round(endtime - starttime, 6))
-
-
 
 def lenght(current, jumppoint, hchoice):
     moveX, moveY = direction(current[0], current[1], jumppoint[0], jumppoint[1])

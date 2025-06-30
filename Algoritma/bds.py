@@ -1,7 +1,4 @@
-import math, heapq, time, sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import Z_GetMap
-import pygame
+from Utils import *
 
 def blocked(cX, cY, dX, dY, matrix):
     if cX + dX < 0 or cX + dX >= matrix.shape[0]:
@@ -34,9 +31,12 @@ def heuristic(start, goal, hchoice):
     if hchoice == 2:
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
-def method(matrix, start, goal, hchoice):
-    surface, cell_size = Z_GetMap.Init_Visual(matrix)
-    clock = pygame.time.Clock()
+def method(matrix, start, goal, hchoice, show=False):
+
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        clock = pygame.time.Clock()
+        
     open_forward = []
     open_backward = []
 
@@ -60,12 +60,6 @@ def method(matrix, start, goal, hchoice):
     meet_point = None
 
     while open_forward and open_backward:
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return (0, 0)
-            
         # Forward direction
         _, current_forward = heapq.heappop(open_forward)
         closed_forward.add(current_forward)
@@ -122,10 +116,11 @@ def method(matrix, start, goal, hchoice):
         if meet_point:
             break
 
-        combined_open = open_forward + open_backward
-        combined_closed = closed_forward.union(closed_backward)
-        Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_closed)
-        clock.tick(200)  # Contoh 30 FPS
+        if show:
+            combined_open = open_forward + open_backward
+            combined_closed = closed_forward.union(closed_backward)
+            Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_closed)
+            clock.tick(120)  # Contoh 30 FPS
 
     end_time = time.time()
 
@@ -147,11 +142,6 @@ def method(matrix, start, goal, hchoice):
             path_backward.append(node)
 
         full_path = path_forward + path_backward
-        combined_open = open_forward + open_backward
-        combined_closed = closed_forward.union(closed_backward)
-        Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_closed, full_path)
-        time.sleep(5)
-        clock.tick(200)  # Contoh 30 FPS
         return (full_path, round(end_time - start_time, 6))
     
     return (0, round(end_time - start_time, 6))

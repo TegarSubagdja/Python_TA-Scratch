@@ -107,30 +107,32 @@ if __name__ == "__main__":
     first = [(5,5), (20, 30), (14,14)]
     second = [(2,2), (3,4), (5,4)]
 
-    loop = 10
-
     arrAstar = []
     arrAstarTP = []
     arrAstarGL = []
     arrAstarBR = []
+    arrAstarBDS = []
 
     arrJps = []
     arrJpsTP = []
     arrJpsGL = []
     arrJpsBR = []
+    arrJpsBDS = []
 
     arrAll = [
         ("Astar ORI", arrAstar),
         ("Astar TP", arrAstarTP),
         ("Astar GL", arrAstarGL),
         ("Astar BR", arrAstarBR),
+        ("Astar BDS", arrAstarBDS),
         ("JPS ORI", arrJps),
         ("JPS TP", arrJpsTP),
         ("JPS GL", arrJpsGL),
-        ("JPS BR", arrJpsBR)
+        ("JPS BR", arrJpsBR),
+        ("JPS BDS", arrJpsBDS)
     ]
 
-    loop = 100
+    loop = 5
 
     for i in range(loop):
         _, times = astar.method(map, start, goal, 2, show=False)
@@ -153,6 +155,11 @@ if __name__ == "__main__":
         arrAstarBR.append(times)
 
     for i in range(loop):
+        _, times = bds.method(map, start, goal, 2, show=False)
+        print(f"Waktu BDS : {times}")
+        arrAstarBDS.append(times)
+
+    for i in range(loop):
         _, times = jps.method(map, start, goal, 2, show=False)
         print(f"Waktu ORI : {times}")
         arrJps.append(times)
@@ -171,9 +178,11 @@ if __name__ == "__main__":
         _, times = jps_br.method(map, start, goal, 2, show=False)
         print(f"Waktu BR : {times}")
         arrJpsBR.append(times)
-
-    # Rata-rata Waktu
-    import numpy as np
+        
+    for i in range(loop):
+        _, times = jbds.method(map, start, goal, 2, show=False)
+        print(f"Waktu BR : {times}")
+        arrJpsBDS.append(times)
 
     for nama, arr in arrAll:
         if arr:
