@@ -30,7 +30,11 @@ def heuristic(start, goal, hchoice):
     if hchoice == 2:
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
-def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False):
+def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False, show=False):
+
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(map)
+        clock = pygame.time.Clock()
 
     v1, v2, v3 = 0, 0, 0
     close_list = set()
@@ -57,7 +61,7 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
             endtime = time.time()
             if ppom:
                 path = PPO(path, map)
-            return (path, round(endtime - starttime, 6)), open_list, close_list
+            return (path, round(endtime - starttime, 6))
 
         close_list.add(current)
         for dX, dY in [
@@ -93,7 +97,10 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
                 continue
             
             if tpm:
-                v1 = TP(current, neighbour, 2)
+                if current in came_from:
+                    v1 = TP(came_from[current], current, neighbour, 2)
+                else:
+                    v1 = 0  
             if brm:
                 v2 = BR(neighbour, goal, map) or 1
             if glm:
@@ -118,5 +125,20 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
                     ) + v1 + v3
 
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
+                    # Visualisasi setiap langkah
+            if show:
+                Z_GetMap.Render(surface, map, cell_size, open_list, close_list)
+                clock.tick(300)  # Batasi ke 200 FPS
+
+                # Handle event disini
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            exit()
+                
         endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0

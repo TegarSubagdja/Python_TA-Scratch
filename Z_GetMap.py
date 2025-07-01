@@ -52,7 +52,7 @@ def draw_grid(grid, surface, cell_size):
 # Visualisasi animasi grid + open, close, path
 def Init_Visual(grid):
     pygame.init()
-    cell_size = 4096 / grid.shape[0]
+    cell_size = 512 / grid.shape[0]
     rows, cols = grid.shape
     surface = pygame.display.set_mode((cols * cell_size, rows * cell_size))
     return surface, cell_size
