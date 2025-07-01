@@ -55,8 +55,8 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
         orientasi_x = int(start[0] + panjang_panah * np.cos(orientasi_robot))
         orientasi_y = int(start[1] + panjang_panah * np.sin(orientasi_robot))
 
-        cv2.line(image, start, goal, (255, 0, 255), 8)
-        cv2.arrowedLine(image, start, (orientasi_x, orientasi_y), (255,64,64), 10, tipLength=0.2)
+        cv2.line(image, start, goal, (255, 0, 255), 4)
+        cv2.arrowedLine(image, start, (orientasi_x, orientasi_y), (255,64,64), 4, tipLength=0.2)
     else:
         return 0
 
