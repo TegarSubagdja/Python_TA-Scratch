@@ -34,13 +34,15 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
                 koordinat['start'] = (center_x, center_y)
                 vector = marker_corners[1] - marker_corners[0]
                 orientasi_robot = np.arctan2(vector[1], vector[0])
+                cv2.circle(image, (int(marker_corners[0][0]), int(marker_corners[0][1])), 4, (255, 0, 255), -1)
+                cv2.circle(image, (int(marker_corners[1][0]), int(marker_corners[1][1])), 4, (255, 0, 255), -1)
 
         aruco.drawDetectedMarkers(image, corners, ids)
 
     # Hitung orientasi dan error terhadap titik target
     if koordinat['start'] and koordinat["start"] is not None and orientasi_robot is not None:
         start = koordinat['start']
-        goal = target_point  # Gunakan target_point dari parameter
+        goal = target_point
 
         #hitung jarak
         distance = euclidian(start, goal)
