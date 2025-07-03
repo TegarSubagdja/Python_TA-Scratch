@@ -1,5 +1,4 @@
-import math, time, heapq
-from Method import BarrierRasterCoefficient as br, Guideline as gl, TurnPenaltyFunction as tp
+from Utils import *
 
 def heuristic(start, goal, hchoice):
     if hchoice == 255:
@@ -205,7 +204,11 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
     return successors
 
 
-def method(matrix, start, goal, hchoice):
+def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False, show=False, speed=60):
+
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        clock = pygame.time.Clock()
 
     came_from = {}
     close_list = set()
@@ -229,7 +232,7 @@ def method(matrix, start, goal, hchoice):
             data.append(start)
             data = data[::-1]
             endtime = time.time()
-            return (data, round(endtime - starttime, 6)), open_list, close_list
+            return (data, round(endtime - starttime, 6))
 
         close_list.add(current)
 
@@ -245,6 +248,20 @@ def method(matrix, start, goal, hchoice):
             ):  # and tentative_gn >= gn.get(jumpPoint,0):
                 continue
 
+            if tpm:
+                if current in came_from:
+                    v1 = TP(came_from[jumpPoint], current, jumpPoint, 2)
+                else:
+                    v1 = 0  
+            else:
+                v1 = 0
+            if brm:
+                v2 = BR(jumpPoint, goal, matrix) or 1
+            if glm:
+                v3 = GL(start, goal, jumpPoint)
+            else:
+                v3 = 0
+
             tentative_gn = gn[current] + lenght(
                 current, jumpPoint, hchoice
             )
@@ -254,8 +271,33 @@ def method(matrix, start, goal, hchoice):
             ) or jumpPoint not in [j[1] for j in open_list]:
                 came_from[jumpPoint] = current
                 gn[jumpPoint] = tentative_gn
-                fn[jumpPoint] = tentative_gn + heuristic(jumpPoint, goal, hchoice) 
+
+                if brm:
+                    fn[jumpPoint] = tentative_gn + (heuristic(
+                        jumpPoint, 
+                        goal, 
+                        hchoice) * (1-math.log(v2)))
+                else:
+                    fn[jumpPoint] = tentative_gn + heuristic(
+                        jumpPoint, 
+                        goal, 
+                        hchoice
+                    ) + v1 + v3
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
+            if show:
+                Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
+                clock.tick(speed)  # Batasi ke 200 FPS
+
+                # Handle event disini
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            exit()
+
         endtime = time.time()
     return (0, round(endtime - starttime, 6))
 

@@ -6,7 +6,7 @@ WIDTH, HEIGHT = 640, 480
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Robot Follower - Realtime Camera")
 
-cap = cv2.VideoCapture(1)  # 0 untuk kamera default laptop, atau ganti ke 1,2 dst jika ada beberapa kamera
+cap = cv2.VideoCapture(0)  # 0 untuk kamera default laptop, atau ganti ke 1,2 dst jika ada beberapa kamera
 
 robot_original = pygame.image.load("aruco.png")
 robot_original = pygame.transform.scale(robot_original, (100, 100))

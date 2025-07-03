@@ -83,134 +83,41 @@ def get(grid_size, jumlah_rintangan):
     return grid
 
 
+def run():
+    size = 128
+
+    # Load map
+    map = Visualize.load_grid()
+
+    # Memperbesar Map Jika Diperlukan
+    # map = Visualize.upscale(map, size)
+    print(map)
+    print(map.shape)
+
+    # Membuat map acak
+    # map = get(128, 64)
+
+    start = (0,0)
+    goal = map.shape[0]-5, map.shape[1]-1
+
+    # Memastikan Format Map Benar
+    map[map == 1] = 255
+    map[start] = 2
+    map[goal] = 3
+
+    arr = []
+
+    for i in range(1, 100):
+        _, times = jps_full.method(map, start, goal, 2, glm=False, brm=False , tpm=False, ppom=False, show=True, speed=10)
+        print(times)   
+        arr.append(times)
+
+    print(np.mean(arr))
+
 # Contoh pemanggilan:
 if __name__ == "__main__":
     # run_experiment()
     # show_summary()
-
-    size = 128
-
-    map = Visualize.load_grid()
-    print(map.shape)
-    # map = Visualize.upscale(map, size)
-    print(map)
-    # print(map.shape)
-    map[map == 1] = 255
-    map[map == 2] = 0
-    map[map == 3] = 0
-
-    # map = get(128, 64)
-
-    start = (0,0)
-    goal = map.shape[0]-20, map.shape[1]-1
-
-    first = [(5,5), (20, 30), (14,14)]
-    second = [(2,2), (3,4), (5,4)]
-
-    arrAstar = []
-    arrAstarTP = []
-    arrAstarGL = []
-    arrAstarBR = []
-    arrAstarBDS = []
-
-    arrJps = []
-    arrJpsTP = []
-    arrJpsGL = []
-    arrJpsBR = []
-    arrJpsBDS = []
-
-    arrAll = [
-        ("Astar ORI", arrAstar),
-        ("Astar TP", arrAstarTP),
-        ("Astar GL", arrAstarGL),
-        ("Astar BR", arrAstarBR),
-        ("Astar BDS", arrAstarBDS),
-        ("JPS ORI", arrJps),
-        ("JPS TP", arrJpsTP),
-        ("JPS GL", arrJpsGL),
-        ("JPS BR", arrJpsBR),
-        ("JPS BDS", arrJpsBDS)
-    ]
-
-    loop = 100
-
-    _, times = astar_full.method(map, start, goal, 2, glm=False, brm=True, tpm=False, ppom=True, show=True)
-    print(times)    
-
-
-    # _, times = astar.method(map, start, goal, 2, show=False)
-    # print(f"Waktu ORI : {times}")
-    # _, times = astar_tp.method(map, start, goal, 2, show=False)
-    # print(f"Waktu TP : {times}")
-    # _, times = astar_gl.method(map, start, goal, 2, show=False)
-    # print(f"Waktu GL : {times}")
-    # _, times = astar_br.method(map, start, goal, 2, show=False)
-    # print(f"Waktu BR : {times}")
-    # _, times = bds.method(map, start, goal, 2, show=False)
-    # print(f"Waktu Astar BDS : {times}")
-    # _, times = jps.method(map, start, goal, 2, show=False)
-    # print(f"Waktu JPS : {times}")
-    # _, times = jps_tp.method(map, start, goal, 2, show=False)
-    # print(f"Waktu JPS TP : {times}")
-    # _, times = jps_gl.method(map, start, goal, 2, show=False)
-    # print(f"Waktu JPS GL : {times}")
-    # _, times = jps_br.method(map, start, goal, 2, show=False)
-    # print(f"Waktu JPS BR : {times}")
-    # _, times = jbds.method(map, start, goal, 2, show=False)
-    # print(f"Waktu JPS BDS : {times}")
-
-    # for i in range(loop):
-    #     _, times = astar.method(map, start, goal, 2, show=False)
-    #     print(f"Waktu ORI : {times}")
-    #     arrAstar.append(times)
-
-    # for i in range(loop):
-    #     _, times = astar_tp.method(map, start, goal, 2, show=False)
-    #     print(f"Waktu TP : {times}")
-    #     arrAstarTP.append(times)
-
-    # for i in range(loop):
-    #     _, times = astar_gl.method(map, start, goal, 2, show=False)
-    #     print(f"Waktu GL : {times}")
-    #     arrAstarGL.append(times)
-
-    # for i in range(loop):
-    #     _, times = astar_br.method(map, start, goal, 2, show=False)
-    #     print(f"Waktu BR : {times}")
-    #     arrAstarBR.append(times)
-
-    # for i in range(loop):
-    #     _, times = bds.method(map, start, goal, 2, show=False)
-    #     print(f"Waktu BDS : {times}")
-    #     arrAstarBDS.append(times)
-
-    # for i in range(loop):
-    #     _, times = jps.method(map, start, goal, 2, show=False)
-    #     print(f"Waktu ORI : {times}")
-    #     arrJps.append(times)
-
-    # for i in range(loop):
-    #     _, times = jps_tp.method(map, start, goal, 2, show=False)
-    #     print(f"Waktu TP : {times}")
-    #     arrJpsTP.append(times)
-
-    # for i in range(loop):
-    #     _, times = jps_gl.method(map, start, goal, 2, show=False)
-    #     print(f"Waktu GL : {times}")
-    #     arrJpsGL.append(times)
-
-    # for i in range(loop):
-    #     _, times = jps_br.method(map, start, goal, 2, show=False)
-    #     print(f"Waktu BR : {times}")
-    #     arrJpsBR.append(times)
-        
-    # for i in range(loop):
-    #     _, times = jbds.method(map, start, goal, 2, show=False)
-    #     print(f"Waktu BR : {times}")
-    #     arrJpsBDS.append(times)
-
-    # for nama, arr in arrAll:
-    #     if arr:
-    #         print(f"Avg time for {nama}: {np.mean(arr):.6f} detik")
-    #     else:
-    #         print(f"Tidak ada data untuk {nama}")
+    # run()
+    image = cv2.imread('image.png', 0)
+    corner = Position(image, 0, 1)

@@ -3,13 +3,13 @@ from Utils import *
 def getPath(image, scale=20, idStart=1, idGoal=7):
 
     cv2.imwrite('2-Position.jpg', image)
-    posa, corners = Position(image, idStart, idGoal)
+    pos, corners = Position(image, idStart, idGoal)
 
-    if not posa:
+    if not pos:
         return 0, 0
 
     cv2.imwrite('3-Preprocessing.jpg', image)
-    map, pos, mark_size = Preprocessing(image, posa, scale, corners)
+    map, pos, mark_size = Preprocessing(image, pos, scale, corners)
 
     cv2.imwrite('8-Map.jpg', map)
 
@@ -19,8 +19,8 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
         return 0, 0
 
     path = [(y * scale, x * scale) for y, x in path]
-    path[0] = posa['start'][::-1]
-    path[-1] = posa['goal'][::-1]
+    path[0] = pos['start'][::-1]
+    path[-1] = pos['goal'][::-1]
 
     image = cv2.imread('Output/Overlay.jpg')
 
