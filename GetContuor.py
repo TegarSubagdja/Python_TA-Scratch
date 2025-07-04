@@ -1,19 +1,19 @@
 from Utils import *
 
 def Contour(image, corners):
-    mark_size = None
     # Hitung Lebar Marker
     if corners:
         pts = corners[0][0] 
         mark_size = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
+    else:
+        return 0, 0
 
-    # Hitangkan Aruco Marker
+    # Hilangkan Aruco Marker
     for corner in corners:
         pts = corner[0].astype(int)  # Koordinat sudut marker dalam integer
         cv2.fillPoly(image, [pts], (255, 255, 255))  # Putih di BGR
 
     # Threshold dan erosi
-    iterate = int(mark_size / 10)
     _, thresh = cv2.threshold(image, 115, 255, cv2.THRESH_BINARY_INV)
     # kernel = np.ones((3,3), np.uint8)
     # thresh = cv2.erode(thresh, kernel, iterations=iterate)

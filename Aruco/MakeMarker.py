@@ -5,7 +5,7 @@ import cv2.aruco as aruco
 aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 
 # Tentukan ID marker yang ingin dibuat (ID harus dalam range dictionary, misalnya 0-49 untuk DICT_4X4_50)
-marker_id = 4  # Ganti sesuai kebutuhan
+marker_id = 7  # Ganti sesuai kebutuhan
 
 # Ukuran marker dalam piksel
 marker_size = 720  # Bisa diubah sesuai kebutuhan

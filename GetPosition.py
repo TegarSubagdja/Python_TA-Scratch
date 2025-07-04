@@ -31,6 +31,7 @@ def Position(image, idStart, idGoal):
     else:
         print("Tidak ada marker terdeteksi.")
 
+    print(koordinat)
     # Cek apakah kedua koordinat ditemukan
     if koordinat['start'] is None or koordinat['goal'] is None:
         print("Start atau goal tidak ditemukan.")

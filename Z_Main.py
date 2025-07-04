@@ -119,5 +119,5 @@ if __name__ == "__main__":
     # run_experiment()
     # show_summary()
     # run()
-    image = cv2.imread('image.png', 0)
-    corner = Position(image, 0, 1)
+    image = cv2.imread('Image/1.jpg', 0)
+    path = getPath(image, 20, 1, 7)

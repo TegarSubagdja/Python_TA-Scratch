@@ -6,7 +6,7 @@ def Preprocessing(image, pos, scale, corners):
     Expantion_Distance, mark_size = Contour(image, corners)
 
     # Merubah Ukuran Gambar
-    dilasi = cv2.resize(Expantion_Distance, (Expantion_Distance.shape[1]//scale, Expantion_Distance.shape[0]//scale), interpolation=cv2.INTER_NEAREST)
+    upscale_image = cv2.resize(Expantion_Distance, (Expantion_Distance.shape[1]//scale, Expantion_Distance.shape[0]//scale), interpolation=cv2.INTER_NEAREST)
     
     # Pengubah posisi ke ukuran baru
     pos = {
@@ -15,7 +15,7 @@ def Preprocessing(image, pos, scale, corners):
     }
 
     # Merubah Citra kedalam array numpy
-    map = np.array(dilasi)
+    map = np.array(upscale_image)
 
     # Asumsikan pos['start'] dan pos['goal'] dalam format (x, y)
     Xs, Ys = pos['start']
