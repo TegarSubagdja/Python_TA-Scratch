@@ -8,7 +8,7 @@ def euclidian(pos, target):
 def normalize_angle(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
 
-def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
+def GetOrientation(image, gId=None, sId=1, show_result=True, save_path=None):
 
     if image is None:
         raise FileNotFoundError(f"Gambar tidak ditemukan di path: {image}")
@@ -19,7 +19,13 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
 
     corners, ids, _ = detector.detectMarkers(image)
 
-    koordinat = {'start': None}
+    if corners:
+        pts = corners[0][0] 
+        mark_size = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
+    else:
+        mark_size = 0
+
+    koordinat = {'start': None, 'goal': None}
     orientasi_robot = None
     error_orientasi = None
     distance = None
@@ -29,20 +35,26 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
             marker_corners = corners[i][0]
             center_x = int(np.mean(marker_corners[:, 0]))
             center_y = int(np.mean(marker_corners[:, 1]))
-
-            if marker_id == id:
+            if marker_id == sId:
                 koordinat['start'] = (center_x, center_y)
                 vector = marker_corners[1] - marker_corners[0]
                 orientasi_robot = np.arctan2(vector[1], vector[0])
-                cv2.circle(image, (int(marker_corners[0][0]), int(marker_corners[0][1])), 4, (255, 0, 255), -1)
-                cv2.circle(image, (int(marker_corners[1][0]), int(marker_corners[1][1])), 4, (255, 0, 255), -1)
+            elif marker_id == gId:
+                 koordinat['goal'] = (center_x, center_y)
 
-        aruco.drawDetectedMarkers(image, corners, ids)
+        aruco.drawDetectedMarkers(image, corners, ids, (255,64,255))
 
     # Hitung orientasi dan error terhadap titik target
     if koordinat['start'] and koordinat["start"] is not None and orientasi_robot is not None:
         start = koordinat['start']
-        goal = target_point
+
+        if koordinat['goal']:
+            if isinstance(gId, tuple):
+                goal = gId
+            else:
+                goal = koordinat['goal']
+        else:
+            return 0
 
         #hitung jarak
         distance = euclidian(start, goal)
@@ -74,7 +86,7 @@ def GetOrientation(image, target_point, id=1, show_result=True, save_path=None):
         return {
             "koordinat": koordinat,
             "orientasi_robot": orientasi_robot,
-            "target_point": target_point,
+            "size": mark_size,
             "error_orientasi_radian": error_orientasi,
             "error_orientasi_derajat": np.degrees(error_orientasi) if error_orientasi is not None else None,
             "distance": distance,

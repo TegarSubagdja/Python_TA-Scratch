@@ -33,7 +33,6 @@ class PID:
 def nothing(x):
     pass
 
-
 if __name__ == "__main__":
     # Buat window dan trackbar
     cv2.namedWindow("PID Control")
