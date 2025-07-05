@@ -8,7 +8,7 @@ def euclidian(pos, target):
 def normalize_angle(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
 
-def GetOrientation(image, gId=None, sId=1, show_result=True, save_path=None):
+def GetOrientation(image, gId=None, sId=None, show_result=True, save_path=None):
 
     if image is None:
         raise FileNotFoundError(f"Gambar tidak ditemukan di path: {image}")
