@@ -13,7 +13,7 @@ if not cap.isOpened():
     exit()
 
 pid = PID(Kp=20, Ki=1, Kd=10, dt=0.1, output_limit=255, integral_limit=200)
-base_speed = 250
+base_speed = 255
 
 error_buffer = deque(maxlen=10)
 
@@ -37,7 +37,7 @@ while True:
 
         # cam = cv2.flip(result['image'], 1)
         center = result['koordinat']
-        error = f"{int(result['error_orientasi_derajat'])}"
+        error = int(error_buffer)
         distance = int(result['distance'])
 
         finishDistance = 2 * result['size']
@@ -45,7 +45,7 @@ while True:
             print("Sampai")
 
         cv2.circle(cam, target_point, 10, (255, 128, 255), -1)
-        cv2.putText(cam, error, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+        cv2.putText(cam, f"{error}", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
         cv2.putText(cam, f"{distance}", (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
         cv2.putText(cam, f"{left_speed}", (20, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
         cv2.putText(cam, f"{right_speed}", (20, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
