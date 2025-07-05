@@ -1,6 +1,5 @@
 from Utils import *
 
-
 scale = 0.3
 
 image = cv2.imread('Image/7.jpg')
