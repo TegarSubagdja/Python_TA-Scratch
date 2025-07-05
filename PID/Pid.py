@@ -12,8 +12,8 @@ class PID:
         self.output_limit = output_limit
         self.integral_limit = integral_limit
 
-    def calc(self, setpoint, current_value):
-        error = setpoint - current_value
+    def calc(self, error):
+   
         self.integral += error * self.dt
 
         # Clamp integral to prevent windup

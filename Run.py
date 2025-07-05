@@ -6,7 +6,7 @@ WIDTH, HEIGHT = 640, 480
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Robot Follower - Realtime Camera")
 
-cap = cv2.VideoCapture(0)  # 0 untuk kamera default laptop, atau ganti ke 1,2 dst jika ada beberapa kamera
+cap = cv2.VideoCapture(1)  # 0 untuk kamera default laptop, atau ganti ke 1,2 dst jika ada beberapa kamera
 
 robot_original = pygame.image.load("aruco.png")
 robot_original = pygame.transform.scale(robot_original, (100, 100))
@@ -18,6 +18,8 @@ rotation_angle = 0
 path = None
 idx = 0
 mark_size = None
+pid = PID(Kp=2, Ki=1, Kd=1, dt=0.01, output_limit=255, integral_limit=200)
+base_speed = 255
 
 # ===== Loop Utama =====
 running = True
@@ -55,11 +57,6 @@ while running:
             elif event.key == pygame.K_r:
                 path = None  # Reset jalur
 
-    # ===== Posisi Robot =====
-    mouse_x, mouse_y = pygame.mouse.get_pos()
-    rotated_robot = pygame.transform.rotate(robot_original, rotation_angle)
-    robot_rect = rotated_robot.get_rect(center=(mouse_x, mouse_y))
-
     # ===== Hitung Path Jika Belum Ada =====
     if path is None:
         cv2.imwrite('1-getPath.jpg', screenshot_gray)
@@ -85,6 +82,8 @@ while running:
             distance = int(dt['distance'])
             error = int(dt['error_orientasi_derajat'])
             orientation = int(dt['orientasi_robot'])
+            correction = pid.calc(error)
+            left_speed = max(0, min(255, int(base_speed + correction)))
 
             if start:
                 pygame.draw.line(window, (64, 0, 64), start, (x, y), 3)
@@ -94,6 +93,7 @@ while running:
                     f"Jarak: {distance} cm",
                     f"Arah: {error}°",
                     f"Orientasi: {orientation}"
+                    f"Output PID: {left_speed}"
                 ]
 
                 for i, txt in enumerate(texts):
@@ -103,9 +103,6 @@ while running:
 
             if distance is None or distance <= mark_size + (mark_size / 2):
                 path.pop(0)
-
-    # ===== Gambar Robot =====
-    # window.blit(rotated_robot, robot_rect.topleft)
 
     pygame.display.flip()
 
