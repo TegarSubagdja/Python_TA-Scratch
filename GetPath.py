@@ -36,14 +36,3 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
     #     cv2.circle(image, (x,y), 8, (255,0,255), -1)
 
     return path, mark_size
-
-
-# # cap = cv2.VideoCapture(2)
-
-# # ret, frame = cap.read()
-
-# frame = cv2.imread("Image/1.jpg")
-
-# frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-# path, bo = getPath(frame, 10, 1, 7)
