@@ -1,5 +1,4 @@
-import cv2
-import numpy as np
+from Utils import *
 
 class PID:
     def __init__(self, Kp, Ki, Kd, dt, output_limit=255, integral_limit=255):

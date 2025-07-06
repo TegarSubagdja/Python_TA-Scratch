@@ -4,10 +4,10 @@ import serial
 from collections import deque
 
 # Konfigurasi Serial
-PORT = 'COM11 '
+PORT = 'COM7'
 BAUDRATE = 9600
 last_send_time = time.time()
-send_interval = 0.1  # 100ms
+send_interval = 1  # 100ms
 current_time = None
 
 # PID Controller
@@ -20,8 +20,8 @@ target_point = (100, 100)
 
 # Buka Webcam
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+# cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+# cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
 if not cap.isOpened():
     print("Tidak dapat membuka webcam.")
@@ -43,7 +43,7 @@ try:
             print("Gagal membaca frame dari webcam.")
             break
 
-        result = GetOrientation(cam, sId=3, gId=9, show_result=False)
+        result = GetOrientation(cam, sId=2, gId=7, show_result=False)
 
         if result and result['error_orientasi_derajat'] is not None:
             error_buffer.append(result['error_orientasi_derajat'])

@@ -75,17 +75,16 @@ def get(grid_size, jumlah_rintangan):
         col = random.randint(0, grid_size - 2)
 
         # Isi 4 titik berdekatan (2x2 area)
-        grid[row, col] = 255
-        grid[row + 1, col] = 255
-        grid[row, col + 1] = 255
-        grid[row + 1, col + 1] = 255
+        val = 1
+        grid[row, col] = val
+        grid[row + 1, col] = val
+        grid[row, col + 1] = val
+        grid[row + 1, col + 1] = val
 
     return grid
 
 
 def run():
-    size = 128
-
     # Load map
     map = Visualize.load_grid()
 
@@ -95,7 +94,15 @@ def run():
     print(map.shape)
 
     # Membuat map acak
-    # map = get(128, 64)
+    arrMap = []
+    size = [16, 32, 64, 128, 256, 512]
+    obs = [1, 2, 4, 5]
+    for sz in size:
+        map = get(sz, sz*sz//20)
+        arrMap.append(map)
+        Z_GetMap.save(map, f"./Map/Image/Map{sz}_{2}.jpg")
+
+    Z_GetMap.save_JSON(arrMap)
 
     start = (0,0)
     goal = map.shape[0]-5, map.shape[1]-1
@@ -107,12 +114,12 @@ def run():
 
     arr = []
 
-    for i in range(1, 100):
-        _, times = jps_full.method(map, start, goal, 2, glm=True, brm=False , tpm=False, ppom=False, show=True, speed=10)
-        print(times)   
-        arr.append(times)
+    # for i in range(1, 100):
+    #     _, times = jps_full.method(map, start, goal, 2, glm=True, brm=False , tpm=False, ppom=False, show=True, speed=10)
+    #     print(times)   
+    #     arr.append(times)
 
-    print(np.mean(arr))
+    # print(np.mean(arr))
 
 # Contoh pemanggilan:
 if __name__ == "__main__":

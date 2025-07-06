@@ -21,6 +21,22 @@ def hex_to_rgb(hex_code):
     hex_code = hex_code.lstrip('#')
     return tuple(int(hex_code[i:i + 2], 16) for i in (0, 2, 4))
 
+# Simpan Arr Map ke JSON
+def save_JSON(map, fixed_path="Map/JSON/ArrMap.json"):
+    """
+    Menyimpan grid ke file JSON pada path tetap.
+    
+    Parameters:
+    - fixed_path (str): Lokasi penyimpanan file JSON, default ke 'Output/Map.json'
+    """
+    try:
+        grid_list = map  # Konversi array ke list
+        with open(fixed_path, 'w') as f:
+            json.dump(grid_list, f, indent=4)
+        print(f"Grid berhasil disimpan ke '{fixed_path}'")
+    except Exception as e:
+        print(f"Gagal menyimpan grid: {e}")
+
 # Muat grid dari file JSON
 def load_grid(path="Map/JSON/Map.json"):
     with open(path, 'r') as f:
@@ -130,7 +146,7 @@ def show(grid, window_size=1024):
     pygame.quit()
 
 # Simpan grid ke gambar tanpa tampil
-def save(grid, save_path="Map/Image/Map.jpg", image_size=1024):
+def save(grid, save_path="Map/Image/Map.jpg", image_size=4096):
     os.environ["SDL_VIDEODRIVER"] = "dummy"  # Headless
     pygame.init()
 

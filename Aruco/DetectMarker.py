@@ -35,7 +35,7 @@ def detect_aruco_realtime(camera_index=0, aruco_dict_type=aruco.DICT_4X4_50):
 
         if ids is not None:
             # Gambar kotak di sekitar marker dan tampilkan ID
-            aruco.drawDetectedMarkers(frame, corners, borderColor=(0, 255, 0))
+            aruco.drawDetectedMarkers(frame, corners, ids, (255,0,255))
             
         cv2.imshow("Deteksi ArUco Realtime", frame)
 

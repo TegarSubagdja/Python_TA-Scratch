@@ -42,7 +42,7 @@ def GetOrientation(image, gId=None, sId=None, show_result=True, save_path=None):
             elif marker_id == gId:
                  koordinat['goal'] = (center_x, center_y)
 
-        aruco.drawDetectedMarkers(image, corners, ids, (255,64,255))
+        # aruco.drawDetectedMarkers(image, corners, ids, (255,64,255))
 
     # Hitung orientasi dan error terhadap titik target
     if koordinat['start'] and koordinat["start"] is not None and orientasi_robot is not None:
