@@ -4,10 +4,11 @@ import serial
 from collections import deque
 
 # Konfigurasi Serial
-PORT = 'COM7'
+PORT = 'COM11 '
 BAUDRATE = 9600
 last_send_time = time.time()
 send_interval = 0.1  # 100ms
+current_time = None
 
 # PID Controller
 pid = PID(Kp=20, Ki=1, Kd=10, dt=0.1, output_limit=255, integral_limit=200)
@@ -60,14 +61,22 @@ try:
             if distance >= finishDistance and (current_time - last_send_time) >= send_interval:
                 pwm(ser, left_speed, right_speed)
                 last_send_time = current_time
+                print(f"pwn dikirim {left_speed}, {right_speed}")
             elif distance < finishDistance:
                 print("Sampai")
+                pwm(ser, 0, 0)
 
             # Visualisasi
             cv2.circle(cam, target_point, 10, (255, 128, 255), -1)
             cv2.putText(cam, f"Error: {error}", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
             cv2.putText(cam, f"Distance: {distance}", (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
             cv2.putText(cam, f"L: {left_speed} R: {right_speed}", (20, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+        else:
+            current_time = time.time()
+            if (current_time - last_send_time) >= send_interval:
+                pwm(ser, 0, 0)
+                print(f"pwn tidak dikirim")
+                last_send_time = current_time
 
         cv2.imshow('Tracking', cam)
 

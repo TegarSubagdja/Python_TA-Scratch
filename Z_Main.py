@@ -108,7 +108,7 @@ def run():
     arr = []
 
     for i in range(1, 100):
-        _, times = jps_full.method(map, start, goal, 2, glm=False, brm=False , tpm=False, ppom=False, show=True, speed=10)
+        _, times = jps_full.method(map, start, goal, 2, glm=True, brm=False , tpm=False, ppom=False, show=True, speed=10)
         print(times)   
         arr.append(times)
 
@@ -118,6 +118,6 @@ def run():
 if __name__ == "__main__":
     # run_experiment()
     # show_summary()
-    # run()
-    image = cv2.imread('Image/1.jpg', 0)
-    path = getPath(image, 20, 1, 7)
+    run()
+    # image = cv2.imread('Image/1.jpg', 0)
+    # path = getPath(image, 20, 1, 7)

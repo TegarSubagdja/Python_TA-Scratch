@@ -284,7 +284,9 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
                         hchoice
                     ) + v1 + v3
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
+
             if show:
+
                 Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
                 clock.tick(speed)  # Batasi ke 200 FPS
 
