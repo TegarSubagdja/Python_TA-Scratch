@@ -42,7 +42,7 @@ def run():
     arr = []
 
     for i in range(1, 10):
-        (path, times), *_ = jps_full.method(map, start, goal, 2, glm=False, brm=False , tpm=False, ppom=True, show=True, speed=100)
+        (path, times) = jbds.method(map, start, goal, hchoice=2, glm=True, brm=True , tpm=False, ppom=False, show=True, speed=10)
         print(times)   
         arr.append(times)
 

@@ -211,12 +211,13 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
         clock = pygame.time.Clock()
 
     came_from = {}
+    open_list = []
     close_list = set()
     gn = {start: 0}
     fn = {start: heuristic(start, goal, hchoice)}
 
-    open_list = []
-
+    v1, v2, v3 = 0, 0, 0
+    
     heapq.heappush(open_list, (fn[start], start))
 
     starttime = time.time()
@@ -249,7 +250,7 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
                         if event.key == pygame.K_ESCAPE:
                             pygame.quit()
                             exit()
-            return (data, round(endtime - starttime, 6)), open_list, close_list
+            return (data, round(endtime - starttime, 6))
 
         close_list.add(current)
 
@@ -276,8 +277,6 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
                 v2 = BR(jumpPoint, goal, matrix) or 1
             if glm:
                 v3 = GL(start, goal, jumpPoint)
-            else:
-                v3 = 0
 
             tentative_gn = gn[current] + lenght(
                 current, jumpPoint, hchoice
@@ -293,7 +292,7 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
                     fn[jumpPoint] = tentative_gn + (heuristic(
                         jumpPoint, 
                         goal, 
-                        hchoice) * (1-math.log(v2)))
+                        hchoice) * (1-math.log(v2))) + v1 + v3
                 else:
                     fn[jumpPoint] = tentative_gn + heuristic(
                         jumpPoint, 

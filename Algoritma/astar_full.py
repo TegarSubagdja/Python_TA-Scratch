@@ -30,7 +30,7 @@ def heuristic(start, goal, hchoice):
     if hchoice == 2:
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
-def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False, show=False):
+def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False, show=False, speed=30):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(map)
@@ -61,6 +61,21 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
             endtime = time.time()
             if ppom:
                 path = PPO(path, map)
+            if show:
+
+                Z_GetMap.Render(surface, map, cell_size, open_list, close_list, path)
+                clock.tick(speed)  # Batasi ke 200 FPS
+                time.sleep(5)
+
+                # Handle event disini
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            exit()
             return (path, round(endtime - starttime, 6))
 
         close_list.add(current)
@@ -116,7 +131,7 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
                     fn[neighbour] = tentative_gn + (heuristic(
                         neighbour, 
                         goal, 
-                        hchoice) * (1-math.log(v2)))
+                        hchoice) * (1-math.log(v2))) + v1 + v3
                 else:
                     fn[neighbour] = tentative_gn + heuristic(
                         neighbour, 
@@ -128,7 +143,7 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
                     # Visualisasi setiap langkah
             if show:
                 Z_GetMap.Render(surface, map, cell_size, open_list, close_list)
-                clock.tick(300)  # Batasi ke 200 FPS
+                clock.tick(speed)  # Batasi ke 200 FPS
 
                 # Handle event disini
                 for event in pygame.event.get():
