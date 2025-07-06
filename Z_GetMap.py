@@ -110,6 +110,13 @@ def Render(surface, grid, cell_size, open_list, close_list, path=None):
             pygame.draw.rect(surface, hex_to_rgb(colors[4]),
                              (x * cell_size, y * cell_size, cell_size, cell_size))
 
+        for i in range(len(path) - 1):
+            y1, x1 = path[i]
+            y2, x2 = path[i + 1]
+            pygame.draw.line(surface, (255, 0, 255),
+                            (x1 * cell_size + cell_size // 2, y1 * cell_size + cell_size // 2),
+                            (x2 * cell_size + cell_size // 2, y2 * cell_size + cell_size // 2), 2)
+
     pygame.display.flip()
 
 # Tampilkan grid ke layar

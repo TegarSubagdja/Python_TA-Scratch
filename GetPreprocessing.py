@@ -2,7 +2,7 @@ from Utils import *
 
 def Preprocessing(image, pos, scale, corners):
 
-    cv2.imwrite('4-Contour.jpg', image)
+    cv2.imwrite('Data/Image/Process/4-Contour.jpg', image)
     Expantion_Distance, mark_size = Contour(image, corners)
 
     # Merubah Ukuran Gambar

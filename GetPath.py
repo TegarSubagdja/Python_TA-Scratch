@@ -2,16 +2,16 @@ from Utils import *
 
 def getPath(image, scale=20, idStart=1, idGoal=7):
 
-    cv2.imwrite('2-Position.jpg', image)
+    cv2.imwrite('Data/Image/Process/2-Position.jpg', image)
     pos, corners = Position(image, idStart, idGoal)
 
     if not pos:
         return 0, 0
 
-    cv2.imwrite('3-Preprocessing.jpg', image)
+    cv2.imwrite('Data/Image/Process/3-Preprocessing.jpg', image)
     map, pos, mark_size = Preprocessing(image, pos, scale, corners)
 
-    cv2.imwrite('8-Map.jpg', map)
+    cv2.imwrite('Data/Image/Process/8-Map.jpg', map)
 
     (path, time)= jps.method(map, pos['start'], pos['goal'], 2)
 

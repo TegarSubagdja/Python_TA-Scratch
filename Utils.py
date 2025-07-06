@@ -12,6 +12,8 @@ import time
 import json
 import math
 import serial
+import random
+import itertools
 
 # Internal modules
 from collections import deque
@@ -34,7 +36,7 @@ from Control.Serial import pwm
 
 # __all__ defines what will be imported via `from common import *`
 __all__ = [
-    'sys', 'deque', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'time', 'json', 'math', 
+    'sys', 'deque', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'time', 'json', 'math', 'random', 'itertools',
     'BR', 'GL', 'TP', 'PPO', 'Contour',
     'Position', 'Preprocessing',
     'prunning', 'guidline', 'jarakGaris', 'Visualize', 'Z_GetMap',

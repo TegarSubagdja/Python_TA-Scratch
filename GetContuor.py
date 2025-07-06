@@ -19,7 +19,7 @@ def Contour(image, corners):
     # thresh = cv2.erode(thresh, kernel, iterations=iterate)
 
     # Temukan kontur
-    cv2.imwrite('5-findContours.jpg', image)
+    cv2.imwrite('Data/Image/Process/5-findContours.jpg', image)
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # Canvas kosong
@@ -45,8 +45,8 @@ def Contour(image, corners):
 
     # Overlay dengan transparansi 20%
     blended = cv2.addWeighted(image_bgr, 1.0, output_colored, 0.2, 0)
-    cv2.imwrite('6-overleay.jpg', blended)
-    cv2.imwrite('7-OutputContour.jpg', output)
+    cv2.imwrite('Data/Image/Process/6-overleay.jpg', blended)
+    cv2.imwrite('Data/Image/Process/7-OutputContour.jpg', output)
 
     cv2.imwrite('Output/Overlay.jpg', output)
 

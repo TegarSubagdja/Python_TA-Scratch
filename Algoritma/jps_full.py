@@ -232,7 +232,24 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
             data.append(start)
             data = data[::-1]
             endtime = time.time()
-            return (data, round(endtime - starttime, 6))
+            if ppom:
+                data = prunning(data, matrix)
+            if show:
+
+                Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, data)
+                clock.tick(speed)  # Batasi ke 200 FPS
+                time.sleep(5)
+
+                # Handle event disini
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            exit()
+            return (data, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
 
