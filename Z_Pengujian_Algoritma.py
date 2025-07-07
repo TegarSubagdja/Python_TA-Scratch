@@ -9,7 +9,7 @@ def get(grid_size, jumlah_rintangan):
         col = random.randint(0, grid_size - 2)
 
         # Isi 4 titik berdekatan (2x2 area)
-        val = 1
+        val = 255
         grid[row, col] = val
         grid[row + 1, col] = val
         grid[row, col + 1] = val
@@ -18,16 +18,14 @@ def get(grid_size, jumlah_rintangan):
     return grid
 
 def run():
+    arrSize = []
+    size = [32, 64, 128, 256, 512]
+    
     map = Visualize.load_grid()
-    map = Visualize.upscale(map, 128)
-    print(map.shape)
-
-    start = (0, 0)
-    goal = map.shape[0] - 5, map.shape[1] - 1
-
-    np.place(map, map == 1, 255)
-    map[start] = 2
-    map[goal] = 3
+    for sz in size:
+        map = Visualize.upscale(map, sz)
+        arrSize.append(map)
+        print(map.shape)
 
     kombinasi_flags = list(itertools.product([False, True], repeat=6))
     print(len(kombinasi_flags))  # Harus 64
@@ -37,42 +35,70 @@ def run():
 
     hasil = []  # Simpan [flag, time]
 
-    for flags in kombinasi_flags:
-        jps, bd, glm, brm, tpm, ppom = flags
+    for arr in arrSize:
 
-        print(f"Testing: jps={jps}, bd={bd}, glm={glm}, brm={brm}, tpm={tpm}, ppom={ppom}")
+        start = (0, 0)
+        goal = arr.shape[0] - 5, arr.shape[1] - 1
 
-        avg = []
+        for flags in kombinasi_flags:
+            jps, bd, glm, brm, tpm, ppom = flags
 
-        for i in range(1, 10):
-            (path, times) = Algoritm(
-            map, start, goal, hchoice=1, 
-            jps=False, 
-            bd=bd, 
-            glm=glm, 
-            brm=brm, 
-            tpm=tpm, 
-            ppom=ppom, 
-            show=False, 
-            speed=200
-            )
-            avg.append(times)
+            print(f"Testing: jps={jps}, bd={bd}, glm={glm}, brm={brm}, tpm={tpm}, ppom={ppom} di size {arr.shape}")
 
-        times = np.mean(avg)
-        
-        print(f"Time: {times:.6f} detik")
-        hasil.append([jps, bd, glm, brm, tpm, ppom, times])
+            avg = []
 
-    # Sorting berdasarkan waktu tercepat
-    hasil.sort(key=lambda x: x[-1])
+            for i in range(1, 2):
+                (path, times) = Algoritm(
+                arr, start, goal, hchoice=1, 
+                jps=jps, 
+                bd=bd, 
+                glm=glm, 
+                brm=brm, 
+                tpm=tpm, 
+                ppom=ppom, 
+                show=True, 
+                speed=200
+                )
+                avg.append(times)
 
-    print("\n=== Hasil Kombinasi Tercepat ===")
-    for row in hasil:
-        print(f"Flags: {row[:-1]}  | Time: {row[-1]:.6f} detik")
+            times = np.mean(avg)
+            
+            print(f"Time: {times:.6f} detik")
+            hasil.append([jps, bd, glm, brm, tpm, ppom, times])
 
+        # Sorting berdasarkan waktu tercepat
+        hasil.sort(key=lambda x: x[-1])
+
+        print("\n=== Hasil Kombinasi Tercepat ===")
+        tercepat = min(hasil, key=lambda x: x[-1])
+        print(f"Flags: {tercepat[:-1]} di size {arr.shape}  | Time: {tercepat[-1]:.6f} detik")
 
 # Contoh pemanggilan:
 if __name__ == "__main__":
     # run_experiment()
     # show_summary()
     run()
+    
+    # map = Visualize.load_grid()
+    # map = Visualize.upscale(map, 32)
+    # print(map.shape)
+
+    # kombinasi_flags = list(itertools.product([False, True], repeat=6))
+    # print(len(kombinasi_flags))  # Harus 64
+    # print(len(set(kombinasi_flags)))  # Harus juga 64, artinya tidak ada duplikat
+
+    # start = (0, 0)
+    # goal = map.shape[0] - 5, map.shape[1] - 1
+
+    # (path, times) = Algoritm(
+    # map, start, goal, hchoice=1, 
+    # jps=False, 
+    # bd=False, 
+    # glm=False, 
+    # brm=False, 
+    # tpm=False, 
+    # ppom=False, 
+    # show=False, 
+    # speed=200)
+
+    # print(f"Time: {times:.6f} detik")
