@@ -1,5 +1,4 @@
 from Utils import *
-import csv
 
 def get(grid_size, jumlah_rintangan):
     grid = np.zeros((grid_size, grid_size), dtype=int)
@@ -30,9 +29,9 @@ def run():
         print(map_.shape)
 
     kombinasi_flags = list(itertools.product([False, True], repeat=6))
-    print(f"Total kombinasi: {len(kombinasi_flags)}")  # Harus 64
+    print(f"Total kombinasi: {len(kombinasi_flags)}") 
 
-    hasil_semua = []  # List besar untuk semua data
+    hasil_semua = [] 
 
     for arr in arrSize:
         
