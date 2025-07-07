@@ -76,7 +76,7 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
                         if event.key == pygame.K_ESCAPE:
                             pygame.quit()
                             exit()
-            return (path, round(endtime - starttime, 6))
+            return (path, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
         for dX, dY in [

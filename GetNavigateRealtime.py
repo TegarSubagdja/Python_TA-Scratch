@@ -1,7 +1,4 @@
 from Utils import *
-import cv2
-import serial
-from collections import deque
 
 # Konfigurasi Serial
 PORT = 'COM7'

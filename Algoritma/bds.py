@@ -224,6 +224,6 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
                             pygame.quit()
                             exit()
 
-        return (full_path, round(end_time - start_time, 6))
+        return (full_path, round(end_time - start_time, 6)), (open_forward + open_backward), (closed_forward.union(closed_backward))
     
     return (0, round(end_time - start_time, 6))

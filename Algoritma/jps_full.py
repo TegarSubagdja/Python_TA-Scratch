@@ -250,7 +250,7 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
                         if event.key == pygame.K_ESCAPE:
                             pygame.quit()
                             exit()
-            return (data, round(endtime - starttime, 6))
+            return (data, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
 
@@ -472,7 +472,7 @@ def methodBds(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppo
                     pygame.quit()
                     exit()
 
-        return full_path, round(end_time - start_time, 6)
+        return (full_path, round(end_time - start_time, 6)), (open_f + open_b), (close_f.union(close_b))
 
     return 0, round(end_time - start_time, 6)
 
