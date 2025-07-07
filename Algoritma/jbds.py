@@ -1,7 +1,7 @@
 from Utils import *
 
 def heuristic(start, goal, hchoice):
-    if hchoice == 255:
+    if hchoice == 1:
         xdist = math.fabs(goal[0] - start[0])
         ydist = math.fabs(goal[1] - start[1])
         if xdist > ydist:
@@ -347,7 +347,7 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
         if show:
             Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f.union(close_b), full_path)
             clock.tick(speed)
-            time.sleep(3)
+            time.sleep(2)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

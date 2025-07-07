@@ -65,7 +65,7 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
 
                 Z_GetMap.Render(surface, map, cell_size, open_list, close_list, path)
                 clock.tick(speed)  # Batasi ke 200 FPS
-                time.sleep(5)
+                time.sleep(2)
 
                 # Handle event disini
                 for event in pygame.event.get():

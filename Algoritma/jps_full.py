@@ -1,7 +1,7 @@
 from Utils import *
 
 def heuristic(start, goal, hchoice):
-    if hchoice == 255:
+    if hchoice == 1:
         xdist = math.fabs(goal[0] - start[0])
         ydist = math.fabs(goal[1] - start[1])
         if xdist > ydist:
@@ -217,7 +217,7 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
     fn = {start: heuristic(start, goal, hchoice)}
 
     v1, v2, v3 = 0, 0, 0
-    
+
     heapq.heappush(open_list, (fn[start], start))
 
     starttime = time.time()
@@ -239,7 +239,7 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
 
                 Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, data)
                 clock.tick(speed)  # Batasi ke 200 FPS
-                time.sleep(5)
+                time.sleep(2)
 
                 # Handle event disini
                 for event in pygame.event.get():
@@ -268,7 +268,7 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
 
             if tpm:
                 if current in came_from:
-                    v1 = TP(came_from[jumpPoint], current, jumpPoint, 2)
+                    v1 = TP(came_from[current], current, jumpPoint, 2)
                 else:
                     v1 = 0  
             else:
@@ -319,6 +319,162 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
         endtime = time.time()
     return (0, round(endtime - starttime, 6))
 
+def methodBds(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False, show=False, speed=60):
+
+    if show:
+        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        clock = pygame.time.Clock()
+
+    # Forward
+    came_from_f = {}
+    open_f = []
+    close_f = set()
+    g_f = {start: 0}
+    f_f = {start: heuristic(start, goal, hchoice)}
+
+    # Backward
+    came_from_b = {}
+    open_b = []
+    close_b = set()
+    g_b = {goal: 0}
+    f_b = {goal: heuristic(goal, start, hchoice)}
+
+    v1, v2, v3 = 0, 0, 0
+
+    heapq.heappush(open_f, (f_f[start], start))
+    heapq.heappush(open_b, (f_b[goal], goal))
+
+    start_time = time.time()
+    meet_point = None
+
+    while open_f and open_b:
+
+        # ============ Forward Expand ============
+        _, current_f = heapq.heappop(open_f)
+        close_f.add(current_f)
+
+        successors = identifySuccessors(current_f[0], current_f[1], came_from_f, matrix, goal)
+        
+        for succ in successors:
+            if succ in close_f:
+                continue
+
+            if tpm:
+                v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, 2)
+            if brm:
+                v2 = BR(succ, goal, matrix) or 1
+            if glm:
+                v3 = GL(start, goal, succ)
+
+            tentative_g = g_f[current_f] + lenght(current_f, succ, hchoice)
+
+            if succ not in g_f or tentative_g < g_f[succ]:
+                came_from_f[succ] = current_f
+                g_f[succ] = tentative_g
+
+                if brm:
+                    f_f[succ] = tentative_g + (heuristic(succ, goal, hchoice) * (1 - math.log(v2))) + v1 + v3
+                else:
+                    f_f[succ] = tentative_g + heuristic(succ, goal, hchoice) + v1 + v3
+
+                heapq.heappush(open_f, (f_f[succ], succ))
+
+            if succ in close_b:
+                meet_point = succ
+                break
+        if meet_point:
+            break
+
+        # ============ Backward Expand ============
+        _, current_b = heapq.heappop(open_b)
+        close_b.add(current_b)
+
+        successors_b = identifySuccessors(current_b[0], current_b[1], came_from_b, matrix, start)
+        
+        for succ in successors_b:
+            if succ in close_b:
+                continue
+
+            if tpm:
+                v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, 2)
+            if brm:
+                v2 = BR(succ, start, matrix) or 1
+            if glm:
+                v3 = GL(goal, start, succ)
+
+            tentative_g = g_b[current_b] + lenght(current_b, succ, hchoice)
+
+            if succ not in g_b or tentative_g < g_b[succ]:
+                came_from_b[succ] = current_b
+                g_b[succ] = tentative_g
+
+                if brm:
+                    f_b[succ] = tentative_g + (heuristic(succ, start, hchoice) * (1 - math.log(v2))) + v1 + v3
+                else:
+                    f_b[succ] = tentative_g + heuristic(succ, start, hchoice) + v1 + v3
+
+                heapq.heappush(open_b, (f_b[succ], succ))
+
+            if succ in close_f:
+                meet_point = succ
+                break
+        if meet_point:
+            break
+
+        # ============ Visual ============
+        if show:
+            combined_open = open_f + open_b
+            combined_close = close_f.union(close_b)
+            Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_close)
+            clock.tick(speed)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    exit()
+
+    end_time = time.time()
+
+    # ============ Path Reconstruction ============
+    if meet_point:
+        path_f = []
+        node = meet_point
+        while node in came_from_f:
+            path_f.append(node)
+            node = came_from_f[node]
+        path_f.append(start)
+        path_f.reverse()
+
+        path_b = []
+        node = meet_point
+        while node in came_from_b:
+            node = came_from_b[node]
+            path_b.append(node)
+
+        full_path = path_f + path_b
+
+        if ppom:
+            full_path = prunning(full_path, matrix)
+
+        if show:
+            Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f.union(close_b), full_path)
+            clock.tick(speed)
+            time.sleep(2)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    exit()
+
+        return full_path, round(end_time - start_time, 6)
+
+    return 0, round(end_time - start_time, 6)
 
 def lenght(current, jumppoint, hchoice):
     moveX, moveY = direction(current[0], current[1], jumppoint[0], jumppoint[1])

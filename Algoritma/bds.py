@@ -212,7 +212,7 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
 
                 Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_closed, full_path)
                 clock.tick(speed)  # Batasi ke 200 FPS
-                time.sleep(3)
+                time.sleep(2)
 
                 # Handle event disini
                 for event in pygame.event.get():

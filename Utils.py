@@ -1,5 +1,5 @@
-# Built-in and third-party modules
 import sys
+# Built-in and third-party modules
 import cv2
 import cv2.aruco as aruco
 import numpy as np
@@ -33,10 +33,11 @@ from Method.PathPolylineOptimization import prunning as PPO
 from Algoritma import jps, astar,  astar_full, jps_full, bds, jbds
 from GetPath import getPath
 from Control.Serial import pwm
+from GetAlgorithm import method as Algoritm
 
 # __all__ defines what will be imported via `from common import *`
 __all__ = [
-    'sys', 'deque', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'time', 'json', 'math', 'random', 'itertools',
+    'sys', 'deque', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'time', 'json', 'math', 'random', 'itertools', 'Algoritm',
     'BR', 'GL', 'TP', 'PPO', 'Contour',
     'Position', 'Preprocessing',
     'prunning', 'guidline', 'jarakGaris', 'Visualize', 'Z_GetMap',
