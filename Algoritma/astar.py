@@ -21,7 +21,7 @@ def blocked(cX, cY, dX, dY, matrix):
 
 
 def heuristic(start, goal, hchoice):
-    if hchoice == 1:
+    if hchoice == 255:
         xdist = math.fabs(goal[0] - start[0])
         ydist = math.fabs(goal[1] - start[1])
         if xdist > ydist:
@@ -32,7 +32,7 @@ def heuristic(start, goal, hchoice):
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
 
-def method(matrix, start, goal, hchoice=2, GLF=False, BRC=False , TPF=False, PPO=True, show=False, speed=30):
+def method(matrix, start, goal, hchoice, show=False, speed=30):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
@@ -44,56 +44,80 @@ def method(matrix, start, goal, hchoice=2, GLF=False, BRC=False , TPF=False, PPO
     fn = {start: heuristic(start, goal, hchoice)}
 
     open_list = []
+
     heapq.heappush(open_list, (fn[start], start))
 
     starttime = time.time()
-    running = True
 
-    while open_list and running:
+    while open_list:
 
         current = heapq.heappop(open_list)[1]
-        
         if current == goal:
             path = []
             while current in came_from:
                 path.append(current)
                 current = came_from[current]
             path.append(start)
-            path = path[::-1]
+            path = path[::]
+            #print(gscore[goal])
             endtime = time.time()
-            return (path, round(endtime - starttime, 6))
+            return (path, round(endtime - starttime, 6)), close_list, open_list 
 
         close_list.add(current)
-
         for dX, dY in [
-            (0, 1), (0, -1), (1, 0), (-1, 0),
-            (1, 1), (1, -1), (-1, 1), (-1, -1),
+            (0, 1),
+            (0, -1),
+            (1, 0),
+            (-1, 0),
+            (1, 1),
+            (1, -1),
+            (-1, 1),
+            (-1, -1),
         ]:
-            ny, nx = current[0] + dX, current[1] + dY
 
             if blocked(current[0], current[1], dX, dY, matrix):
                 continue
 
-            neighbour = (ny, nx)
+            neighbour = current[0] + dX, current[1] + dY
 
-            if hchoice == 1:
-                tentative_gn = gn[current] + (14 if dX != 0 and dY != 0 else 10)
+            if hchoice == 255:
+                if dX != 0 and dY != 0:
+                    tentative_gn = gn[current] + 14
+                else:
+                    tentative_gn = gn[current] + 10
             elif hchoice == 2:
-                tentative_gn = gn[current] + (math.sqrt(2) if dX != 0 and dY != 0 else 1)
+                if dX != 0 and dY != 0:
+                    tentative_gn = gn[current] + math.sqrt(2)
+                else:
+                    tentative_gn = gn[current] + 1
 
-            if neighbour in close_list:
+            if (
+                neighbour in close_list
+            ):  # and tentative_g_score >= gscore.get(neighbour,0):
                 continue
 
-            if tentative_gn < gn.get(neighbour, 0) or neighbour not in [i[1] for i in open_list]:
+            if tentative_gn < gn.get(
+                neighbour, 0
+            ) or neighbour not in [i[1] for i in open_list]:
                 came_from[neighbour] = current
                 gn[neighbour] = tentative_gn
-                fn[neighbour] = tentative_gn + heuristic(neighbour, goal, hchoice)
+                fn[neighbour] = tentative_gn + heuristic(
+                    neighbour, goal, hchoice
+                )
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
 
-        # Visualisasi setiap langkah
-        if show:
-            Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
-            clock.tick(200)  # Batasi ke 60 FPS
+            if show:
+                Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
+                clock.tick(speed)  # Batasi ke 200 FPS
 
-    endtime = time.time()
+                # Handle event disini
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            exit()
+        endtime = time.time()
     return (0, round(endtime - starttime, 6))

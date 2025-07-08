@@ -205,7 +205,6 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
 
 
 def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60):
-    
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
         clock = pygame.time.Clock()
@@ -213,6 +212,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     # Forward
     came_from_f = {}
     open_f = []
+    open_set_f = {start}
     close_f = set()
     g_f = {start: 0}
     f_f = {start: heuristic(start, goal, hchoice)}
@@ -220,6 +220,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     # Backward
     came_from_b = {}
     open_b = []
+    open_set_b = {goal}
     close_b = set()
     g_b = {goal: 0}
     f_b = {goal: heuristic(goal, start, hchoice)}
@@ -231,25 +232,21 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
     start_time = time.time()
     meet_point = None
-    
-    # Pre-compute log untuk BRC jika diperlukan
     log_cache = {}
 
-    # ============ OPTIMIZED MAIN LOOP ============
     while open_f and open_b and not meet_point:
-        
         # ============ Forward Expand ============
         if open_f:
             _, current_f = heapq.heappop(open_f)
+            open_set_f.discard(current_f)
             close_f.add(current_f)
 
             successors = identifySuccessors(current_f[0], current_f[1], came_from_f, matrix, goal)
-            
+
             for succ in successors:
                 if succ in close_f:
                     continue
 
-                # Single-line conditional calculations
                 v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, 2) if TPF else 0
                 v2 = BR(succ, goal, matrix) or 1 if BRC else 1
                 v3 = GL(start, goal, succ) if GLF else 0
@@ -260,13 +257,10 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     came_from_f[succ] = current_f
                     g_f[succ] = tentative_g
 
-                    # Pre-compute heuristic values
                     h_to_goal = heuristic(succ, goal, hchoice)
                     h_to_current_b = heuristic(succ, current_b, 2)
-                    
-                    # Optimized f-value calculation
+
                     if BRC:
-                        # Cache log calculation
                         if v2 not in log_cache:
                             log_cache[v2] = math.log(v2)
                         f_f[succ] = tentative_g + (h_to_goal * (1 - log_cache[v2])) + v1 + v3 + h_to_current_b
@@ -274,24 +268,25 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                         f_f[succ] = tentative_g + h_to_goal + v1 + v3 + h_to_current_b
 
                     heapq.heappush(open_f, (f_f[succ], succ))
+                    open_set_f.add(succ)
 
-                # Meeting point check
-                if succ in close_b:
+                # Meeting point check (tambahan: juga cek open_set_b)
+                if succ in close_b or succ in open_set_b:
                     meet_point = succ
                     break
 
         # ============ Backward Expand ============
         if open_b and not meet_point:
             _, current_b = heapq.heappop(open_b)
+            open_set_b.discard(current_b)
             close_b.add(current_b)
 
             successors_b = identifySuccessors(current_b[0], current_b[1], came_from_b, matrix, start)
-            
+
             for succ in successors_b:
                 if succ in close_b:
                     continue
 
-                # Single-line conditional calculations
                 v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, 2) if TPF else 0
                 v2 = BR(succ, start, matrix) or 1 if BRC else 1
                 v3 = GL(goal, start, succ) if GLF else 0
@@ -302,13 +297,10 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     came_from_b[succ] = current_b
                     g_b[succ] = tentative_g
 
-                    # Pre-compute heuristic values
                     h_to_start = heuristic(succ, start, hchoice)
                     h_to_current_f = heuristic(current_f, succ, 2)
-                    
-                    # Optimized f-value calculation
+
                     if BRC:
-                        # Cache log calculation
                         if v2 not in log_cache:
                             log_cache[v2] = math.log(v2)
                         f_b[succ] = tentative_g + (h_to_start * (1 - log_cache[v2])) + v1 + v3 + h_to_current_f
@@ -316,21 +308,20 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                         f_b[succ] = tentative_g + h_to_start + v1 + v3 + h_to_current_f
 
                     heapq.heappush(open_b, (f_b[succ], succ))
+                    open_set_b.add(succ)
 
-                # Meeting point check
-                if succ in close_f:
+                # Meeting point check (tambahan: juga cek open_set_f)
+                if succ in close_f or succ in open_set_f:
                     meet_point = succ
                     break
 
-        # ============ Visual (optimized) ============
+        # ============ Visual ============
         if show:
-            # Combine sets sekali saja
             combined_open = open_f + open_b
-            combined_close = close_f | close_b  # Operator | lebih cepat dari union()
+            combined_close = close_f | close_b
             Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_close)
             clock.tick(speed)
 
-            # Event handling yang lebih efisien
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
@@ -340,7 +331,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
     # ============ Path Reconstruction ============
     if meet_point:
-        # Forward path
         path_f = []
         node = meet_point
         while node in came_from_f:
@@ -349,14 +339,12 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
         path_f.append(start)
         path_f.reverse()
 
-        # Backward path
         path_b = []
         node = meet_point
         while node in came_from_b:
             node = came_from_b[node]
             path_b.append(node)
 
-        # Combine path tanpa duplikasi
         full_path = path_f + path_b
 
         if PPO:
@@ -366,7 +354,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
             Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, full_path)
             clock.tick(speed)
             time.sleep(2)
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
@@ -375,6 +362,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
         return (full_path, round(end_time - start_time, 6)), (open_f + open_b), (close_f | close_b)
 
     return 0, round(end_time - start_time, 6)
+
 
 def lenght(current, jumppoint, hchoice):
     moveX, moveY = direction(current[0], current[1], jumppoint[0], jumppoint[1])

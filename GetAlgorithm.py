@@ -4,7 +4,7 @@ def method(map, start, goal, hchoice=2, JPS=False, BDS=False, GLF=False, BRC=Fal
     if JPS:
         if BDS:
             # print(f"jps dengan bidirectional")
-            return jps_full.methodBds(map, start, goal, hchoice, GLF, BRC , TPF, PPO, show, speed)
+            return jbds.methodBds(map, start, goal, hchoice, GLF, BRC , TPF, PPO, show, speed)
         else:
             # print(f"jps")
             return jps_full.method(map, start, goal, hchoice, GLF, BRC , TPF, PPO, show, speed)
