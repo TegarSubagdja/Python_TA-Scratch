@@ -1,16 +1,6 @@
-import tkinter as tk
-from tkinter import filedialog
-import pygame
-import numpy as np
-import json
-from Algoritma import JPS_Komentar
-from Algoritma import JPS_Komentar_Bidirectional
+from Utils import *
 from Algoritma import Astar_Komentar
-from Algoritma import Astar_Komentar_Bidirectional
 from Method.PathPolylineOptimization import prunning
-import ast
-from Algoritma import astar
-from Algoritma import jps
 
 # Variabel untuk ketebalan garis
 LINE_WIDTH = 2  # Menentukan ketebalan garis, bisa diubah sesuai kebutuhan
@@ -21,7 +11,7 @@ CIRCLE_RADIUS = 10  # Ukuran radius bulatan (dalam pixel)
 CIRCLE_COLOR = "#000000"  # Warna bulatan, misalnya tomat
 
 # Konfigurasi grid
-GRID_SIZE = 16
+GRID_SIZE = 32
 WIDTH = 512 #GRID_SIZE * CELL_SIZE
 HEIGHT = 512 #GRID_SIZE * CELL_SIZE
 CELL_SIZE = WIDTH//GRID_SIZE
@@ -68,17 +58,24 @@ def hex_to_rgb(hex_code):
     return tuple(int(hex_code[i:i + 2], 16) for i in (0, 2, 4))
 
 def save_grid_to_json(fixed_path="Map/JSON/Map.json"):
-    """
-    Menyimpan grid ke file JSON pada path tetap.
-    
-    Parameters:
-    - fixed_path (str): Lokasi penyimpanan file JSON, default ke 'Output/Map.json'
-    """
     try:
-        grid_list = map_grid.tolist()  # Konversi array ke list
-        with open(fixed_path, 'w') as f:
+        # Ambil direktori, nama file tanpa ekstensi, dan ekstensi
+        directory, filename = os.path.split(fixed_path)
+        name, ext = os.path.splitext(filename)
+
+        # Tentukan nama file akhir jika file sudah ada
+        counter = 1
+        new_path = fixed_path
+        while os.path.exists(new_path):
+            new_path = os.path.join(directory, f"{name}_{counter}{ext}")
+            counter += 1
+
+        # Konversi dan simpan
+        grid_list = map_grid.tolist()  # Pastikan map_grid sudah tersedia di global
+        with open(new_path, 'w') as f:
             json.dump(grid_list, f, indent=4)
-        print(f"Grid berhasil disimpan ke '{fixed_path}'")
+        print(f"Grid berhasil disimpan ke '{new_path}'")
+
     except Exception as e:
         print(f"Gagal menyimpan grid: {e}")
 

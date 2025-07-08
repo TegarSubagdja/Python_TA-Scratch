@@ -17,12 +17,15 @@ def get(grid_size, jumlah_rintangan):
 
     return grid
 
-def run(show=False, size=[32, 64, 128]):
-    size = [32, 64, 128]
+def run(map=None, show=False, size=[32, 64, 128]):
+
+    if map is not None:
+        map_awal = Visualize.load_grid()
+    else:
+        map_awal = map
+
     kombinasi_flags = list(itertools.product([False, True], repeat=6))
     print(f"Total kombinasi: {len(kombinasi_flags)}\n")
-
-    map_awal = Visualize.load_grid()
 
     # Dictionary besar untuk simpan semua metrik
     hasil_time = []
@@ -31,7 +34,7 @@ def run(show=False, size=[32, 64, 128]):
     hasil_close = []
 
     for flags in kombinasi_flags:
-        jps, BDS, GLF, BRC, TPF, PPO = flags
+        JPS, BDS, GLF, BRC, TPF, PPO = flags
 
         aktif_flags = []
         if BDS: aktif_flags.append("BDS")
@@ -39,13 +42,16 @@ def run(show=False, size=[32, 64, 128]):
         if BRC: aktif_flags.append("BRC")
         if GLF: aktif_flags.append("GLM")
         if TPF: aktif_flags.append("TPF")
-        if jps: aktif_flags.append("JPS")
+        if JPS: aktif_flags.append("JPS")
         method_name = "-".join(aktif_flags) if aktif_flags else "DEFAULT"
 
-        row_time = {"method": method_name}
-        row_path = {"method": method_name}
-        row_open = {"method": method_name}
-        row_close = {"method": method_name}
+        aktif_count = len(aktif_flags)  # Hitung jumlah flag aktif
+
+        row_time = {"count": aktif_count, "method": method_name}
+        row_path = {"count": aktif_count, "method": method_name}
+        row_open = {"count": aktif_count, "method": method_name}
+        row_close = {"count": aktif_count, "method": method_name}
+
 
         for sz in size:
             map_ = Visualize.upscale(map_awal, sz)
@@ -64,7 +70,7 @@ def run(show=False, size=[32, 64, 128]):
             for _ in range(10):
                 (path, times), openlist, closelist = Algoritm(
                     map_.copy(), start, goal, hchoice=2,
-                    JPS=jps, BDS=BDS, GLF=GLF,
+                    JPS=JPS, BDS=BDS, GLF=GLF,
                     BRC=BRC, TPF=TPF, PPO=PPO,
                     show=show, speed=200
                 )
@@ -86,14 +92,13 @@ def run(show=False, size=[32, 64, 128]):
         hasil_open.append(row_open)
         hasil_close.append(row_close)
 
-    # Simpan ke 4 file berbeda
-    pd.DataFrame(hasil_time).to_excel("Data/Pengujian/waktu_512_Avg10_AllComb.xlsx", index=False)
-    pd.DataFrame(hasil_path).to_excel("Data/Pengujian/path_512_Avg10_AllComb.xlsx", index=False)
-    pd.DataFrame(hasil_open).to_excel("Data/Pengujian/openlist_512_Avg10_AllComb.xlsx", index=False)
-    pd.DataFrame(hasil_close).to_excel("Data/Pengujian/closelist_512_Avg10_AllComb.xlsx", index=False)
-
+    # Simpan ke satu file dengan sheet berbeda
+    with pd.ExcelWriter("Data/Pengujian/hasil_pengujian_512_Avg10_AllComb.xlsx") as writer:
+        pd.DataFrame(hasil_time).to_excel(writer, sheet_name="Time", index=False)
+        pd.DataFrame(hasil_path).to_excel(writer, sheet_name="Path Length", index=False)
+        pd.DataFrame(hasil_open).to_excel(writer, sheet_name="Open Set", index=False)
+        pd.DataFrame(hasil_close).to_excel(writer, sheet_name="Close Set", index=False)
     print("\n✅ Semua file berhasil disimpan secara terpisah dan rapi.")
-
 
 def runMethod(JPS=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, show=False, size=[32, 64, 128]):
     sizes = [32, 64, 128, 256]
@@ -129,7 +134,7 @@ def runMethod(JPS=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, 
         for _ in range(10):
             (path, times), _, _ = Algoritm(
                 map_.copy(), start, goal, hchoice=2,
-                JPS=jps, BDS=BDS, GLF=GLF,
+                JPS=JPS, BDS=BDS, GLF=GLF,
                 BRC=BRC, TPF=TPF, PPO=PPO,
                 show=show, speed=200
             )
@@ -148,11 +153,14 @@ def runMethod(JPS=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, 
 # Contoh pemanggilan:
 if __name__ == "__main__":
     # run(show=False, size=[32, 64, 128, 256, 512])
-    run(show=False, size=[32, 64])
     # runMethod(jps=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, show=False)
+
+    scale = 256
     
-    # map_awal = Visualize.load_grid()
-    # # map_awal = Visualize.upscale(map_awal, 32)
+    map_awal = Visualize.load_grid(path="Map/JSON/Map_1.json")
+    map_awal = Visualize.upscale(map_awal, scale)
+    run(map=map_awal, show=False, size=[32, 64, 128])
+    Z_GetMap.save(map_awal, f"Data/Image/Sample_2_{scale}.jpg")
 
     # start = (0, 0)
     # goal = map_awal.shape[0] - 1, map_awal.shape[1] - 1
