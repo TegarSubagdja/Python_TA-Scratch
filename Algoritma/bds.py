@@ -57,6 +57,9 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
     closed_forward = set()
     closed_backward = set()
 
+    current_forward = start
+    current_backward = goal
+
     heapq.heappush(open_forward, (f_forward[start], start))
     heapq.heappush(open_backward, (f_backward[goal], goal))
 
@@ -88,24 +91,22 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 if neighbor in closed_forward:
                     continue
 
-                if TPF:
-                    if current_forward in came_from_forward:
-                        v1 = TP(came_from_forward[current_forward], current_forward, neighbor, 2)
-                    else:
-                        v1 = 0
-                if BRC:
-                    v2 = BR(neighbor, goal, matrix) or 1
-                if GLF:
-                    v3 = GL(start, goal, neighbor)
+                v1 = TP(came_from_forward.get(current_forward, current_forward), current_forward, neighbor, 2) if TPF else 0
+                v2 = BR(neighbor, goal, matrix) or 1 if BRC else 1
+                v3 = GL(goal, start, neighbor) if GLF else 0
 
                 cost = 14 if hchoice == 1 and dX != 0 and dY != 0 else (10 if hchoice == 1 else (math.sqrt(2) if dX != 0 and dY != 0 else 1))
                 tentative_g = g_forward.get(current_forward, 0) + cost
 
                 if neighbor not in g_forward or tentative_g < g_forward[neighbor]:
                     g_forward[neighbor] = tentative_g
-                    f_forward[neighbor] = tentative_g + heuristic(neighbor, goal, hchoice) + v1 + v3
+
+                    h_to_current_b = 0 #heuristic(neighbor, current_backward, 2)
+
                     if BRC:
-                        f_forward[neighbor] = tentative_g + (heuristic(neighbor, goal, hchoice) * (1 - math.log(v2)))
+                        f_forward[neighbor] = tentative_g + (heuristic(neighbor, goal, hchoice) * (1 - math.log(v2))) + v1 + v3 + h_to_current_b
+                    else:
+                        f_forward[neighbor] = tentative_g + heuristic(neighbor, goal, hchoice) + v1 + v3 + h_to_current_b
                     came_from_forward[neighbor] = current_forward
                     heapq.heappush(open_forward, (f_forward[neighbor], neighbor))
                     open_set_forward.add(neighbor)
@@ -129,24 +130,23 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 if neighbor in closed_backward:
                     continue
 
-                if TPF:
-                    if current_backward in came_from_backward:
-                        v1 = TP(came_from_backward[current_backward], current_backward, neighbor, 2)
-                    else:
-                        v1 = 0
-                if BRC:
-                    v2 = BR(start, neighbor, matrix) or 1
-                if GLF:
-                    v3 = GL(start, goal, neighbor)
+                v1 = TP(came_from_backward.get(current_backward, current_backward), current_backward, neighbor, 2) if TPF else 0
+                v2 = BR(neighbor, start, matrix) or 1 if BRC else 1
+                v3 = GL(goal, start, neighbor) if GLF else 0
 
                 cost = 14 if hchoice == 1 and dX != 0 and dY != 0 else (10 if hchoice == 1 else (math.sqrt(2) if dX != 0 and dY != 0 else 1))
                 tentative_g = g_backward.get(current_backward, 0) + cost
 
                 if neighbor not in g_backward or tentative_g < g_backward[neighbor]:
                     g_backward[neighbor] = tentative_g
-                    f_backward[neighbor] = tentative_g + heuristic(neighbor, start, hchoice) + v1 + v3
+
+                    h_to_current_f = 0 #heuristic(neighbor, current_backward, 2)
+
                     if BRC:
-                        f_backward[neighbor] = tentative_g + (heuristic(neighbor, start, hchoice) * (1 - math.log(v2)))
+                        f_backward[neighbor] = tentative_g + (heuristic(neighbor, start, hchoice) * (1 - math.log(v2))) + v1 + v3 + h_to_current_f
+                    else:
+                        f_backward[neighbor] = tentative_g + heuristic(neighbor, start, hchoice) + v1 + v3 + h_to_current_f
+
                     came_from_backward[neighbor] = current_backward
                     heapq.heappush(open_backward, (f_backward[neighbor], neighbor))
                     open_set_backward.add(neighbor)
@@ -193,4 +193,4 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
         return (full_path, round(end_time - start_time, 6)), (open_forward + open_backward), closed_forward.union(closed_backward)
 
     
-    return (0, round(end_time - start_time, 6))
+    return (0, round(end_time - start_time, 6)), 0, 0

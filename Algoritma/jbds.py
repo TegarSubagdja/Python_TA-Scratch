@@ -361,7 +361,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
         return (full_path, round(end_time - start_time, 6)), (open_f + open_b), (close_f | close_b)
 
-    return 0, round(end_time - start_time, 6)
+    return (0, round(end_time - start_time, 6)), 0, 0
 
 
 def lenght(current, jumppoint, hchoice):

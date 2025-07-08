@@ -266,17 +266,9 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
             ):  # and tentative_gn >= gn.get(jumpPoint,0):
                 continue
 
-            if TPF:
-                if current in came_from:
-                    v1 = TP(came_from[current], current, jumpPoint, 2)
-                else:
-                    v1 = 0  
-            else:
-                v1 = 0
-            if BRC:
-                v2 = BR(jumpPoint, goal, matrix) or 1
-            if GLF:
-                v3 = GL(start, goal, jumpPoint)
+            v1 = TP(came_from.get(jumpPoint, jumpPoint), current, jumpPoint, 2) if TPF else 0
+            v2 = BR(jumpPoint, goal, matrix) or 1 if BRC else 1
+            v3 = GL(start, goal, jumpPoint) if GLF else 0
 
             tentative_gn = gn[current] + lenght(
                 current, jumpPoint, hchoice
@@ -316,8 +308,8 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                             pygame.quit()
                             exit()
 
-        endtime = time.time()
-    return (0, round(endtime - starttime, 6))
+    endtime = time.time()
+    return (0, round(end_time - start_time, 6)), 0, 0
 
 def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60):
     
