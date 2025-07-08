@@ -1,23 +1,18 @@
 from Utils import *
 
 def euclidian(pos, target):
-    p1, p2 = pos
-    q1, q2 = target
-    return math.sqrt((p1 - q1)**2 + (p2 - q2)**2)
+    return np.linalg.norm(np.array(pos) - np.array(target))
 
 def normalize_angle(angle):
-    return (angle + np.pi) % (2 * np.pi) - np.pi
+    return np.arctan2(np.sin(angle), np.cos(angle))
 
-def GetOrientation(image, gId=None, sId=None, show_result=True, save_path=None):
+def GetOrientation(image, gId=None, sId=None, show_result=True, save_path=None, detector=False):
 
     if image is None:
         raise FileNotFoundError(f"Gambar tidak ditemukan di path: {image}")
 
-    aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
-    parameters = aruco.DetectorParameters()
-    detector = aruco.ArucoDetector(aruco_dict, parameters)
-
-    corners, ids, _ = detector.detectMarkers(image)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    corners, ids, _ = detector.detectMarkers(gray)
 
     if corners:
         pts = corners[0][0] 
@@ -33,8 +28,8 @@ def GetOrientation(image, gId=None, sId=None, show_result=True, save_path=None):
     if ids is not None:
         for i, marker_id in enumerate(ids.flatten()):
             marker_corners = corners[i][0]
-            center_x = int(np.mean(marker_corners[:, 0]))
-            center_y = int(np.mean(marker_corners[:, 1]))
+            center = marker_corners.mean(axis=0).astype(int)
+            center_x, center_y = center
             if marker_id == sId:
                 koordinat['start'] = (center_x, center_y)
                 vector = marker_corners[1] - marker_corners[0]

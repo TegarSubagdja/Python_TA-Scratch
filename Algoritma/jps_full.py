@@ -309,7 +309,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                             exit()
 
     endtime = time.time()
-    return (0, round(end_time - start_time, 6)), 0, 0
+    return (0, round(endtime - starttime, 6)), 0, 0
 
 def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60):
     

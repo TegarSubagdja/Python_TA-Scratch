@@ -1,4 +1,5 @@
 from Utils import *
+import threading
 
 # Konfigurasi Serial
 PORT = 'COM7'
@@ -6,6 +7,11 @@ BAUDRATE = 9600
 last_send_time = time.time()
 send_interval = 1  # 100ms
 current_time = None
+
+# Setup Aruco
+aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
+parameters = aruco.DetectorParameters()
+detector = aruco.ArucoDetector(aruco_dict, parameters) 
 
 # PID Controller
 pid = PID(Kp=20, Ki=1, Kd=10, dt=0.1, output_limit=255, integral_limit=200)
@@ -16,21 +22,21 @@ error_buffer = deque(maxlen=10)
 target_point = (100, 100)
 
 # Buka Webcam
-cap = cv2.VideoCapture(0)
-# cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-# cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+cap = cv2.VideoCapture(1)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
 if not cap.isOpened():
     print("Tidak dapat membuka webcam.")
     exit()
 
 # Buka Serial
-try:
-    ser = serial.Serial(PORT, BAUDRATE, timeout=1)
-    print(f"Tersambung ke {PORT}")
-except serial.SerialException as e:
-    print(f"Gagal membuka port serial: {e}")
-    exit()
+# try:
+#     ser = serial.Serial(PORT, BAUDRATE, timeout=1)
+#     print(f"Tersambung ke {PORT}")
+# except serial.SerialException as e:
+#     print(f"Gagal membuka port serial: {e}")
+#     exit()
 
 # Loop Utama
 try:
@@ -40,28 +46,31 @@ try:
             print("Gagal membaca frame dari webcam.")
             break
 
-        result = GetOrientation(cam, sId=2, gId=7, show_result=False)
+        result = GetOrientation(cam, sId=2, gId=7, show_result=False, save_path=None, detector=detector)
 
         if result and result['error_orientasi_derajat'] is not None:
-            error_buffer.append(result['error_orientasi_derajat'])
-            smooth_error = sum(error_buffer) / len(error_buffer)
-            correction = pid.calc(int(smooth_error))
-
-            left_speed = max(0, min(255, int(base_speed - correction)))
-            right_speed = max(0, min(255, int(base_speed + correction)))
-
-            error = int(smooth_error)
-            distance = int(result['distance'])
 
             finishDistance = 2 * result['size']
+            distance = int(result['distance'])
             current_time = time.time()
+
             if distance >= finishDistance and (current_time - last_send_time) >= send_interval:
-                pwm(ser, left_speed, right_speed)
+                # pwm(ser, left_speed, right_speed)
                 last_send_time = current_time
                 print(f"pwn dikirim {left_speed}, {right_speed}")
             elif distance < finishDistance:
                 print("Sampai")
-                pwm(ser, 0, 0)
+                # threading.Thread(target=pwm, args=(ser, left_speed, right_speed)).start() # ganti dengan ini agar tidak saling tunggu
+                # pwm(ser, 0, 0)
+
+            error_buffer.append(result['error_orientasi_derajat'])
+            smooth_error = sum(error_buffer) / len(error_buffer)
+            correction = pid.calc(smooth_error)
+
+            left_speed = max(0, min(255, base_speed - correction))
+            right_speed = max(0, min(255, base_speed + correction))
+
+            error = int(smooth_error)
 
             # Visualisasi
             cv2.circle(cam, target_point, 10, (255, 128, 255), -1)
@@ -71,7 +80,7 @@ try:
         else:
             current_time = time.time()
             if (current_time - last_send_time) >= send_interval:
-                pwm(ser, 0, 0)
+                # pwm(ser, 0, 0)
                 print(f"pwn tidak dikirim")
                 last_send_time = current_time
 
@@ -86,5 +95,5 @@ except KeyboardInterrupt:
 
 # Cleanup
 cap.release()
-ser.close()
+# ser.close()
 cv2.destroyAllWindows()
