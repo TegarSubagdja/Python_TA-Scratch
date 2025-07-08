@@ -204,7 +204,7 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
     return successors
 
 
-def kmethod(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False, show=False, speed=60):
+def kmethod(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
@@ -244,11 +244,11 @@ def kmethod(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=
             if succ in close_f:
                 continue
 
-            if tpm:
+            if TPF:
                 v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, 2)
-            if brm:
+            if BRC:
                 v2 = BR(succ, goal, matrix) or 1
-            if glm:
+            if GLF:
                 v3 = GL(start, goal, succ)
 
             tentative_g = g_f[current_f] + lenght(current_f, succ, hchoice)
@@ -257,7 +257,7 @@ def kmethod(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=
                 came_from_f[succ] = current_f
                 g_f[succ] = tentative_g
 
-                if brm:
+                if BRC:
                     f_f[succ] = tentative_g + (heuristic(succ, goal, hchoice) * (1 - math.log(v2))) + v1 + v3 + heuristic(current_f, current_b, 2)
                 else:
                     f_f[succ] = tentative_g + heuristic(succ, goal, hchoice) + v1 + v3 + (heuristic(current_f, current_b, 2))
@@ -280,11 +280,11 @@ def kmethod(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=
             if succ in close_b:
                 continue
 
-            if tpm:
+            if TPF:
                 v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, 2)
-            if brm:
+            if BRC:
                 v2 = BR(succ, start, matrix) or 1
-            if glm:
+            if GLF:
                 v3 = GL(goal, start, succ)
 
             tentative_g = g_b[current_b] + lenght(current_b, succ, hchoice)
@@ -293,7 +293,7 @@ def kmethod(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=
                 came_from_b[succ] = current_b
                 g_b[succ] = tentative_g
 
-                if brm:
+                if BRC:
                     f_b[succ] = tentative_g + (heuristic(succ, start, hchoice) * (1 - math.log(v2))) + v1 + v3
                 else:
                     f_b[succ] = tentative_g + heuristic(succ, start, hchoice) + v1 + v3
@@ -341,7 +341,7 @@ def kmethod(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=
 
         full_path = path_f + path_b
 
-        if ppom:
+        if PPO:
             full_path = prunning(full_path, matrix)
 
         if show:

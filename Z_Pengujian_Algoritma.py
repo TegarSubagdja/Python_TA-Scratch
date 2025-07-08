@@ -31,14 +31,14 @@ def run(show=False):
     hasil_close = []
 
     for flags in kombinasi_flags:
-        jps, bd, glm, brm, tpm, ppom = flags
+        jps, BDS, GLF, BRC, TPF, PPO = flags
 
         aktif_flags = []
-        if bd: aktif_flags.append("BD")
-        if ppom: aktif_flags.append("PPO")
-        if brm: aktif_flags.append("BRC")
-        if glm: aktif_flags.append("GLM")
-        if tpm: aktif_flags.append("TPF")
+        if BDS: aktif_flags.append("BDS")
+        if PPO: aktif_flags.append("PPO")
+        if BRC: aktif_flags.append("BRC")
+        if GLF: aktif_flags.append("GLM")
+        if TPF: aktif_flags.append("TPF")
         if jps: aktif_flags.append("JPS")
         method_name = "-".join(aktif_flags) if aktif_flags else "DEFAULT"
 
@@ -64,8 +64,8 @@ def run(show=False):
             for _ in range(10):
                 (path, times), openlist, closelist = Algoritm(
                     map_.copy(), start, goal, hchoice=2,
-                    jps=jps, bd=bd, glm=glm,
-                    brm=brm, tpm=tpm, ppom=ppom,
+                    JPS=jps, BDS=BDS, GLF=GLF,
+                    BRC=BRC, TPF=TPF, PPO=PPO,
                     show=show, speed=200
                 )
                 times_list.append(times)
@@ -95,17 +95,17 @@ def run(show=False):
     print("\n✅ Semua file berhasil disimpan secara terpisah dan rapi.")
 
 
-def runMethod(jps=False, bd=False, glm=False, brm=False, tpm=False, ppom=False, show=False):
+def runMethod(JPS=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, show=False):
     sizes = [32, 64, 128, 256]
 
     # Buat nama metode dari flag aktif
     aktif_flags = []
-    if bd: aktif_flags.append("BD")
-    if ppom: aktif_flags.append("PPO")
-    if brm: aktif_flags.append("BRC")
-    if glm: aktif_flags.append("GLM")
-    if tpm: aktif_flags.append("TPF")
-    if jps: aktif_flags.append("JPS")
+    if BDS: aktif_flags.append("BDS")
+    if PPO: aktif_flags.append("PPO")
+    if BRC: aktif_flags.append("BRC")
+    if GLF: aktif_flags.append("GLM")
+    if TPF: aktif_flags.append("TPF")
+    if JPS: aktif_flags.append("JPS")
     method_name = "-".join(aktif_flags) if aktif_flags else "DEFAULT"
 
     map_awal = Visualize.load_grid()
@@ -129,8 +129,8 @@ def runMethod(jps=False, bd=False, glm=False, brm=False, tpm=False, ppom=False, 
         for _ in range(10):
             (path, times), _, _ = Algoritm(
                 map_.copy(), start, goal, hchoice=2,
-                jps=jps, bd=bd, glm=glm,
-                brm=brm, tpm=tpm, ppom=ppom,
+                JPS=jps, BDS=BDS, GLF=GLF,
+                BRC=BRC, TPF=TPF, PPO=PPO,
                 show=show, speed=200
             )
             times_list.append(times)
@@ -148,7 +148,7 @@ def runMethod(jps=False, bd=False, glm=False, brm=False, tpm=False, ppom=False, 
 # Contoh pemanggilan:
 if __name__ == "__main__":
     # run(show=False)
-    # runMethod(jps=False, bd=False, glm=False, brm=False, tpm=False, ppom=False, show=False)
+    # runMethod(jps=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, show=False)
     
     map_awal = Visualize.load_grid()
     # map_awal = Visualize.upscale(map_awal, 32)
@@ -167,8 +167,8 @@ if __name__ == "__main__":
 
     (path, times), open_list, close_list = Algoritm(
         map_awal, start, goal, hchoice=2,
-        jps=False, bd=False, glm=False,
-        brm=False, tpm=False, ppom=True,
+        JPS=False, BDS=False, GLF=False,
+        BRC=False, TPF=False, PPO=True,
         show=True, speed=10
     )
     avg.append(times)

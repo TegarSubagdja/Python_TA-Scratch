@@ -21,10 +21,16 @@ CIRCLE_RADIUS = 10  # Ukuran radius bulatan (dalam pixel)
 CIRCLE_COLOR = "#000000"  # Warna bulatan, misalnya tomat
 
 # Konfigurasi grid
-GRID_SIZE = 32
+GRID_SIZE = 16
 WIDTH = 512 #GRID_SIZE * CELL_SIZE
 HEIGHT = 512 #GRID_SIZE * CELL_SIZE
 CELL_SIZE = WIDTH//GRID_SIZE
+
+# Inisialisasi Pygame
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Interactive Grid Editor")
+font = pygame.font.SysFont(None, 16)
 
 # Warna untuk setiap elemen grid dalam kode HEX
 colors = {
@@ -41,13 +47,6 @@ colors = {
 
 # Inisialisasi grid
 map_grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=int)
-
-# Inisialisasi Pygame
-pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Interactive Grid Editor")
-font = pygame.font.SysFont(None, 24)
-
 # Status aktif (0 = ruang kosong, 1 = rintangan, 2 = start, 3 = goal, 4 = garis, 5 = open, 6 = close, 7 = gray)
 active_mode = 1  # Default mode rintangan
 lines = []  # Menyimpan semua garis sebagai ((x1, y1), (x2, y2))
@@ -104,8 +103,16 @@ def draw_grid(grid):
             )
             # Jika koordinat diaktifkan, tampilkan koordinat di pojok kanan atas
             if show_coordinates:
-                coord_text = font.render(f"{row},{col}", True, (0, 0, 0))
-                screen.blit(coord_text, (col * CELL_SIZE + CELL_SIZE - 40, row * CELL_SIZE + 5))
+                label = f"{row},{col}"
+                coord_text = font.render(label, True, (0, 0, 0))
+                text_width, text_height = font.size(label)
+                
+                # Posisi pojok kanan bawah sel, dikurangi sedikit margin
+                text_x = col * CELL_SIZE + CELL_SIZE - text_width - 2
+                text_y = row * CELL_SIZE + CELL_SIZE - text_height - 2
+
+                screen.blit(coord_text, (text_x, text_y))
+
 
 # Fungsi untuk menampilkan mode aktif di layar
 def display_mode(text):
@@ -177,6 +184,8 @@ def process_cell(row, col):
         map_grid[row, col] = 7
     elif active_mode == 8:  # Mode pink
         map_grid[row, col] = 8
+    elif active_mode == 9:  # Mode pink
+        map_grid[row, col] = 8
     # Mode 2 (start) dan 3 (goal) ditangani khusus di event klik
 
 # Program utama
@@ -213,6 +222,26 @@ while running:
                 elif active_mode == 3:  # Mode goal
                     map_grid[map_grid == 3] = 0  # Hapus goal lama
                     map_grid[row, col] = 3
+                elif active_mode == 9:
+                    clicked = (row, col)
+                    start = np.argwhere(map_grid == 2)
+                    goal = np.argwhere(map_grid == 3)
+                    if start.size != 0 and goal.size != 0:
+                        start = tuple(map(int, start[0]))
+                        goal = tuple(map(int, goal[0]))
+
+                        def euclidean(a, b):
+                            return round(np.linalg.norm(np.array(a) - np.array(b)), 4)
+
+                        jarak_ke_start = euclidean(clicked, start)
+                        jarak_ke_goal = euclidean(clicked, goal)
+
+                        print(f"\n📍 Diklik di titik: {clicked}")
+                        print(f"↔️  Jarak ke START {start}: {jarak_ke_start}")
+                        print(f"↔️  Jarak ke GOAL  {goal}: {jarak_ke_goal}")
+                        print(f"↔️  Total  {start, goal}: {jarak_ke_start + jarak_ke_goal}\n")
+                    else:
+                        print("⚠️  Start atau Goal belum ditentukan.")
                 else:  # Mode yang bisa di-drag (obstacle, clear, dll)
                     is_dragging = True
                     last_cell = (row, col)
@@ -259,6 +288,9 @@ while running:
                     active_mode = 7
                 elif event.key == pygame.K_q:  # Ctrl + Q untuk warna pink
                     active_mode = 8
+                elif event.key == pygame.K_h:  # Ctrl + Q untuk warna pink
+                    active_mode = 9
+                    is_dragging = False
                 elif event.key == pygame.K_p:  # Ctrl + P untuk save
                     save_image(replace=False)
                 elif event.key == pygame.K_r:  # Ctrl + R untuk reset grid
@@ -343,7 +375,8 @@ while running:
         5: "Open List (Ctrl + U)",
         6: "Close List (Ctrl + X)",
         7: "Gray (Ctrl + E)",
-        8: "Pink (Ctrl + Q)"
+        8: "Pink (Ctrl + Q)",
+        9: "Euclidean Measure (Ctrl + H)"
     }
     display_mode(mode_texts.get(active_mode, "Unknown"))
 

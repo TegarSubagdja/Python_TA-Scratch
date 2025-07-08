@@ -30,7 +30,7 @@ def heuristic(start, goal, hchoice):
     if hchoice == 2:
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
-def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False, show=False, speed=30):
+def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=30):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(map)
@@ -59,7 +59,7 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
             path.append(start)
             path = path[::-1]
             endtime = time.time()
-            if ppom:
+            if PPO:
                 path = PPO(path, map)
             if show:
 
@@ -111,14 +111,14 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
             ):  # and tentative_g_score >= gscore.get(neighbour,0):
                 continue
             
-            if tpm:
+            if TPF:
                 if current in came_from:
                     v1 = TP(came_from[current], current, neighbour, 2)
                 else:
                     v1 = 0  
-            if brm:
+            if BRC:
                 v2 = BR(neighbour, goal, map) or 1
-            if glm:
+            if GLF:
                 v3 = GL(start, goal, neighbour)
 
             if tentative_gn < gn.get(
@@ -127,7 +127,7 @@ def method(map, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=Fals
                 came_from[neighbour] = current
                 gn[neighbour] = tentative_gn
 
-                if brm:
+                if BRC:
                     fn[neighbour] = tentative_gn + (heuristic(
                         neighbour, 
                         goal, 

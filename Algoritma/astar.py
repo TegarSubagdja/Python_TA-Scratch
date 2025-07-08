@@ -32,7 +32,7 @@ def heuristic(start, goal, hchoice):
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
 
-def method(matrix, start, goal, hchoice=2, glm=False, brm=False , tpm=False, ppom=True, show=False, speed=30):
+def method(matrix, start, goal, hchoice=2, GLF=False, BRC=False , TPF=False, PPO=True, show=False, speed=30):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)

@@ -31,7 +31,7 @@ def heuristic(start, goal, hchoice):
     if hchoice == 2:
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
-def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=False, show=False, speed=60):
+def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
@@ -93,14 +93,14 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
                 if neighbor in closed_forward:
                     continue
 
-                if tpm:
+                if TPF:
                     if current_forward in came_from_forward:
                         v1 = TP(came_from_forward[current_forward], current_forward, neighbor, 2)
                     else:
                         v1 = 0  
-                if brm:
+                if BRC:
                     v2 = BR(neighbor, goal, matrix) or 1
-                if glm:
+                if GLF:
                     v3 = GL(start, goal, neighbor)
                     
                 # PERBAIKAN: Konsisten cost calculation
@@ -113,7 +113,7 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
 
                 if neighbor not in g_forward or tentative_g < g_forward[neighbor]:
                     g_forward[neighbor] = tentative_g
-                    if brm:
+                    if BRC:
                         f_forward[neighbor] = tentative_g + (heuristic(
                             neighbor, 
                             goal, 
@@ -146,14 +146,14 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
                 if neighbor in closed_backward:
                     continue
                     
-                if tpm:
+                if TPF:
                     if current_backward in came_from_backward:
                         v1 = TP(came_from_backward[current_backward], current_backward, neighbor, 2)
                     else:
                         v1 = 0  
-                if brm:
+                if BRC:
                     v2 = BR(start, neighbor, matrix) or 1
-                if glm:
+                if GLF:
                     v3 = GL(start, goal, neighbor)
 
                 # PERBAIKAN: Konsisten cost calculation
@@ -166,7 +166,7 @@ def method(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=F
 
                 if neighbor not in g_backward or tentative_g < g_backward[neighbor]:
                     g_backward[neighbor] = tentative_g
-                    if brm:
+                    if BRC:
                         f_backward[neighbor] = tentative_g + (heuristic(
                             neighbor, 
                             start, 
