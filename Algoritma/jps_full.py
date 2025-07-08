@@ -320,7 +320,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
     return (0, round(endtime - starttime, 6))
 
 def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60):
-
+    
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
         clock = pygame.time.Clock()
@@ -340,101 +340,114 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     f_b = {goal: heuristic(goal, start, hchoice)}
 
     current_f, current_b = start, goal
-
-    v1, v2, v3 = 0, 0, 0
-
+    
     heapq.heappush(open_f, (f_f[start], start))
     heapq.heappush(open_b, (f_b[goal], goal))
 
     start_time = time.time()
     meet_point = None
+    
+    # Pre-compute log untuk BRC jika diperlukan
+    log_cache = {}
 
-    while open_f and open_b:
-
-        # ============ Forward Expand ============
-        _, current_f = heapq.heappop(open_f)
-        close_f.add(current_f)
-
-        successors = identifySuccessors(current_f[0], current_f[1], came_from_f, matrix, goal)
+    # ============ OPTIMIZED MAIN LOOP ============
+    while open_f and open_b and not meet_point:
         
-        for succ in successors:
-            if succ in close_f:
-                continue
+        # ============ Forward Expand ============
+        if open_f:
+            _, current_f = heapq.heappop(open_f)
+            close_f.add(current_f)
 
-            if TPF:
-                v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, 2)
-            if BRC:
-                v2 = BR(succ, goal, matrix) or 1
-            if GLF:
-                v3 = GL(start, goal, succ)
+            successors = identifySuccessors(current_f[0], current_f[1], came_from_f, matrix, goal)
+            
+            for succ in successors:
+                if succ in close_f:
+                    continue
 
-            tentative_g = g_f[current_f] + lenght(current_f, succ, hchoice)
+                # Single-line conditional calculations
+                v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, 2) if TPF else 0
+                v2 = BR(succ, goal, matrix) or 1 if BRC else 1
+                v3 = GL(start, goal, succ) if GLF else 0
 
-            if succ not in g_f or tentative_g < g_f[succ]:
-                came_from_f[succ] = current_f
-                g_f[succ] = tentative_g
+                tentative_g = g_f[current_f] + lenght(current_f, succ, hchoice)
 
-                if BRC:
-                    f_f[succ] = tentative_g + (heuristic(succ, goal, hchoice) * (1 - math.log(v2))) + v1 + v3 + (heuristic(succ, current_b, 2))
-                else:
-                    f_f[succ] = tentative_g + heuristic(succ, goal, hchoice) + v1 + v3 + (heuristic(succ, current_b, 2))
+                if succ not in g_f or tentative_g < g_f[succ]:
+                    came_from_f[succ] = current_f
+                    g_f[succ] = tentative_g
 
-                heapq.heappush(open_f, (f_f[succ], succ))
+                    # Pre-compute heuristic values
+                    h_to_goal = heuristic(succ, goal, hchoice)
+                    h_to_current_b = heuristic(succ, current_b, 2)
+                    
+                    # Optimized f-value calculation
+                    if BRC:
+                        # Cache log calculation
+                        if v2 not in log_cache:
+                            log_cache[v2] = math.log(v2)
+                        f_f[succ] = tentative_g + (h_to_goal * (1 - log_cache[v2])) + v1 + v3 + h_to_current_b
+                    else:
+                        f_f[succ] = tentative_g + h_to_goal + v1 + v3 + h_to_current_b
 
-            if succ in close_b:
-                meet_point = succ
-                break
-        if meet_point:
-            break
+                    heapq.heappush(open_f, (f_f[succ], succ))
+
+                # Meeting point check
+                if succ in close_b:
+                    meet_point = succ
+                    break
 
         # ============ Backward Expand ============
-        _, current_b = heapq.heappop(open_b)
-        close_b.add(current_b)
+        if open_b and not meet_point:
+            _, current_b = heapq.heappop(open_b)
+            close_b.add(current_b)
 
-        successors_b = identifySuccessors(current_b[0], current_b[1], came_from_b, matrix, start)
-        
-        for succ in successors_b:
-            if succ in close_b:
-                continue
+            successors_b = identifySuccessors(current_b[0], current_b[1], came_from_b, matrix, start)
+            
+            for succ in successors_b:
+                if succ in close_b:
+                    continue
 
-            if TPF:
-                v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, 2)
-            if BRC:
-                v2 = BR(succ, start, matrix) or 1
-            if GLF:
-                v3 = GL(goal, start, succ)
+                # Single-line conditional calculations
+                v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, 2) if TPF else 0
+                v2 = BR(succ, start, matrix) or 1 if BRC else 1
+                v3 = GL(goal, start, succ) if GLF else 0
 
-            tentative_g = g_b[current_b] + lenght(current_b, succ, hchoice)
+                tentative_g = g_b[current_b] + lenght(current_b, succ, hchoice)
 
-            if succ not in g_b or tentative_g < g_b[succ]:
-                came_from_b[succ] = current_b
-                g_b[succ] = tentative_g
+                if succ not in g_b or tentative_g < g_b[succ]:
+                    came_from_b[succ] = current_b
+                    g_b[succ] = tentative_g
 
-                if BRC:
-                    f_b[succ] = tentative_g + (heuristic(succ, start, hchoice) * (1 - math.log(v2))) + v1 + v3 + (heuristic(current_f, succ, 2))
-                else:
-                    f_b[succ] = tentative_g + heuristic(succ, start, hchoice) + v1 + v3 + (heuristic(current_f, succ, 2))
+                    # Pre-compute heuristic values
+                    h_to_start = heuristic(succ, start, hchoice)
+                    h_to_current_f = heuristic(current_f, succ, 2)
+                    
+                    # Optimized f-value calculation
+                    if BRC:
+                        # Cache log calculation
+                        if v2 not in log_cache:
+                            log_cache[v2] = math.log(v2)
+                        f_b[succ] = tentative_g + (h_to_start * (1 - log_cache[v2])) + v1 + v3 + h_to_current_f
+                    else:
+                        f_b[succ] = tentative_g + h_to_start + v1 + v3 + h_to_current_f
 
-                heapq.heappush(open_b, (f_b[succ], succ))
+                    heapq.heappush(open_b, (f_b[succ], succ))
 
-            if succ in close_f:
-                meet_point = succ
-                break
-        if meet_point:
-            break
+                # Meeting point check
+                if succ in close_f:
+                    meet_point = succ
+                    break
 
-        # ============ Visual ============
+        # ============ Visual (optimized) ============
         if show:
+            # Combine sets sekali saja
             combined_open = open_f + open_b
-            combined_close = close_f.union(close_b)
+            combined_close = close_f | close_b  # Operator | lebih cepat dari union()
             Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_close)
             clock.tick(speed)
 
+            # Event handling yang lebih efisien
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
                     exit()
 
@@ -442,6 +455,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
     # ============ Path Reconstruction ============
     if meet_point:
+        # Forward path
         path_f = []
         node = meet_point
         while node in came_from_f:
@@ -450,31 +464,30 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
         path_f.append(start)
         path_f.reverse()
 
+        # Backward path
         path_b = []
         node = meet_point
         while node in came_from_b:
             node = came_from_b[node]
             path_b.append(node)
 
+        # Combine path tanpa duplikasi
         full_path = path_f + path_b
 
         if PPO:
             full_path = prunning(full_path, matrix)
 
         if show:
-            Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f.union(close_b), full_path)
+            Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, full_path)
             clock.tick(speed)
             time.sleep(2)
 
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
                     exit()
 
-        return (full_path, round(end_time - start_time, 6)), (open_f + open_b), (close_f.union(close_b))
+        return (full_path, round(end_time - start_time, 6)), (open_f + open_b), (close_f | close_b)
 
     return 0, round(end_time - start_time, 6)
 

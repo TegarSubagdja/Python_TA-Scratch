@@ -60,7 +60,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
             path = path[::-1]
             endtime = time.time()
             if PPO:
-                path = PPO(path, map)
+                path = prunning(path, map)
             if show:
 
                 Z_GetMap.Render(surface, map, cell_size, open_list, close_list, path)
@@ -110,16 +110,11 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                 neighbour in close_list
             ):  # and tentative_g_score >= gscore.get(neighbour,0):
                 continue
-            
-            if TPF:
-                if current in came_from:
-                    v1 = TP(came_from[current], current, neighbour, 2)
-                else:
-                    v1 = 0  
-            if BRC:
-                v2 = BR(neighbour, goal, map) or 1
-            if GLF:
-                v3 = GL(start, goal, neighbour)
+        
+            # Single-line conditional calculations
+            v1 = TP(came_from.get(current, current), current, neighbour, 2) if TPF else 0
+            v2 = BR(neighbour, goal, map) or 1 if BRC else 1
+            v3 = GL(start, goal, neighbour) if GLF else 0
 
             if tentative_gn < gn.get(
                 neighbour, 0
