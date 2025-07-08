@@ -258,9 +258,9 @@ def kmethod(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppom=
                 g_f[succ] = tentative_g
 
                 if brm:
-                    f_f[succ] = tentative_g + (heuristic(succ, goal, hchoice) * (1 - math.log(v2))) + v1 + v3
+                    f_f[succ] = tentative_g + (heuristic(succ, goal, hchoice) * (1 - math.log(v2))) + v1 + v3 + heuristic(current_f, current_b, 2)
                 else:
-                    f_f[succ] = tentative_g + heuristic(succ, goal, hchoice) + v1 + v3
+                    f_f[succ] = tentative_g + heuristic(succ, goal, hchoice) + v1 + v3 + (heuristic(current_f, current_b, 2))
 
                 heapq.heappush(open_f, (f_f[succ], succ))
 

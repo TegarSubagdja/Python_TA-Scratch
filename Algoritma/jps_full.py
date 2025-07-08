@@ -339,6 +339,8 @@ def methodBds(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppo
     g_b = {goal: 0}
     f_b = {goal: heuristic(goal, start, hchoice)}
 
+    current_f, current_b = start, goal
+
     v1, v2, v3 = 0, 0, 0
 
     heapq.heappush(open_f, (f_f[start], start))
@@ -373,9 +375,9 @@ def methodBds(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppo
                 g_f[succ] = tentative_g
 
                 if brm:
-                    f_f[succ] = tentative_g + (heuristic(succ, goal, hchoice) * (1 - math.log(v2))) + v1 + v3
+                    f_f[succ] = tentative_g + (heuristic(succ, goal, hchoice) * (1 - math.log(v2))) + v1 + v3 + (heuristic(succ, current_b, 2))
                 else:
-                    f_f[succ] = tentative_g + heuristic(succ, goal, hchoice) + v1 + v3
+                    f_f[succ] = tentative_g + heuristic(succ, goal, hchoice) + v1 + v3 + (heuristic(succ, current_b, 2))
 
                 heapq.heappush(open_f, (f_f[succ], succ))
 
@@ -409,9 +411,9 @@ def methodBds(matrix, start, goal, hchoice, tpm=False, brm=False, glm=False, ppo
                 g_b[succ] = tentative_g
 
                 if brm:
-                    f_b[succ] = tentative_g + (heuristic(succ, start, hchoice) * (1 - math.log(v2))) + v1 + v3
+                    f_b[succ] = tentative_g + (heuristic(succ, start, hchoice) * (1 - math.log(v2))) + v1 + v3 + (heuristic(current_f, succ, 2))
                 else:
-                    f_b[succ] = tentative_g + heuristic(succ, start, hchoice) + v1 + v3
+                    f_b[succ] = tentative_g + heuristic(succ, start, hchoice) + v1 + v3 + (heuristic(current_f, succ, 2))
 
                 heapq.heappush(open_b, (f_b[succ], succ))
 
