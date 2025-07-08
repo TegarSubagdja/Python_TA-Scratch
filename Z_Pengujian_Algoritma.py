@@ -147,40 +147,40 @@ def runMethod(jps=False, bd=False, glm=False, brm=False, tpm=False, ppom=False, 
 
 # Contoh pemanggilan:
 if __name__ == "__main__":
-    run(show=False)
+    # run(show=False)
     # runMethod(jps=False, bd=False, glm=False, brm=False, tpm=False, ppom=False, show=False)
     
-    # map_awal = Visualize.load_grid()
-    # # map_awal = Visualize.upscale(map_awal, 32)
+    map_awal = Visualize.load_grid()
+    # map_awal = Visualize.upscale(map_awal, 32)
 
-    # start = (0, 0)
-    # goal = map_awal.shape[0] - 1, map_awal.shape[1] - 1
+    start = (0, 0)
+    goal = map_awal.shape[0] - 1, map_awal.shape[1] - 1
 
-    # np.place(map_awal, map_awal == 1, 255)
-    # map_awal[start] = 2
-    # map_awal[goal] = 3
+    np.place(map_awal, map_awal == 1, 255)
+    map_awal[start] = 2
+    map_awal[goal] = 3
 
-    # avg = []
-    # path_len = 0
-    # open_len = 0
-    # close_len = 0
+    avg = []
+    path_len = 0
+    open_len = 0
+    close_len = 0
 
-    # (path, times), open_list, close_list = Algoritm(
-    #     map_awal, start, goal, hchoice=2,
-    #     jps=False, bd=False, glm=False,
-    #     brm=False, tpm=False, ppom=True,
-    #     show=False, speed=30
-    # )
-    # avg.append(times)
-    # if path:
-    #     path_len = len(path)
-    #     open_len = len(open_list)
-    #     close_len = len(close_list)
+    (path, times), open_list, close_list = Algoritm(
+        map_awal, start, goal, hchoice=2,
+        jps=False, bd=False, glm=False,
+        brm=False, tpm=False, ppom=True,
+        show=True, speed=10
+    )
+    avg.append(times)
+    if path:
+        path_len = len(path)
+        open_len = len(open_list)
+        close_len = len(close_list)
 
-    # print(f"Panjang Path : {path_len}")
-    # print(f"Panjang Path : {open_len}")
-    # print(f"Panjang Path : {close_len}")
-    # print(np.mean(avg))
+    print(f"Panjang Path : {path_len}")
+    print(f"Panjang Path : {open_len}")
+    print(f"Panjang Path : {close_len}")
+    print(np.mean(avg))
 
-    # times = np.mean(avg)
-    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    times = np.mean(avg)
+    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
