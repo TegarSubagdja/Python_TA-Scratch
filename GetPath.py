@@ -1,17 +1,13 @@
 from Utils import *
 
-def getPath(image, scale=20, idStart=1, idGoal=7):
+def getPath(image, scale=20, idStart=1, idGoal=7, detector=False):
 
-    cv2.imwrite('Data/Image/Process/2-Position.jpg', image)
-    pos, corners = Position(image, idStart, idGoal)
+    pos, corners = Position(image, idStart, idGoal, detector)
 
     if not pos:
         return 0, 0
 
-    cv2.imwrite('Data/Image/Process/3-Preprocessing.jpg', image)
-    map, pos, mark_size = Preprocessing(image, pos, scale, corners)
-
-    cv2.imwrite('Data/Image/Process/8-Map.jpg', map)
+    map, pos = Preprocessing(image, pos, scale, corners)
 
     (path, time)= jps.method(map, pos['start'], pos['goal'], 2)
 
@@ -23,16 +19,4 @@ def getPath(image, scale=20, idStart=1, idGoal=7):
     path[0] = pos['start'][::-1]
     path[-1] = pos['goal'][::-1]
 
-    image = cv2.imread('Output/Overlay.jpg')
-
-    # # Menggambar garis untuk setiap titik pada path
-    # for i in range(len(path) - 1):
-    #     (y1, x1) = tuple(path[i])       
-    #     (y2, x2) = tuple(path[i + 1])   
-    #     cv2.line(image, (x1, y1), (x2, y2), (255, 64, 64), 4)
-
-    # # Menggambar bulatan di setiap titik pada path
-    # for (y,x) in path:
-    #     cv2.circle(image, (x,y), 8, (255,0,255), -1)
-
-    return path, mark_size
+    return path

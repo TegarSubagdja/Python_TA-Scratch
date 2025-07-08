@@ -5,31 +5,30 @@ import time
 # =================== Konfigurasi ===================
 PORT = 'COM7'
 BAUDRATE = 9600
-SEND_INTERVAL = 1  # dalam detik
+SEND_INTERVAL = 1  # detik
 last_send_time = time.time()
 
-# Setup Aruco
+# ArUco
 aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters()
 detector = aruco.ArucoDetector(aruco_dict, parameters)
 
-# PID Controller
+# PID
 pid = PID(Kp=20, Ki=1, Kd=10, dt=0.1, output_limit=255, integral_limit=200)
 base_speed = 255
 error_buffer = deque(maxlen=10)
 
-# Target
+# Target dan Path
 target_point = (100, 100)
+path = []
 
-# Buka Webcam
+# Webcam
 cap = cv2.VideoCapture(1)
-# cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-# cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 if not cap.isOpened():
     print("Tidak dapat membuka webcam.")
     exit()
 
-# Buka Serial (Opsional)
+# Serial Opsional
 # try:
 #     ser = serial.Serial(PORT, BAUDRATE, timeout=1)
 #     print(f"Tersambung ke {PORT}")
@@ -37,34 +36,53 @@ if not cap.isOpened():
 #     print(f"Gagal membuka port serial: {e}")
 #     exit()
 
+# =================== Fungsi ===================
 def render_info(frame, error, distance, left_speed, right_speed):
     cv2.circle(frame, target_point, 10, (255, 128, 255), -1)
     cv2.putText(frame, f"Error: {error}", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
     cv2.putText(frame, f"Distance: {distance}", (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
     cv2.putText(frame, f"L: {left_speed} R: {right_speed}", (20, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
-# ================ Loop Utama =====================
+
+# =================== Loop Utama ===================
 try:
-    prev_time = time.time()
     while True:
         ret, cam = cap.read()
+        cam = cv2.cvtColor(cam, cv2.COLOR_BGR2GRAY)
+        
         if not ret:
             print("Gagal membaca frame dari webcam.")
             break
 
-        result = GetOrientation(cam, sId=2, gId=7, show_result=False, detector=detector)
+        if not path:
+            # Ambil jalur jika belum ada
+            path = getPath(image=cam, scale=20, idStart=2, idGoal=7, detector=detector)
+            path.pop(0)
+            print(path)
+            continue
+
+        if path:
+            for i in range(len(path)):
+                x, y = path[i]
+                cv2.circle(cam, (y, x), 6, (255, 0, 255), -1)  # -1 for filled circle
+
+                if i < len(path) - 1:
+                    next_x, next_y = path[i + 1]
+                    cv2.line(cam, (y, x), (next_y, next_x), (255, 0, 255), 2)
+
+
+        # Ambil orientasi dari titik pertama di path
+        result = GetOrientation(cam, sId=2, gId=path[0], show_result=False, detector=detector)
 
         if result and result['error_orientasi_derajat'] is not None:
             distance = int(result['distance'])
             finishDistance = 2 * result['size']
             current_time = time.time()
 
-            # Jika sudah sampai, berhenti tapi tetap tampilkan frame
             if distance < finishDistance:
-                # threading.Thread(target=pwm, args=(ser, 0, 0)).start()
                 print("Sampai. PWM dihentikan.")
                 render_info(cam, 0, distance, 0, 0)
             else:
-                # PID + PWM
+                # PID & Speed Control
                 error_buffer.append(result['error_orientasi_derajat'])
                 smooth_error = sum(error_buffer) / len(error_buffer)
                 correction = pid.calc(smooth_error)
@@ -80,7 +98,7 @@ try:
                 render_info(cam, int(smooth_error), distance, left_speed, right_speed)
 
         else:
-            # Marker tidak terdeteksi
+            # ArUco tidak terdeteksi
             current_time = time.time()
             if (current_time - last_send_time) >= SEND_INTERVAL:
                 # threading.Thread(target=pwm, args=(ser, 0, 0)).start()
@@ -88,18 +106,16 @@ try:
                 last_send_time = current_time
             render_info(cam, 0, 0, 0, 0)
 
-        # Tampilkan hasil
-        render_info(cam, 0, 0, 0, 0)
+        # Tampilkan frame
         cv2.imshow('Tracking', cam)
-
         if cv2.waitKey(1) & 0xFF == 27:
-            print("Tombol ESC ditekan, keluar dari program.")
+            print("Tombol ESC ditekan, keluar.")
             break
 
 except KeyboardInterrupt:
-    print("\nProgram dihentikan oleh user.")
+    print("\nDihentikan oleh user.")
 
-# Cleanup
+# =================== Cleanup ===================
 cap.release()
 # ser.close()
 cv2.destroyAllWindows()

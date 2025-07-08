@@ -11,8 +11,7 @@ def GetOrientation(image, gId=None, sId=None, show_result=True, save_path=None, 
     if image is None:
         raise FileNotFoundError(f"Gambar tidak ditemukan di path: {image}")
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    corners, ids, _ = detector.detectMarkers(gray)
+    corners, ids, _ = detector.detectMarkers(image)
 
     if corners:
         pts = corners[0][0] 
@@ -34,6 +33,8 @@ def GetOrientation(image, gId=None, sId=None, show_result=True, save_path=None, 
                 koordinat['start'] = (center_x, center_y)
                 vector = marker_corners[1] - marker_corners[0]
                 orientasi_robot = np.arctan2(vector[1], vector[0])
+            elif isinstance(gId, tuple):
+                 koordinat['goal'] = gId
             elif marker_id == gId:
                  koordinat['goal'] = (center_x, center_y)
 

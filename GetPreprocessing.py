@@ -2,8 +2,7 @@ from Utils import *
 
 def Preprocessing(image, pos, scale, corners):
 
-    cv2.imwrite('Data/Image/Process/4-Contour.jpg', image)
-    Expantion_Distance, mark_size = Contour(image, corners)
+    Expantion_Distance= Contour(image, corners)
 
     # Merubah Ukuran Gambar
     upscale_image = cv2.resize(Expantion_Distance, (Expantion_Distance.shape[1]//scale, Expantion_Distance.shape[0]//scale), interpolation=cv2.INTER_NEAREST)
@@ -25,4 +24,4 @@ def Preprocessing(image, pos, scale, corners):
     pos['start'] = (Ys, Xs)
     pos['goal'] = (Yg, Xg)
 
-    return map, pos, mark_size
+    return map, pos

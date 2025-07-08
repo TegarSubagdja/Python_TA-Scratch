@@ -1,9 +1,7 @@
 from Utils import *
 
-def Position(image, idStart, idGoal):
+def Position(image, idStart, idGoal, detector):
     # Inisialisasi dictionary dan parameter
-    aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
-    parameters = aruco.DetectorParameters()
 
     koordinat = {'start': None, 'goal': None}
 
@@ -12,7 +10,6 @@ def Position(image, idStart, idGoal):
         return 0, 0  # Gambar tidak valid, langsung return 0
 
     # Konversi ke grayscale dan deteksi marker
-    detector = aruco.ArucoDetector(aruco_dict, parameters)
     corners, ids, _ = detector.detectMarkers(image)
 
     if ids is not None:
