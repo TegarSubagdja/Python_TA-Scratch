@@ -204,7 +204,7 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
     return successors
 
 
-def method(matrix, start, goal, hchoice, show=False):
+def method(matrix, start, goal, hchoice, show=False, speed=30):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
@@ -229,7 +229,7 @@ def method(matrix, start, goal, hchoice, show=False):
                 data.append(current)
                 current = came_from[current]
             data.append(start)
-            data = data[::-1]
+            data = prunning(data, matrix)
             endtime = time.time()
             return (data, round(endtime - starttime, 6))
 
@@ -249,9 +249,19 @@ def method(matrix, start, goal, hchoice, show=False):
                 fn[jumpPoint] = tentative_gn + heuristic(jumpPoint, goal, hchoice)
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
 
-        if show:
-            Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
-            clock.tick(200)  
+            if show:
+                Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
+                clock.tick(speed)  # Batasi ke 200 FPS
+
+                # Handle event disini
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            exit()
 
     endtime = time.time()
     return (0, round(endtime - starttime, 6))

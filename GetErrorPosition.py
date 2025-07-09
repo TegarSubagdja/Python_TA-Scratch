@@ -1,92 +1,90 @@
 from Utils import *
+import numpy as np
+import cv2
 
-def euclidian(pos, target):
+def euclidean(pos, target):
     return np.linalg.norm(np.array(pos) - np.array(target))
 
 def normalize_angle(angle):
     return np.arctan2(np.sin(angle), np.cos(angle))
 
-def GetOrientation(image, gId=None, sId=None, show_result=True, save_path=None, detector=False):
-
+def GetOrientation(image, gId=None, sId=None, show_result=True, save_path=None, detector=None):
     if image is None:
-        raise FileNotFoundError(f"Gambar tidak ditemukan di path: {image}")
+        raise FileNotFoundError("Gambar tidak ditemukan.")
+
+    if detector is None:
+        raise ValueError("Detector ArUco belum disediakan.")
 
     corners, ids, _ = detector.detectMarkers(image)
-
-    if corners:
-        pts = corners[0][0] 
-        mark_size = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
-    else:
-        mark_size = 0
+    ids = ids.flatten() if ids is not None else []
 
     koordinat = {'start': None, 'goal': None}
     orientasi_robot = None
-    error_orientasi = None
     distance = None
+    error_orientasi = None
+    mark_size = 0
 
-    if ids is not None:
-        for i, marker_id in enumerate(ids.flatten()):
-            marker_corners = corners[i][0]
-            center = marker_corners.mean(axis=0).astype(int)
-            center_x, center_y = center
-            if marker_id == sId:
-                koordinat['start'] = (center_x, center_y)
-                vector = marker_corners[1] - marker_corners[0]
-                orientasi_robot = np.arctan2(vector[1], vector[0])
-            elif isinstance(gId, tuple):
-                 koordinat['goal'] = gId
-            elif marker_id == gId:
-                 koordinat['goal'] = (center_x, center_y)
+    # Hitung ukuran marker jika ada
+    if corners:
+        pts = corners[0][0]
+        mark_size = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
 
-        # aruco.drawDetectedMarkers(image, corners, ids, (255,64,255))
+    # Cari marker start dan goal
+    for i, marker_id in enumerate(ids):
+        marker_corners = corners[i][0]
+        center = tuple(marker_corners.mean(axis=0).astype(int))
 
-    # Hitung orientasi dan error terhadap titik target
-    if koordinat['start'] and koordinat["start"] is not None and orientasi_robot is not None:
-        start = koordinat['start']
+        if marker_id == sId:
+            koordinat['start'] = center
+            vector = marker_corners[1] - marker_corners[0]
+            orientasi_robot = np.arctan2(vector[1], vector[0])
 
-        if koordinat['goal']:
-            if isinstance(gId, tuple):
-                goal = gId
-            else:
-                goal = koordinat['goal']
-        else:
-            return 0
+        elif marker_id == gId:
+            koordinat['goal'] = center
 
-        #hitung jarak
-        distance = euclidian(start, goal)
+    # Jika goal berbentuk tuple, gunakan langsung
+    if isinstance(gId, tuple):
+        koordinat['goal'] = gId
 
-        dx = goal[0] - start[0]
-        dy = goal[1] - start[1]
-        arah_ke_goal = np.arctan2(dy, dx)
-        error_orientasi = normalize_angle(arah_ke_goal - orientasi_robot)
+    # Validasi posisi dan orientasi
+    if koordinat['start'] is None or orientasi_robot is None or koordinat['goal'] is None:
+        return None  # lebih eksplisit dari return 0
 
-        # Visualisasi
-        panjang_panah = 100
-        orientasi_x = int(start[0] + panjang_panah * np.cos(orientasi_robot))
-        orientasi_y = int(start[1] + panjang_panah * np.sin(orientasi_robot))
+    # Hitung arah ke goal dan error orientasi
+    start = koordinat['start']
+    goal = koordinat['goal']
 
-        cv2.line(image, start, goal, (255, 0, 255), 4)
-        cv2.arrowedLine(image, start, (orientasi_x, orientasi_y), (255,64,64), 4, tipLength=0.2)
-    else:
-        return 0
+    distance = euclidean(start, goal)
+    dx, dy = goal[0] - start[0], goal[1] - start[1]
+    arah_ke_goal = np.arctan2(dy, dx)
+    error_orientasi = normalize_angle(arah_ke_goal - orientasi_robot)
 
+    # Hitung panah orientasi
+    panjang_panah = 100
+    orientasi_x = int(start[0] + panjang_panah * np.cos(orientasi_robot))
+    orientasi_y = int(start[1] + panjang_panah * np.sin(orientasi_robot))
+
+    # Simpan gambar jika diminta
     if save_path:
         cv2.imwrite(save_path, image)
 
+    # Visualisasi
     if show_result:
-        cv2.imshow("Hasil Deteksi dan Orientasi", image)
+        img_vis = image.copy()
+        cv2.line(img_vis, start, goal, (255, 0, 255), 4)
+        cv2.arrowedLine(img_vis, start, (orientasi_x, orientasi_y), (255, 64, 64), 4, tipLength=0.2)
+        cv2.imshow("Hasil Deteksi dan Orientasi", img_vis)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    if ids is not None:
-        return {
-            "koordinat": koordinat,
-            "orientasi_robot": orientasi_robot,
-            "size": mark_size,
-            "error_orientasi_radian": error_orientasi,
-            "error_orientasi_derajat": np.degrees(error_orientasi) if error_orientasi is not None else None,
-            "distance": distance,
-            "image": image
-        }
-    else:
-        return 0
+    return (
+        (start, goal),                 # 0
+        corners,                   # 1
+        orientasi_robot,           # 2
+        mark_size,                 # 3
+        distance,                  # 4
+        error_orientasi,           # 5
+        np.degrees(error_orientasi),  # 6
+        image                      # 7
+    )
+

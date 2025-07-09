@@ -61,14 +61,10 @@ try:
             continue
 
         if path:
-            for i in range(len(path)):
-                x, y = path[i]
-                cv2.circle(cam, (y, x), 6, (255, 0, 255), -1)  # -1 for filled circle
-
-                if i < len(path) - 1:
-                    next_x, next_y = path[i + 1]
-                    cv2.line(cam, (y, x), (next_y, next_x), (255, 0, 255), 2)
-
+            points = np.array([[y, x] for x, y in path], np.int32)
+            cv2.polylines(cam, [points], isClosed=False, color=(255, 0, 255), thickness=2)
+            for x, y in path:
+                cv2.circle(cam, (y, x), 3, (255, 0, 255), -1)
 
         # Ambil orientasi dari titik pertama di path
         result = GetOrientation(cam, sId=2, gId=path[0], show_result=False, detector=detector)

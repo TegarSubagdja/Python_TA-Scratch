@@ -1,27 +1,20 @@
 from Utils import *
 
 def Preprocessing(image, pos, scale, corners):
+    # Merubah Representasi Pos
+    pos = tuple((y // scale, x // scale) for (x, y) in pos)
 
-    Expantion_Distance= Contour(image, corners)
+    # Mencari Kontur
+    Expantion_Distance = Contour(image, corners)
 
-    # Merubah Ukuran Gambar
-    upscale_image = cv2.resize(Expantion_Distance, (Expantion_Distance.shape[1]//scale, Expantion_Distance.shape[0]//scale), interpolation=cv2.INTER_NEAREST)
-    
-    # Pengubah posisi ke ukuran baru
-    pos = {
-        key: (x // scale, y // scale)
-        for key, (x, y) in pos.items()
-    }
+    # Resize citra
+    upscale_image = cv2.resize(
+        Expantion_Distance,
+        (Expantion_Distance.shape[1] // scale, Expantion_Distance.shape[0] // scale),
+        interpolation=cv2.INTER_NEAREST
+    )
 
-    # Merubah Citra kedalam array numpy
+    # Konversi ke array
     map = np.array(upscale_image)
-
-    # Asumsikan pos['start'] dan pos['goal'] dalam format (x, y)
-    Xs, Ys = pos['start']
-    Xg, Yg = pos['goal']
-
-    # Membalik urutan jadi (y, x)
-    pos['start'] = (Ys, Xs)
-    pos['goal'] = (Yg, Xg)
 
     return map, pos
