@@ -93,7 +93,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
 
                 v1 = TP(came_from_forward.get(current_forward, current_forward), current_forward, neighbor, 2) if TPF else 0
                 v2 = BR(neighbor, goal, matrix) or 1 if BRC else 1
-                v3 = GL(goal, start, neighbor) if GLF else 0
+                v3 = GL(start, goal, neighbor) if GLF else 0
 
                 cost = 14 if hchoice == 1 and dX != 0 and dY != 0 else (10 if hchoice == 1 else (math.sqrt(2) if dX != 0 and dY != 0 else 1))
                 tentative_g = g_forward.get(current_forward, 0) + cost

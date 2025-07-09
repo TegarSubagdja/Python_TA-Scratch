@@ -21,6 +21,18 @@ HEURISTICS = {
 
 current_heuristic = "euclidean"
 
+# ======= Pergerakan Cost Berdasarkan Heuristik =======
+def movement_cost(a, b):
+    if current_heuristic == "manhattan":
+        return 1 if a[0] == b[0] or a[1] == b[1] else 1.4
+    elif current_heuristic == "octile":
+        dx = abs(a[0] - b[0])
+        dy = abs(a[1] - b[1])
+        return 1 if dx == 0 or dy == 0 else 1.4142
+    else:
+        return euclidean(a, b)
+
+# ======= A* Manual State Reset =======
 def reset_astar_state():
     return {
         "start": None,
@@ -33,6 +45,7 @@ def reset_astar_state():
         "current": None
     }
 
+# ======= Neighbor Detection =======
 def get_neighbors(pos, grid):
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1),
                   (-1, -1), (-1, 1), (1, -1), (1, 1)]
@@ -44,6 +57,7 @@ def get_neighbors(pos, grid):
                 neighbors.append((nx, ny))
     return neighbors
 
+# ======= Trace Back and Print fn, hn, gn =======
 def trace_back_path(clicked, state):
     path = []
     node = clicked
@@ -51,17 +65,18 @@ def trace_back_path(clicked, state):
         g = state["gn"].get(node, 0)
         h = HEURISTICS[current_heuristic](node, state["goal"])
         f = g + h
-        print(f"Node: {node}, g: {g:.2f}, h: {h:.2f}, f: {f:.2f}")
+        print(f"Node: {node}, g: {g:.3f}, h: {h:.3f}, f: {f:.3f}")
         path.append(node)
         node = state["came_from"][node]
     if node == state["start"]:
         g = state["gn"].get(node, 0)
         h = HEURISTICS[current_heuristic](node, state["goal"])
         f = g + h
-        print(f"Node: {node}, g: {g:.2f}, h: {h:.2f}, f: {f:.2f}")
+        print(f"Node: {node}, g: {g:.3f}, h: {h:.3f}, f: {f:.3f}")
         path.append(node)
     print("\nUrutan mundur selesai.")
 
+# ======= Manual A* Logic per Click =======
 def handle_manual_astar_click(clicked, grid, state):
     if grid[clicked] == 1:
         return state
@@ -94,7 +109,7 @@ def handle_manual_astar_click(clicked, grid, state):
     for neighbor in get_neighbors(clicked, grid):
         if neighbor in state["visited"]:
             continue
-        tentative_g = state["gn"].get(clicked, float('inf')) + HEURISTICS[current_heuristic](clicked, neighbor)
+        tentative_g = state["gn"].get(clicked, float('inf')) + movement_cost(clicked, neighbor)
         h = HEURISTICS[current_heuristic](neighbor, state["goal"])
         f = tentative_g + h
 
@@ -210,13 +225,11 @@ while running:
             pygame.draw.rect(screen, color, (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE))
             pygame.draw.rect(screen, (200, 200, 200), (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE), 1)
 
-            # Tampilkan nilai fn jika ada
             fn_val = astar_state["fn_map"].get((row, col))
             if fn_val is not None:
-                label = font.render(f"{fn_val:.2f}", True, (255, 0, 0))
+                label = font.render(f"{fn_val:.3f}", True, (255, 0, 0))
                 screen.blit(label, (col * CELL_SIZE + 2, row * CELL_SIZE + 2))
 
-            # Tampilkan koordinat jika diaktifkan
             if show_coordinates:
                 coord_text = font.render(f"{row},{col}", True, (0, 0, 0))
                 text_width, text_height = font.size(f"{row},{col}")
