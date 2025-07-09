@@ -153,7 +153,7 @@ def runMethod(JPS=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, 
 # Contoh pemanggilan:
 if __name__ == "__main__":
     map_awal = Visualize.load_grid(path="Map/JSON/Map_2.json")
-    # run(map=map_awal, show=False, size=[32, 64, 128, 256])
+    # run(map=map_awal, show=False, size=[32, 64, 128])
     # runMethod(jps=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, show=False)
     # run(map=map_awal, show=False, size=[32, 64, 128])
     # Z_GetMap.save(map_awal, f"Data/Image/Sample_2_{scale}.jpg")
@@ -180,31 +180,31 @@ if __name__ == "__main__":
     # )
 
     (path, times), *_ = astar_full.method(
-        map_awal, start, goal, hchoice=2,
-        show=False, speed=10
-    )
-    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
-
-    (path, times), *_ = bds.method(
-        map_awal, start, goal, hchoice=2, BRC=False, GLF=False,
-        show=False, speed=300
-    )
-    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
-
-    (path, times), *_ = bds.method(
-        map_awal, start, goal, hchoice=2, BRC=False, GLF=False,
+        map_awal, start, goal, hchoice=1,
         show=False, speed=100
     )
     print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
+    (path, times), *_ = bds.method(
+        map_awal, start, goal, hchoice=1, BRC=False, GLF=False,
+        show=True, speed=100
+    )
+    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+
+    (path, times), *_ = bds.method(
+        map_awal, start, goal, hchoice=1, BRC=False, GLF=False,
+        show=True, speed=100
+    )
+    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+
     (path, times), *_ = jbds.methodBds(
-        map_awal, start, goal, hchoice=2,
-        show=False, speed=10
+        map_awal, start, goal, hchoice=1,
+        show=True, speed=100
     )
     print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
     (path, times), *_ = jps_full.method(
-        map_awal, start, goal, hchoice=2, BRC=True,
-        show=False, speed=1
+        map_awal, start, goal, hchoice=1, BRC=True,
+        show=True, speed=100
     )
     print(f"Time: {times:.6f} detik | Path Length: {path_len}")
