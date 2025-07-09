@@ -5,6 +5,22 @@ import numpy as np
 def euclidean(a, b):
     return round(np.linalg.norm(np.array(a) - np.array(b)), 4)
 
+def manhattan(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+def octile(a, b):
+    dx = abs(a[0] - b[0])
+    dy = abs(a[1] - b[1])
+    return round(max(dx, dy) + (2 ** 0.5 - 1) * min(dx, dy), 4)
+
+HEURISTICS = {
+    "euclidean": euclidean,
+    "manhattan": manhattan,
+    "octile": octile
+}
+
+current_heuristic = "euclidean"
+
 def reset_astar_state():
     return {
         "start": None,
@@ -33,14 +49,14 @@ def trace_back_path(clicked, state):
     node = clicked
     while node in state["came_from"]:
         g = state["gn"].get(node, 0)
-        h = euclidean(node, state["goal"])
+        h = HEURISTICS[current_heuristic](node, state["goal"])
         f = g + h
         print(f"Node: {node}, g: {g:.2f}, h: {h:.2f}, f: {f:.2f}")
         path.append(node)
         node = state["came_from"][node]
     if node == state["start"]:
         g = state["gn"].get(node, 0)
-        h = euclidean(node, state["goal"])
+        h = HEURISTICS[current_heuristic](node, state["goal"])
         f = g + h
         print(f"Node: {node}, g: {g:.2f}, h: {h:.2f}, f: {f:.2f}")
         path.append(node)
@@ -78,8 +94,8 @@ def handle_manual_astar_click(clicked, grid, state):
     for neighbor in get_neighbors(clicked, grid):
         if neighbor in state["visited"]:
             continue
-        tentative_g = state["gn"].get(clicked, float('inf')) + euclidean(clicked, neighbor)
-        h = euclidean(neighbor, state["goal"])
+        tentative_g = state["gn"].get(clicked, float('inf')) + HEURISTICS[current_heuristic](clicked, neighbor)
+        h = HEURISTICS[current_heuristic](neighbor, state["goal"])
         f = tentative_g + h
 
         if neighbor not in state["gn"] or tentative_g < state["gn"][neighbor]:
@@ -113,7 +129,7 @@ COLOR_DICT = {
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Manual A* Visualizer")
-font = pygame.font.SysFont(None, 16)
+font = pygame.font.SysFont(None, 12)
 
 map_grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=int)
 astar_state = reset_astar_state()
@@ -158,9 +174,12 @@ while running:
         elif event.type == pygame.KEYDOWN:
             mods = pygame.key.get_mods()
             if event.key == pygame.K_r:
-                map_grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=int)
+                mask = (map_grid != 1) & (map_grid != 2) & (map_grid != 3)
+                map_grid[mask] = 0
                 astar_state = reset_astar_state()
-            elif event.key == pygame.K_o:
+            elif mods & pygame.KMOD_CTRL and mods & pygame.KMOD_SHIFT and event.key == pygame.K_o:
+                map_grid[map_grid == 1] = 0
+            elif event.key == pygame.K_1:
                 active_mode = 1
             elif event.key == pygame.K_2:
                 active_mode = 2
@@ -169,6 +188,11 @@ while running:
             elif event.key == pygame.K_k:
                 active_mode = 10
                 astar_state = reset_astar_state()
+            elif event.key == pygame.K_h:
+                keys = list(HEURISTICS.keys())
+                current_idx = keys.index(current_heuristic)
+                current_heuristic = keys[(current_idx + 1) % len(keys)]
+                print(f"Heuristik saat ini: {current_heuristic}")
             elif mods & pygame.KMOD_CTRL:
                 if event.key == pygame.K_s:
                     active_mode = 2
@@ -189,7 +213,7 @@ while running:
             # Tampilkan nilai fn jika ada
             fn_val = astar_state["fn_map"].get((row, col))
             if fn_val is not None:
-                label = font.render(f"{fn_val:.1f}", True, (255, 0, 0))
+                label = font.render(f"{fn_val:.2f}", True, (255, 0, 0))
                 screen.blit(label, (col * CELL_SIZE + 2, row * CELL_SIZE + 2))
 
             # Tampilkan koordinat jika diaktifkan
@@ -205,7 +229,9 @@ while running:
         10: "Mode: Manual A* (K)"
     }
     mode_label = font.render(mode_texts.get(active_mode, "Unknown"), True, (0, 0, 0))
-    screen.blit(mode_label, (10, HEIGHT - 30))
+    heuristic_label = font.render(f"Heuristic: {current_heuristic.title()} (H) ", True, (0, 0, 0))
+    screen.blit(mode_label, (10, HEIGHT - 50))
+    screen.blit(heuristic_label, (10, HEIGHT - 30))
 
     pygame.display.flip()
 
