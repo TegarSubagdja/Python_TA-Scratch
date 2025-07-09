@@ -40,24 +40,3 @@ def Distance(start, goal, pos):
     distance = math.sqrt((x0 - proj_x)**2 + (y0 - proj_y)**2)
 
     return (int(round(proj_x)), int(round(proj_y))), distance
-
-
-import cv2
-
-# Gunakan backend terbaik untuk Windows (DShow atau MSMF)
-cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
-
-# Set resolusi lebih rendah agar cepat
-# cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-# cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
-    cv2.imshow("Webcam", frame)
-    if cv2.waitKey(1) == 27:
-        break
-
-cap.release()
-cv2.destroyAllWindows()

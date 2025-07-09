@@ -222,7 +222,7 @@ def method(matrix, start, goal, hchoice):
             data.append(start)
             data = data[::-1]
             endtime = time.time()
-            return (data, round(endtime - starttime, 6)), open_list, close_list, close_set, pqueue
+            return (data, round(endtime - starttime, 6)), close_set, pqueue
 
         close_set.add(current)
 

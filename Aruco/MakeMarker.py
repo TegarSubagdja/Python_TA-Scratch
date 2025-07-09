@@ -5,7 +5,7 @@ import cv2.aruco as aruco
 aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 
 # Tentukan ID marker yang ingin dibuat (ID harus dalam range dictionary, misalnya 0-49 untuk DICT_4X4_50)
-marker_id = 7  # Ganti sesuai kebutuhan
+marker_id = 0  # Ganti sesuai kebutuhan
 
 # Ukuran marker dalam piksel
 marker_size = 720  # Bisa diubah sesuai kebutuhan
@@ -14,7 +14,7 @@ marker_size = 720  # Bisa diubah sesuai kebutuhan
 marker_image = cv2.aruco.generateImageMarker(aruco_dict, marker_id, marker_size)
 
 # Simpan ke file
-filename = f"Aruco/Marker/aruco_marker_id_{marker_id}{"DICT_4X4_50"}.png"
+filename = f"aruco_marker_id_{marker_id}{"DICT_7X7_50"}.png"
 cv2.imwrite(filename, marker_image)
 
 print(f"Marker ID {marker_id} berhasil disimpan sebagai {filename}")

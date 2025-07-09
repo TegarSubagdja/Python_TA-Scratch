@@ -1,4 +1,5 @@
-from Utils import *
+import math, heapq, time
+
 
 def blocked(cX, cY, dX, dY, matrix):
     if cX + dX < 0 or cX + dX >= matrix.shape[0]:
@@ -32,11 +33,7 @@ def heuristic(start, goal, hchoice):
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
 
-def method(matrix, start, goal, hchoice, show=False, speed=30):
-
-    if show:
-        surface, cell_size = Z_GetMap.Init_Visual(matrix)
-        clock = pygame.time.Clock()
+def method(matrix, start, goal, hchoice):
 
     close_list = set()
     came_from = {}
@@ -58,10 +55,9 @@ def method(matrix, start, goal, hchoice, show=False, speed=30):
                 path.append(current)
                 current = came_from[current]
             path.append(start)
-            path = path[::]
-            #print(gscore[goal])
+            path = path[::-1]
             endtime = time.time()
-            return (path, round(endtime - starttime, 6)), close_list, open_list 
+            return (path, round(endtime - starttime, 6))
 
         close_list.add(current)
         for dX, dY in [
@@ -105,19 +101,5 @@ def method(matrix, start, goal, hchoice, show=False, speed=30):
                     neighbour, goal, hchoice
                 )
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
-
-            if show:
-                Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
-                clock.tick(speed)  # Batasi ke 200 FPS
-
-                # Handle event disini
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        exit()
-                    elif event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            pygame.quit()
-                            exit()
         endtime = time.time()
     return (0, round(endtime - starttime, 6))

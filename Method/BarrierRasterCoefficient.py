@@ -1,18 +1,19 @@
-import numpy as np
-
 def barrierRaster(awal, akhir, peta):
+    jumlah = 0
     x1, y1 = awal
     x2, y2 = akhir
 
-    # Pastikan batas tidak keluar peta
-    y2 = min(y2, peta.shape[0])
-    x2 = min(x2, peta.shape[1])
+    max_y = len(peta)
+    max_x = len(peta[0]) if max_y > 0 else 0
 
-    area = peta[y1:y2, x1:x2]  # Ambil potongan area
+    for i in range(y1, min(y2, max_y)):
+        for j in range(x1, min(x2, max_x)):
+            if peta[i][j] == 255:
+                jumlah += 1
 
-    jumlah = np.count_nonzero(area == 255)  # Hitung jumlah 255 lebih cepat
     lebar = x2 - x1
     tinggi = y2 - y1
     luas = lebar * tinggi if lebar * tinggi > 0 else 1
+    koeficien = jumlah / luas
 
-    return jumlah / luas
+    return koeficien

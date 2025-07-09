@@ -1,13 +1,29 @@
-from Utils import *
+import serial
+import time
 
-def pwm(ser, left_pwm, right_pwm):
-    """
-    Mengirimkan dua nilai PWM (0-255) ke ESP32 melalui Serial.
-    Format pengiriman: byte[0] = 255 (start byte), byte[1] = left_pwm, byte[2] = right_pwm
-    """
-    if not (0 <= left_pwm <= 255 and 0 <= right_pwm <= 255):
-        print("Nilai PWM harus antara 0-255")
-        return
+# Sesuaikan dengan port ESP32 kamu
+PORT = 'COM11'
+BAUDRATE = 9600
 
-    paket = bytes([255, left_pwm, right_pwm])  # Start byte = 255, biar ESP32 mudah sinkron
-    ser.write(paket)
+try:
+    # Buka koneksi serial
+    with serial.Serial(PORT, BAUDRATE, timeout=1) as ser:
+        print(f"Tersambung ke {PORT}")
+        
+        time.sleep(2)  # Tunggu ESP32 siap
+
+        while True:
+            # Kirim '1' → nyalakan LED
+            ser.write(b'1')
+            print("LED ON")
+            time.sleep(1)
+
+            # Kirim '0' → matikan LED
+            ser.write(b'0')
+            print("LED OFF")
+            time.sleep(1)
+
+except serial.SerialException as e:
+    print(f"Gagal membuka port serial: {e}")
+except KeyboardInterrupt:
+    print("\nDihentikan oleh user.")

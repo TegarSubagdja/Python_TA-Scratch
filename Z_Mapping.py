@@ -1,6 +1,15 @@
-from Utils import *
+import tkinter as tk
+from tkinter import filedialog
+import pygame
+import numpy as np
+from Algoritma import JPS_Komentar
+from Algoritma import JPS_Komentar_Bidirectional
 from Algoritma import Astar_Komentar
+from Algoritma import Astar_Komentar_Bidirectional
 from Method.PathPolylineOptimization import prunning
+import ast
+from Algoritma import astar
+from Algoritma import jps
 
 # Variabel untuk ketebalan garis
 LINE_WIDTH = 2  # Menentukan ketebalan garis, bisa diubah sesuai kebutuhan
@@ -11,16 +20,10 @@ CIRCLE_RADIUS = 10  # Ukuran radius bulatan (dalam pixel)
 CIRCLE_COLOR = "#000000"  # Warna bulatan, misalnya tomat
 
 # Konfigurasi grid
-GRID_SIZE = 32
-WIDTH = 512 #GRID_SIZE * CELL_SIZE
-HEIGHT = 512 #GRID_SIZE * CELL_SIZE
-CELL_SIZE = WIDTH//GRID_SIZE
-
-# Inisialisasi Pygame
-pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Interactive Grid Editor")
-font = pygame.font.SysFont(None, 16)
+GRID_SIZE = 16
+CELL_SIZE = 40
+WIDTH = GRID_SIZE * CELL_SIZE
+HEIGHT = GRID_SIZE * CELL_SIZE
 
 # Warna untuk setiap elemen grid dalam kode HEX
 colors = {
@@ -37,6 +40,13 @@ colors = {
 
 # Inisialisasi grid
 map_grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=int)
+
+# Inisialisasi Pygame
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Interactive Grid Editor")
+font = pygame.font.SysFont(None, 24)
+
 # Status aktif (0 = ruang kosong, 1 = rintangan, 2 = start, 3 = goal, 4 = garis, 5 = open, 6 = close, 7 = gray)
 active_mode = 1  # Default mode rintangan
 lines = []  # Menyimpan semua garis sebagai ((x1, y1), (x2, y2))
@@ -56,29 +66,6 @@ def hex_to_rgb(hex_code):
     """Mengubah kode HEX menjadi tuple RGB."""
     hex_code = hex_code.lstrip('#')
     return tuple(int(hex_code[i:i + 2], 16) for i in (0, 2, 4))
-
-def save_grid_to_json(fixed_path="Map/JSON/Map.json"):
-    try:
-        # Ambil direktori, nama file tanpa ekstensi, dan ekstensi
-        directory, filename = os.path.split(fixed_path)
-        name, ext = os.path.splitext(filename)
-
-        # Tentukan nama file akhir jika file sudah ada
-        counter = 1
-        new_path = fixed_path
-        while os.path.exists(new_path):
-            new_path = os.path.join(directory, f"{name}_{counter}{ext}")
-            counter += 1
-
-        # Konversi dan simpan
-        grid_list = map_grid.tolist()  # Pastikan map_grid sudah tersedia di global
-        with open(new_path, 'w') as f:
-            json.dump(grid_list, f, indent=4)
-        print(f"Grid berhasil disimpan ke '{new_path}'")
-
-    except Exception as e:
-        print(f"Gagal menyimpan grid: {e}")
-
 
 # Fungsi untuk menggambar grid, termasuk koordinat jika diaktifkan
 def draw_grid(grid):
@@ -100,16 +87,8 @@ def draw_grid(grid):
             )
             # Jika koordinat diaktifkan, tampilkan koordinat di pojok kanan atas
             if show_coordinates:
-                label = f"{row},{col}"
-                coord_text = font.render(label, True, (0, 0, 0))
-                text_width, text_height = font.size(label)
-                
-                # Posisi pojok kanan bawah sel, dikurangi sedikit margin
-                text_x = col * CELL_SIZE + CELL_SIZE - text_width - 2
-                text_y = row * CELL_SIZE + CELL_SIZE - text_height - 2
-
-                screen.blit(coord_text, (text_x, text_y))
-
+                coord_text = font.render(f"{row},{col}", True, (0, 0, 0))
+                screen.blit(coord_text, (col * CELL_SIZE + CELL_SIZE - 40, row * CELL_SIZE + 5))
 
 # Fungsi untuk menampilkan mode aktif di layar
 def display_mode(text):
@@ -181,8 +160,6 @@ def process_cell(row, col):
         map_grid[row, col] = 7
     elif active_mode == 8:  # Mode pink
         map_grid[row, col] = 8
-    elif active_mode == 9:  # Mode pink
-        map_grid[row, col] = 8
     # Mode 2 (start) dan 3 (goal) ditangani khusus di event klik
 
 # Program utama
@@ -219,26 +196,6 @@ while running:
                 elif active_mode == 3:  # Mode goal
                     map_grid[map_grid == 3] = 0  # Hapus goal lama
                     map_grid[row, col] = 3
-                elif active_mode == 9:
-                    clicked = (row, col)
-                    start = np.argwhere(map_grid == 2)
-                    goal = np.argwhere(map_grid == 3)
-                    if start.size != 0 and goal.size != 0:
-                        start = tuple(map(int, start[0]))
-                        goal = tuple(map(int, goal[0]))
-
-                        def euclidean(a, b):
-                            return round(np.linalg.norm(np.array(a) - np.array(b)), 4)
-
-                        jarak_ke_start = euclidean(clicked, start)
-                        jarak_ke_goal = euclidean(clicked, goal)
-
-                        print(f"\n📍 Diklik di titik: {clicked}")
-                        print(f"↔️  Jarak ke START {start}: {jarak_ke_start}")
-                        print(f"↔️  Jarak ke GOAL  {goal}: {jarak_ke_goal}")
-                        print(f"↔️  Total  {start, goal}: {jarak_ke_start + jarak_ke_goal}\n")
-                    else:
-                        print("⚠️  Start atau Goal belum ditentukan.")
                 else:  # Mode yang bisa di-drag (obstacle, clear, dll)
                     is_dragging = True
                     last_cell = (row, col)
@@ -285,9 +242,6 @@ while running:
                     active_mode = 7
                 elif event.key == pygame.K_q:  # Ctrl + Q untuk warna pink
                     active_mode = 8
-                elif event.key == pygame.K_h:  # Ctrl + Q untuk warna pink
-                    active_mode = 9
-                    is_dragging = False
                 elif event.key == pygame.K_p:  # Ctrl + P untuk save
                     save_image(replace=False)
                 elif event.key == pygame.K_r:  # Ctrl + R untuk reset grid
@@ -312,9 +266,25 @@ while running:
                         elif method == 2:
                             path_result, closet, pqueue = jps.method(map_grid, start, goal, 2)
                     else:
-                        path_result = jps.method(map_grid, (0,0), (2,2), 2)
+                        path_result = JPS_Komentar_Bidirectional.method(map_grid, (0,0), (2,2), 2)
                     path_result = path_result[0]
                     path_result = path_result[1:-1]
+
+                    for row, col in path_result:
+                        map_grid[row, col] = 5
+
+                    if pqueue:
+                        for _, (x, y) in pqueue:
+                            map_grid[x][y] = 5
+
+                    if closet:
+                        for row, col in closet:
+                            if map_grid[row][col] != 2:
+                                map_grid[row, col] = 6
+                                
+                    if path_result:
+                        for x, y in path_result:
+                            map_grid[x][y] = 7
 
                 elif event.key == pygame.K_n:
                     map_grid[(map_grid == 6) | (map_grid == 5) | (map_grid == 8)] = 0
@@ -353,10 +323,7 @@ while running:
                     method = 3
                 elif event.key == pygame.K_4:
                     method = 4
-                elif event.key == pygame.K_j:  # Ctrl + J untuk save ke JSON
-                    save_grid_to_json()
-            elif event.key == pygame.K_ESCAPE:  
-                running = False
+
     # Gambar ulang layar
     screen.fill(hex_to_rgb("#FFFFFF"))
     draw_grid(map_grid)
@@ -372,8 +339,7 @@ while running:
         5: "Open List (Ctrl + U)",
         6: "Close List (Ctrl + X)",
         7: "Gray (Ctrl + E)",
-        8: "Pink (Ctrl + Q)",
-        9: "Euclidean Measure (Ctrl + H)"
+        8: "Pink (Ctrl + Q)"
     }
     display_mode(mode_texts.get(active_mode, "Unknown"))
 
