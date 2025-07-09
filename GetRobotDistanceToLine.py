@@ -41,7 +41,6 @@ def Distance(start, goal, pos):
 
     return (int(round(proj_x)), int(round(proj_y))), distance
 
-
 import cv2
 
 # Gunakan backend terbaik untuk Windows (DShow atau MSMF)

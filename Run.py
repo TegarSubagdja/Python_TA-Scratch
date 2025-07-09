@@ -16,6 +16,9 @@ goal_marker_id = 7
 
 # Webcam
 cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+# Atur resolusi (misal: 640x480)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 if not cap.isOpened():
     print("❌ Tidak dapat membuka webcam.")
     exit()
@@ -30,7 +33,7 @@ def calculate_path(image, pos, corners):
 
     # Jalankan fungsi getPath() di thread
     try:
-        temp_path = getPath(image=image, scale=10, pos=pos, corners=corners)
+        temp_path = getPath(image=image, scale=20, pos=pos, corners=corners)
         temp_path[0] = np.flip(pos[1])
         temp_path[-1] = np.flip(pos[0])
 
@@ -58,7 +61,6 @@ while True:
 
         if result is None:
             print("⚠️ Marker tidak lengkap. Melewatkan frame.")
-            continue
 
         koordinat, corners, orientasi_robot, mark_size, distance, _, _, image = result
 
@@ -70,7 +72,6 @@ while True:
                 args=(gray.copy(), koordinat, corners),
                 daemon=True
             ).start()
-
         # Gambar path jika sudah tersedia
         with path_lock:
             if shared_path:

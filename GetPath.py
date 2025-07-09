@@ -7,8 +7,6 @@ def getPath(image, scale=20, pos=False, corners=False):
 
     map, pos = Preprocessing(image, pos, scale, corners)
 
-    cv2.imwrite("cam.jpg", map)
-
     (path, time) = jps.method(map, pos[0], pos[1], 2)
 
     if not path:
