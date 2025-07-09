@@ -57,7 +57,6 @@ try:
             # Ambil jalur jika belum ada
             path = getPath(image=cam, scale=20, idStart=2, idGoal=7, detector=detector)
             path.pop(0)
-            print(path)
             continue
 
         if path:

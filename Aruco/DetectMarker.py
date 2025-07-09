@@ -11,7 +11,7 @@ def detect_aruco_realtime(camera_index=0, aruco_dict_type=aruco.DICT_4X4_50):
         aruco_dict_type (int): Tipe dictionary ArUco (default DICT_4X4_50).
     """
 
-    cap = cv2.VideoCapture(camera_index)
+    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 
     if not cap.isOpened():
         print("Tidak dapat membuka kamera.")
