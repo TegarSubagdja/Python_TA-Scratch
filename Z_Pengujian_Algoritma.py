@@ -152,7 +152,7 @@ def runMethod(JPS=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, 
 
 # Contoh pemanggilan:
 if __name__ == "__main__":
-    map_awal = Visualize.load_grid(path="Map/JSON/Map_2.json")
+    map_awal = Visualize.load_grid(path="Map/JSON/Map_5.json")
     # run(map=map_awal, show=False, size=[32, 64, 128])
     # runMethod(jps=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, show=False)
     # run(map=map_awal, show=False, size=[32, 64, 128])
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     scale = 128
     
-    map_awal = Visualize.upscale(map_awal, scale)
+    # map_awal = Visualize.upscale(map_awal, scale)
 
     start = (20, 20)
     goal = map_awal.shape[0] - 1, map_awal.shape[1] - 1
@@ -168,6 +168,17 @@ if __name__ == "__main__":
     print(f"goal : {goal}")
 
     np.place(map_awal, map_awal == 1, 255)
+
+    start = None
+    goal = None
+
+    for y in range(len(map_awal)):
+        for x in range(len(map_awal[0])):
+            if map_awal[y][x] == 2:
+                start = (y, x)
+            elif map_awal[y][x] == 3:
+                goal = (y, x)
+
     map_awal[start] = 2
     map_awal[goal] = 3
 
