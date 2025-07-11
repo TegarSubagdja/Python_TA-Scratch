@@ -6,8 +6,8 @@ def blocked(cX, cY, dX, dY, matrix):
     if cY + dY < 0 or cY + dY >= matrix.shape[1]:
         return True
     if dX != 0 and dY != 0:
-        if matrix[cX + dX][cY] == 255 and matrix[cX][cY + dY] == 255:
-            return True
+        # if matrix[cX + dX][cY] == 255 and matrix[cX][cY + dY] == 255:
+        #     return True
         if matrix[cX + dX][cY + dY] == 255:
             return True
     else:
@@ -19,178 +19,157 @@ def blocked(cX, cY, dX, dY, matrix):
                 return True
     return False
 
-
-def heuristic(start, goal, hchoice):
+def heuristic(a, b, hchoice):
     if hchoice == 1:
-        xdist = math.fabs(goal[0] - start[0])
-        ydist = math.fabs(goal[1] - start[1])
+        xdist = math.fabs(b[0] - a[0])
+        ydist = math.fabs(b[1] - a[1])
         if xdist > ydist:
             return 14 * ydist + 10 * (xdist - ydist)
         else:
             return 14 * xdist + 10 * (ydist - xdist)
     if hchoice == 2:
-        return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
+        return math.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
-def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60):
+def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=30):
+
     if show:
-        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        surface, cell_size = Z_GetMap.Init_Visual(map)
         clock = pygame.time.Clock()
 
     v1, v2, v3 = 0, 0, 0
 
-    open_forward = []
-    open_backward = []
+    open_list_fwd, open_list_bwd = [], []
+    close_list_fwd, close_list_bwd = set(), set()
+    came_from_fwd, came_from_bwd = {}, {}
 
-    # Tambahan set untuk mengecek openlist lawan
-    open_set_forward = {start}
-    open_set_backward = {goal}
+    gn_fwd = {start: 0}
+    gn_bwd = {goal: 0}
+    fn_fwd = {start: heuristic(start, goal, hchoice)}
+    fn_bwd = {goal: heuristic(goal, start, hchoice)}
 
-    came_from_forward = {}
-    came_from_backward = {}
+    heapq.heappush(open_list_fwd, (fn_fwd[start], start))
+    heapq.heappush(open_list_bwd, (fn_bwd[goal], goal))
 
-    g_forward = {start: 0}
-    g_backward = {goal: 0}
+    meeting_point = None
+    starttime = time.time()
 
-    f_forward = {start: heuristic(start, goal, hchoice)}
-    f_backward = {goal: heuristic(goal, start, hchoice)}
+    while open_list_fwd and open_list_bwd:
 
-    closed_forward = set()
-    closed_backward = set()
+        # --- Forward Search ---
+        current_fwd = heapq.heappop(open_list_fwd)[1]
+        close_list_fwd.add(current_fwd)
 
-    current_forward = start
-    current_backward = goal
+        if current_fwd in close_list_bwd:
+            meeting_point = current_fwd
+            break
 
-    heapq.heappush(open_forward, (f_forward[start], start))
-    heapq.heappush(open_backward, (f_backward[goal], goal))
+        for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+            if blocked(current_fwd[0], current_fwd[1], dX, dY, map):
+                continue
 
-    deltas = [
-        (0, 1), (0, -1), (1, 0), (-1, 0),
-        (1, 1), (1, -1), (-1, 1), (-1, -1)
-    ]
+            neighbour = current_fwd[0] + dX, current_fwd[1] + dY
 
-    start_time = time.time()
-    meet_point = None
+            if hchoice == 1:
+                cost = 14 if dX != 0 and dY != 0 else 10
+            else:
+                cost = math.sqrt(2) if dX != 0 and dY != 0 else 1
 
-    while open_forward and open_backward:
-        # Ekspansi sisi Forward
-        if open_forward:
-            _, current_forward = heapq.heappop(open_forward)
-            open_set_forward.discard(current_forward)
+            tentative_gn = gn_fwd[current_fwd] + cost
+            if neighbour in close_list_fwd:
+                continue
 
-            if current_forward in closed_backward or current_forward in open_set_backward:
-                meet_point = current_forward
-                break
+            v1 = TP(came_from_fwd.get(current_fwd, current_fwd), current_fwd, neighbour, 2) if TPF else 0
+            v2 = BR(neighbour, goal, map) or 1 if BRC else 1
+            v3 = GL(start, goal, neighbour) if GLF else 0
 
-            closed_forward.add(current_forward)
+            if tentative_gn < gn_fwd.get(neighbour, float('inf')):
+                came_from_fwd[neighbour] = current_fwd
+                gn_fwd[neighbour] = tentative_gn
+                fn = tentative_gn + heuristic(neighbour, goal, hchoice)
+                if BRC:
+                    fn += (heuristic(neighbour, goal, hchoice) * (1 - math.log(v2)))
+                fn += v1 + v3
+                fn_fwd[neighbour] = fn
+                heapq.heappush(open_list_fwd, (fn, neighbour))
 
-            for dX, dY in deltas:
-                if blocked(current_forward[0], current_forward[1], dX, dY, matrix):
-                    continue
+        # --- Backward Search ---
+        current_bwd = heapq.heappop(open_list_bwd)[1]
+        close_list_bwd.add(current_bwd)
 
-                neighbor = current_forward[0] + dX, current_forward[1] + dY
-                if neighbor in closed_forward:
-                    continue
+        if current_bwd in close_list_fwd:
+            meeting_point = current_bwd
+            break
 
-                v1 = TP(came_from_forward.get(current_forward, current_forward), current_forward, neighbor, 2) if TPF else 0
-                v2 = BR(neighbor, goal, matrix) or 1 if BRC else 1
-                v3 = GL(start, goal, neighbor) if GLF else 0
+        for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+            if blocked(current_bwd[0], current_bwd[1], dX, dY, map):
+                continue
 
-                cost = 14 if hchoice == 1 and dX != 0 and dY != 0 else (10 if hchoice == 1 else (math.sqrt(2) if dX != 0 and dY != 0 else 1))
-                tentative_g = g_forward.get(current_forward, 0) + cost
+            neighbour = current_bwd[0] + dX, current_bwd[1] + dY
 
-                if neighbor not in g_forward or tentative_g < g_forward[neighbor]:
-                    g_forward[neighbor] = tentative_g
+            if hchoice == 1:
+                cost = 14 if dX != 0 and dY != 0 else 10
+            else:
+                cost = math.sqrt(2) if dX != 0 and dY != 0 else 1
 
-                    h_to_current_b = 0 #heuristic(neighbor, current_backward, 2)
+            tentative_gn = gn_bwd[current_bwd] + cost
+            if neighbour in close_list_bwd:
+                continue
 
-                    if BRC:
-                        f_forward[neighbor] = tentative_g + (heuristic(neighbor, goal, hchoice) * (1 - math.log(v2))) + v1 + v3 + h_to_current_b
-                    else:
-                        f_forward[neighbor] = tentative_g + heuristic(neighbor, goal, hchoice) + v1 + v3 + h_to_current_b
-                    came_from_forward[neighbor] = current_forward
-                    heapq.heappush(open_forward, (f_forward[neighbor], neighbor))
-                    open_set_forward.add(neighbor)
+            v1 = TP(came_from_bwd.get(current_bwd, current_bwd), current_bwd, neighbour, 2) if TPF else 0
+            v2 = BR(neighbour, start, map) or 1 if BRC else 1
+            v3 = GL(goal, start, neighbour) if GLF else 0
 
-        # Ekspansi sisi Backward
-        if open_backward:
-            _, current_backward = heapq.heappop(open_backward)
-            open_set_backward.discard(current_backward)
+            if tentative_gn < gn_bwd.get(neighbour, float('inf')):
+                came_from_bwd[neighbour] = current_bwd
+                gn_bwd[neighbour] = tentative_gn
+                fn = tentative_gn + heuristic(neighbour, start, hchoice)
+                if BRC:
+                    fn += (heuristic(neighbour, start, hchoice) * (1 - math.log(v2)))
+                fn += v1 + v3
+                fn_bwd[neighbour] = fn
+                heapq.heappush(open_list_bwd, (fn, neighbour))
 
-            if current_backward in closed_forward or current_backward in open_set_forward:
-                meet_point = current_backward
-                break
-
-            closed_backward.add(current_backward)
-
-            for dX, dY in deltas:
-                if blocked(current_backward[0], current_backward[1], dX, dY, matrix):
-                    continue
-
-                neighbor = current_backward[0] + dX, current_backward[1] + dY
-                if neighbor in closed_backward:
-                    continue
-
-                v1 = TP(came_from_backward.get(current_backward, current_backward), current_backward, neighbor, 2) if TPF else 0
-                v2 = BR(neighbor, start, matrix) or 1 if BRC else 1
-                v3 = GL(goal, start, neighbor) if GLF else 0
-
-                cost = 14 if hchoice == 1 and dX != 0 and dY != 0 else (10 if hchoice == 1 else (math.sqrt(2) if dX != 0 and dY != 0 else 1))
-                tentative_g = g_backward.get(current_backward, 0) + cost
-
-                if neighbor not in g_backward or tentative_g < g_backward[neighbor]:
-                    g_backward[neighbor] = tentative_g
-
-                    h_to_current_f = 0 #heuristic(neighbor, current_backward, 2)
-
-                    if BRC:
-                        f_backward[neighbor] = tentative_g + (heuristic(neighbor, start, hchoice) * (1 - math.log(v2))) + v1 + v3 + h_to_current_f
-                    else:
-                        f_backward[neighbor] = tentative_g + heuristic(neighbor, start, hchoice) + v1 + v3 + h_to_current_f
-
-                    came_from_backward[neighbor] = current_backward
-                    heapq.heappush(open_backward, (f_backward[neighbor], neighbor))
-                    open_set_backward.add(neighbor)
-
+        # --- Visualisasi ---
         if show:
-            combined_open = open_forward + open_backward
-            combined_closed = closed_forward.union(closed_backward)
-            Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_closed)
+            path_preview = [meeting_point] if meeting_point else []
+            Z_GetMap.Render(surface, map, cell_size, open_list_fwd + open_list_bwd, close_list_fwd.union(close_list_bwd), path_preview)
             clock.tick(speed)
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
                     exit()
 
-    end_time = time.time()
+    endtime = time.time()
 
-    if meet_point:
-        path_forward = []
-        node = meet_point
-        while node in came_from_forward:
-            path_forward.append(node)
-            node = came_from_forward[node]
-        path_forward.append(start)
-        path_forward.reverse()
+    if meeting_point is None:
+        return (0, round(endtime - starttime, 6)), 0, 0
 
-        path_backward = []
-        node = meet_point
-        while node in came_from_backward:
-            node = came_from_backward[node]
-            path_backward.append(node)
+    # --- Rekonstruksi Jalur ---
+    path_fwd = []
+    node = meeting_point
+    while node in came_from_fwd:
+        path_fwd.append(node)
+        node = came_from_fwd[node]
+    path_fwd.append(start)
+    path_fwd.reverse()
 
-        full_path = path_forward + path_backward
+    path_bwd = []
+    node = meeting_point
+    while node in came_from_bwd:
+        node = came_from_bwd[node]
+        path_bwd.append(node)
+    path = path_fwd + path_bwd
 
-        if show:
-            Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_closed, full_path)
-            clock.tick(speed)
-            time.sleep(2)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                    pygame.quit()
-                    exit()
+    if PPO:
+        path = prunning(path, map)
 
-        return (full_path, round(end_time - start_time, 6)), (open_forward + open_backward), closed_forward.union(closed_backward)
+    if show:
+        Z_GetMap.Render(surface, map, cell_size, open_list_fwd + open_list_bwd, close_list_fwd.union(close_list_bwd), path)
+        clock.tick(speed)
+        time.sleep(2)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                pygame.quit()
+                exit()
 
-    
-    return (0, round(end_time - start_time, 6)), 0, 0
+    return (path, round(endtime - starttime, 6)), open_list_fwd + open_list_bwd, close_list_fwd.union(close_list_bwd)

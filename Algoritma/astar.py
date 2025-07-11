@@ -19,39 +19,39 @@ def blocked(cX, cY, dX, dY, matrix):
                 return True
     return False
 
-
-def heuristic(start, goal, hchoice):
-    if hchoice == 255:
-        xdist = math.fabs(goal[0] - start[0])
-        ydist = math.fabs(goal[1] - start[1])
+def heuristic(a, b, hchoice):
+    if hchoice == 1:
+        xdist = math.fabs(b[0] - a[0])
+        ydist = math.fabs(b[1] - a[1])
         if xdist > ydist:
             return 14 * ydist + 10 * (xdist - ydist)
         else:
             return 14 * xdist + 10 * (ydist - xdist)
     if hchoice == 2:
-        return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
+        return math.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
-
-def method(matrix, start, goal, hchoice, show=False, speed=30):
+def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=30):
 
     if show:
-        surface, cell_size = Z_GetMap.Init_Visual(matrix)
+        surface, cell_size = Z_GetMap.Init_Visual(map)
         clock = pygame.time.Clock()
-
-    close_list = set()
+        
+    close_set = set()
     came_from = {}
-    gn = {start: 0}
-    fn = {start: heuristic(start, goal, hchoice)}
+    gscore = {start: 0}
+    fscore = {start: heuristic(start, goal, hchoice)}
 
-    open_list = []
+    pqueue = []
 
-    heapq.heappush(open_list, (fn[start], start))
+    heapq.heappush(pqueue, (fscore[start], start))
 
     starttime = time.time()
 
-    while open_list:
+    while pqueue:
 
-        current = heapq.heappop(open_list)[1]
+        current = heapq.heappop(pqueue)[1]
+        # print("="*100)
+        # print(f"# Titik saat ini : {current}")
         if current == goal:
             path = []
             while current in came_from:
@@ -59,11 +59,11 @@ def method(matrix, start, goal, hchoice, show=False, speed=30):
                 current = came_from[current]
             path.append(start)
             path = path[::]
-            #print(gscore[goal])
+            print(gscore[goal])
             endtime = time.time()
-            return (path, round(endtime - starttime, 6)), close_list, open_list 
+            return (path, round(endtime - starttime, 6))
 
-        close_list.add(current)
+        close_set.add(current)
         for dX, dY in [
             (0, 1),
             (0, -1),
@@ -75,39 +75,44 @@ def method(matrix, start, goal, hchoice, show=False, speed=30):
             (-1, -1),
         ]:
 
-            if blocked(current[0], current[1], dX, dY, matrix):
+            if blocked(current[0], current[1], dX, dY, map):
                 continue
 
             neighbour = current[0] + dX, current[1] + dY
 
-            if hchoice == 255:
+            if hchoice == 1:
                 if dX != 0 and dY != 0:
-                    tentative_gn = gn[current] + 14
+                    tentative_g_score = gscore[current] + 14
                 else:
-                    tentative_gn = gn[current] + 10
+                    tentative_g_score = gscore[current] + 10
             elif hchoice == 2:
                 if dX != 0 and dY != 0:
-                    tentative_gn = gn[current] + math.sqrt(2)
+                    tentative_g_score = gscore[current] + math.sqrt(2)
                 else:
-                    tentative_gn = gn[current] + 1
+                    tentative_g_score = gscore[current] + 1
 
             if (
-                neighbour in close_list
+                neighbour in close_set
             ):  # and tentative_g_score >= gscore.get(neighbour,0):
                 continue
 
-            if tentative_gn < gn.get(
+            if tentative_g_score < gscore.get(
                 neighbour, 0
-            ) or neighbour not in [i[1] for i in open_list]:
+            ) or neighbour not in [i[1] for i in pqueue]:
                 came_from[neighbour] = current
-                gn[neighbour] = tentative_gn
-                fn[neighbour] = tentative_gn + heuristic(
+                gscore[neighbour] = tentative_g_score
+                fscore[neighbour] = tentative_g_score + heuristic(
                     neighbour, goal, hchoice
                 )
-                heapq.heappush(open_list, (fn[neighbour], neighbour))
+                # print(f"* Untuk tetangga : {neighbour}")
+                # print(f"gn : {tentative_g_score}")
+                # print(f"hn : {heuristic(neighbour, goal, hchoice)}")
+                # print(f"fn : {fscore[neighbour]}")
+                # print("\n")
+                heapq.heappush(pqueue, (fscore[neighbour], neighbour))
 
             if show:
-                Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
+                Z_GetMap.Render(surface, map, cell_size, pqueue, close_set)
                 clock.tick(speed)  # Batasi ke 200 FPS
 
                 # Handle event disini
@@ -119,5 +124,6 @@ def method(matrix, start, goal, hchoice, show=False, speed=30):
                         if event.key == pygame.K_ESCAPE:
                             pygame.quit()
                             exit()
+        # print(f"Total Open List : {pqueue}")
         endtime = time.time()
     return (0, round(endtime - starttime, 6))
