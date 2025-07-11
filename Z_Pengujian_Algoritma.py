@@ -152,7 +152,7 @@ def runMethod(JPS=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, 
 
 # Contoh pemanggilan:
 if __name__ == "__main__":
-    map_awal = Visualize.load_grid(path="Map/JSON/Map_5.json")
+    map_awal = Visualize.load_grid(path="Map/JSON/Map_2.json")
     # run(map=map_awal, show=False, size=[32, 64, 128])
     # runMethod(jps=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, show=False)
     # run(map=map_awal, show=False, size=[32, 64, 128])
@@ -162,41 +162,31 @@ if __name__ == "__main__":
     
     # map_awal = Visualize.upscale(map_awal, scale)
 
-    start = (20, 20)
+    start = (0, 0)
     goal = map_awal.shape[0] - 1, map_awal.shape[1] - 1
     print(f"start : {start}")
     print(f"goal : {goal}")
 
     np.place(map_awal, map_awal == 1, 255)
-
-    start = None
-    goal = None
-
-    for y in range(len(map_awal)):
-        for x in range(len(map_awal[0])):
-            if map_awal[y][x] == 2:
-                start = (y, x)
-            elif map_awal[y][x] == 3:
-                goal = (y, x)
-
-    map_awal[start] = 2
-    map_awal[goal] = 3
+    np.place(map_awal, map_awal == 2, 0)
+    np.place(map_awal, map_awal == 3, 0)
 
     avg = []
     path_len = 0
     open_len = 0
     close_len = 0
 
-    # (path, times), *_ = jbds.methodBds(
-    #     map_awal, start, goal, hchoice=2,
-    #     show=False, speed=10
-    # )
+    (path, times) = jbds.method(
+        map_awal, start, goal, hchoice=2,
+        show=False, speed=10
+    )
+    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
-    # (path, times), *_ = astar_full.method(
-    #     map_awal, start, goal, hchoice=2, BRC=True,
-    #     show=False, speed=100
-    # )
-    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    (path, times), *_ = astar_full.method(
+        map_awal, start, goal, hchoice=2, BRC=False,
+        show=False, speed=100
+    )
+    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
     # (path, times), *_ = bds.method(
     #     map_awal, start, goal, hchoice=2, BRC=False, GLF=True,
@@ -210,14 +200,14 @@ if __name__ == "__main__":
     # )
     # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
-    (path, times) = jbds.method(
-        map_awal, start, goal, hchoice=2, 
-        show=True, speed=10
-    )
-    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    # (path, times) = jbds.method(
+    #     map_awal, start, goal, hchoice=2, 
+    #     show=False, speed=10
+    # )
+    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
-    (path, times), *_ = jps_full.method(
-        map_awal, start, goal, hchoice=2, BRC=False,
-        show=False, speed=100
-    )
-    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    # (path, times), *_ = jps_full.method(
+    #     map_awal, start, goal, hchoice=2, BRC=False,
+    #     show=False, speed=100
+    # )
+    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")

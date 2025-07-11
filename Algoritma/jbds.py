@@ -64,7 +64,6 @@ def nodeNeighbours(currentX, currentY, parent, matrix):
         ]:
              if not blocked(currentX, currentY, moveX, moveY, matrix):
                 neighbours.append((currentX + moveX, currentY + moveY))
-                scan_points + neighbours
 
         return neighbours
     moveX, moveY = direction(currentX, currentY, parent[0], parent[1])
@@ -121,7 +120,9 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
 
     oX = nX
     oY = nY
-    scan_points.append((oX, oY))
+
+    if shows:
+        scan_points.append((oX, oY))
 
     if moveX != 0 and moveY != 0:
         while True:
@@ -141,14 +142,16 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
 
             oX += moveX
             oY += moveY
-            scan_points.append((oX, oY))
 
-            Z_GetMap.Render(surface, matrix, cell_size, open_list=None, close_list=None ,point=scan_points)
-            clock.tick(10)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                    pygame.quit()
-                    exit()
+            if shows:
+                scan_points.append((oX, oY))
+
+                Z_GetMap.Render(surface, matrix, cell_size, open_list=None, close_list=None ,point=scan_points)
+                clock.tick(10)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                        pygame.quit()
+                        exit()
 
             if blocked(oX, oY, 0, 0, matrix):
                 return None
@@ -170,14 +173,16 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
                     return (oX, nY)
 
                 oX += moveX
-                scan_points.append((oX, oY))
 
-                Z_GetMap.Render(surface, matrix, cell_size, point=scan_points)
-                clock.tick(10)
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                        pygame.quit()
-                        exit()
+                if shows:
+                    scan_points.append((oX, oY))
+
+                    Z_GetMap.Render(surface, matrix, cell_size, point=scan_points)
+                    clock.tick(10)
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                            pygame.quit()
+                            exit()
 
                 if blocked(oX, nY, 0, 0, matrix):
                     return None
@@ -196,14 +201,16 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
                     return (nX, oY)
 
                 oY += moveY
-                scan_points.append((oX, oY))
 
-                Z_GetMap.Render(surface, matrix, cell_size, point=scan_points)
-                clock.tick(10)
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                        pygame.quit()
-                        exit()
+                if shows:
+                    scan_points.append((oX, oY))
+
+                    Z_GetMap.Render(surface, matrix, cell_size, point=scan_points)
+                    clock.tick(10)
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                            pygame.quit()
+                            exit()
 
                 if blocked(nX, oY, 0, 0, matrix):
                     return None
@@ -233,9 +240,12 @@ surface = None
 cell_size = None
 clock = None
 scan_points = []
+shows = None
 
 def method(matrix, start, goal, hchoice, show=False, speed=30):
-    global surface, cell_size, clock, scan_points
+    global surface, cell_size, clock, scan_points, shows
+    shows = show
+
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
         clock = pygame.time.Clock()
