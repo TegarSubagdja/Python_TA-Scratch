@@ -1,7 +1,4 @@
-import pygame
-import cv2
-import numpy as np
-import math
+from Utils import *
 
 # Inisialisasi pygame
 pygame.init()
@@ -20,6 +17,11 @@ CELL_SIZE = 16
 GRID_COLS = WIDTH // CELL_SIZE
 GRID_ROWS = HEIGHT // CELL_SIZE
 
+# Inisialisasi ArUco
+detector_params = aruco.DetectorParameters()
+detector_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
+detector = aruco.ArucoDetector(detector_dict, detector_params)
+
 # Grid 2D: 0 = kosong, 1 = rintangan
 grid = [[0 for _ in range(GRID_COLS)] for _ in range(GRID_ROWS)]
 
@@ -29,6 +31,7 @@ draw_toggle_ready = True
 drawing = False  # apakah mouse sedang menahan klik kiri
 dragging_marker = None  # marker mana yang sedang digeser
 save_on_mouseup = False
+path = []
 
 # Fungsi konversi cv2 ke pygame surface
 def cvimg_to_pygame(image):
@@ -39,6 +42,7 @@ def cvimg_to_pygame(image):
 # Load ArUco marker 1
 aruco_img1_cv = cv2.imread("Aruco/Marker/aruco_marker_id_0DICT_4X4_50.png")
 aruco_img1_cv = cv2.resize(aruco_img1_cv, (0, 0), fx=0.05, fy=0.05)
+aruco_img1_cv = cv2.flip(aruco_img1_cv, 1)
 if aruco_img1_cv is None:
     raise FileNotFoundError("Marker 1 tidak ditemukan.")
 aruco_surface1 = cvimg_to_pygame(aruco_img1_cv)
@@ -46,6 +50,7 @@ aruco_surface1 = cvimg_to_pygame(aruco_img1_cv)
 # Load ArUco marker 2
 aruco_img2_cv = cv2.imread("Aruco/Marker/aruco_marker_id_1DICT_4X4_50.png")
 aruco_img2_cv = cv2.resize(aruco_img2_cv, (0, 0), fx=0.05, fy=0.05)
+aruco_img2_cv = cv2.flip(aruco_img2_cv, 1)
 if aruco_img2_cv is None:
     raise FileNotFoundError("Marker 2 tidak ditemukan.")
 aruco_surface2 = cvimg_to_pygame(aruco_img2_cv)
@@ -62,9 +67,18 @@ def draw_grid():
     for row in range(GRID_ROWS):
         for col in range(GRID_COLS):
             rect = pygame.Rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-            if grid[row][col] == 1:
+            if grid[row][col] == 255:
                 pygame.draw.rect(screen, BLACK, rect)
             pygame.draw.rect(screen, GRAY, rect, 1)
+
+def toImage(surface):
+    # Dapatkan array RGB dari surface
+    rgb_array = pygame.surfarray.array3d(surface)  # shape: (width, height, 3)
+    rgb_array = np.transpose(rgb_array, (1, 0, 2))  # jadi (height, width, 3)
+
+    # Konversi RGB ke Grayscale pakai OpenCV
+    gray = cv2.cvtColor(rgb_array, cv2.COLOR_RGB2GRAY)
+    return gray
 
 # Loop utama
 clock = pygame.time.Clock()
@@ -109,7 +123,7 @@ while running:
                 if draw_mode and dragging_marker is None:
                     col, row = mx // CELL_SIZE, my // CELL_SIZE
                     if 0 <= col < GRID_COLS and 0 <= row < GRID_ROWS:
-                        grid[row][col] = 1 if grid[row][col] == 0 else 0
+                        grid[row][col] = 255 if grid[row][col] == 0 else 0
 
         # Lepas klik kiri
         elif event.type == pygame.MOUSEBUTTONUP:
@@ -124,7 +138,7 @@ while running:
                 mx, my = pygame.mouse.get_pos()
                 col, row = mx // CELL_SIZE, my // CELL_SIZE
                 if 0 <= col < GRID_COLS and 0 <= row < GRID_ROWS:
-                    grid[row][col] = 1
+                    grid[row][col] = 255
 
     # Update posisi marker jika sedang diseret
     if dragging_marker is not None:
@@ -151,13 +165,38 @@ while running:
         text = font.render("Draw Mode [ON] - Ctrl+G to toggle", True, RED)
         screen.blit(text, (10, 10))
 
-    pygame.display.flip()
-
     if save_on_mouseup:
-        pygame.image.save(screen, "hasil.png")
-        print("Tampilan disimpan sebagai hasil.png")
-        save_on_mouseup = False  # reset flag
-        
+        img = toImage(screen)
+        result = GetOrientation(img, sId=0, gId=1, show_result=False, detector=detector)
+        if result is None:
+            print("Marker tidak terdeteksi.")
+        else:
+            (
+                pos,
+                corners,
+                orientasi_robot,
+                mark_size,
+                distance,
+                error_orientasi,
+                degre,
+                image
+            ) = result
+            path = getPath(img, scale=10, pos=pos, corners=corners)
+            print(f"Path adalah {path}")
+            print(f"Grid adalah {img}")
+            pygame.image.save(screen, "hasil_dengan_path.png")
+            save_on_mouseup = False  # reset flag
+
+    # Gambar garis antar titik dalam path
+    if path and len(path) > 1:
+        for i in range(len(path) - 1):
+            start = np.flip(path[i])
+            goal = np.flip(path[i + 1])
+            pygame.draw.line(screen, (255, 0, 0), start, goal, 2)  # Warna merah, ketebalan 2 px
+    else:
+        print("Path tidak cukup panjang untuk digambar.")
+
+    pygame.display.flip()  # Update tampilan setelah menggambar garis
     clock.tick(60)
 
 pygame.quit()

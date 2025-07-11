@@ -14,9 +14,9 @@ def Contour(image, corners):
         cv2.fillPoly(image, [pts], (255, 255, 255))  # Putih di BGR
 
     # Threshold dan erosi
-    _, thresh = cv2.threshold(image, 30, 255, cv2.THRESH_BINARY_INV)
-    # kernel = np.ones((3,3), np.uint8)
-    # thresh = cv2.erode(thresh, kernel, iterations=iterate)
+    _, thresh = cv2.threshold(image, 150, 255, cv2.THRESH_BINARY)
+    kernel = np.ones((3,3), np.uint8)
+    thresh = cv2.erode(thresh, kernel, iterations=3)
 
     # Temukan kontur
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -25,7 +25,7 @@ def Contour(image, corners):
     output = np.zeros_like(image)
 
     for contour in contours:
-        if cv2.contourArea(contour) > 1000:
+        if cv2.contourArea(contour) > 100:
             rect = cv2.minAreaRect(contour)
             (cx, cy), (w, h), angle = rect
             w_enlarged = w + (2 * mark_size)
@@ -36,7 +36,7 @@ def Contour(image, corners):
             cv2.drawContours(output, [box], 0, 255, -1, lineType=cv2.LINE_8)
 
     # Ubah gambar ke BGR untuk overlay warna
-    image_bgr = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    image_bgr = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
     # Buat output berwarna: kontur putih → misalnya warna biru
     output_colored = np.zeros_like(image_bgr)

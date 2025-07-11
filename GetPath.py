@@ -2,10 +2,13 @@ from Utils import *
 
 def getPath(image, scale=20, pos=False, corners=False):
 
+    print(pos)
     if not pos:
         return 0, 0
 
     map, pos = Preprocessing(image, pos, scale, corners)
+
+    cv2.imwrite("Data/Image/map_biner.jpg", map)
 
     (path, time) = jps.method(map, pos[0], pos[1], 2)
 
