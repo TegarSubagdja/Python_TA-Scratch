@@ -162,7 +162,7 @@ if __name__ == "__main__":
     
     map_awal = Visualize.upscale(map_awal, scale)
 
-    start = (0, 0)
+    start = (20, 20)
     goal = map_awal.shape[0] - 1, map_awal.shape[1] - 1
     print(f"start : {start}")
     print(f"goal : {goal}")
@@ -187,11 +187,11 @@ if __name__ == "__main__":
     # )
     # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
-    (path, times), *_ = bds.method(
-        map_awal, start, goal, hchoice=2, BRC=False, GLF=True,
-        show=False, speed=100
-    )
-    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    # (path, times), *_ = bds.method(
+    #     map_awal, start, goal, hchoice=2, BRC=False, GLF=True,
+    #     show=False, speed=100
+    # )
+    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
     # (path, times), *_ = bds.method(
     #     map_awal, start, goal, hchoice=1, BRC=False, GLF=False,
@@ -199,14 +199,14 @@ if __name__ == "__main__":
     # )
     # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
-    # (path, times), *_ = jbds.methodBds(
-    #     map_awal, start, goal, hchoice=2, GLF=True,
-    #     show=False, speed=1
-    # )
-    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    (path, times) = jbds.method(
+        map_awal, start, goal, hchoice=2, 
+        show=True, speed=10
+    )
+    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
-    # (path, times), *_ = jps_full.method(
-    #     map_awal, start, goal, hchoice=1, BRC=True,
-    #     show=True, speed=100
-    # )
-    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    (path, times), *_ = jps_full.method(
+        map_awal, start, goal, hchoice=2, BRC=False,
+        show=False, speed=100
+    )
+    print(f"Time: {times:.6f} detik | Path Length: {path_len}")

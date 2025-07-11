@@ -64,6 +64,7 @@ def nodeNeighbours(currentX, currentY, parent, matrix):
         ]:
              if not blocked(currentX, currentY, moveX, moveY, matrix):
                 neighbours.append((currentX + moveX, currentY + moveY))
+                scan_points + neighbours
 
         return neighbours
     moveX, moveY = direction(currentX, currentY, parent[0], parent[1])
@@ -120,6 +121,7 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
 
     oX = nX
     oY = nY
+    scan_points.append((oX, oY))
 
     if moveX != 0 and moveY != 0:
         while True:
@@ -139,6 +141,14 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
 
             oX += moveX
             oY += moveY
+            scan_points.append((oX, oY))
+
+            Z_GetMap.Render(surface, matrix, cell_size, open_list=None, close_list=None ,point=scan_points)
+            clock.tick(10)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    pygame.quit()
+                    exit()
 
             if blocked(oX, oY, 0, 0, matrix):
                 return None
@@ -160,6 +170,14 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
                     return (oX, nY)
 
                 oX += moveX
+                scan_points.append((oX, oY))
+
+                Z_GetMap.Render(surface, matrix, cell_size, point=scan_points)
+                clock.tick(10)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                        pygame.quit()
+                        exit()
 
                 if blocked(oX, nY, 0, 0, matrix):
                     return None
@@ -178,6 +196,14 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
                     return (nX, oY)
 
                 oY += moveY
+                scan_points.append((oX, oY))
+
+                Z_GetMap.Render(surface, matrix, cell_size, point=scan_points)
+                clock.tick(10)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                        pygame.quit()
+                        exit()
 
                 if blocked(nX, oY, 0, 0, matrix):
                     return None
@@ -203,166 +229,114 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
         
     return successors
 
+surface = None
+cell_size = None
+clock = None
+scan_points = []
 
-def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60):
+def method(matrix, start, goal, hchoice, show=False, speed=30):
+    global surface, cell_size, clock, scan_points
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
         clock = pygame.time.Clock()
 
-    # Forward
-    came_from_f = {}
-    open_f = []
-    open_set_f = {start}
-    close_f = set()
-    g_f = {start: 0}
-    f_f = {start: heuristic(start, goal, hchoice)}
+    came_from_fwd = {}
+    came_from_bwd = {}
+    close_list_fwd = set()
+    close_list_bwd = set()
+    gn_fwd = {start: 0}
+    gn_bwd = {goal: 0}
+    fn_fwd = {start: heuristic(start, goal, hchoice)}
+    fn_bwd = {goal: heuristic(goal, start, hchoice)}
 
-    # Backward
-    came_from_b = {}
-    open_b = []
-    open_set_b = {goal}
-    close_b = set()
-    g_b = {goal: 0}
-    f_b = {goal: heuristic(goal, start, hchoice)}
+    open_list_fwd = []
+    open_list_bwd = []
 
-    current_f, current_b = start, goal
-    
-    heapq.heappush(open_f, (f_f[start], start))
-    heapq.heappush(open_b, (f_b[goal], goal))
+    heapq.heappush(open_list_fwd, (fn_fwd[start], start))
+    heapq.heappush(open_list_bwd, (fn_bwd[goal], goal))
 
-    start_time = time.time()
-    meet_point = None
-    log_cache = {}
+    starttime = time.time()
+    running = True
+    meeting_point = None
 
-    while open_f and open_b and not meet_point:
-        # ============ Forward Expand ============
-        if open_f:
-            _, current_f = heapq.heappop(open_f)
-            open_set_f.discard(current_f)
-            close_f.add(current_f)
+    while open_list_fwd and open_list_bwd and running:
 
-            successors = identifySuccessors(current_f[0], current_f[1], came_from_f, matrix, goal)
+        # --- Forward Search ---
+        current_fwd = heapq.heappop(open_list_fwd)[1]
+        close_list_fwd.add(current_fwd)
 
-            for succ in successors:
-                if succ in close_f:
-                    continue
+        if current_fwd in close_list_bwd:
+            meeting_point = current_fwd
+            break
 
-                v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, 2) if TPF else 0
-                v2 = BR(succ, goal, matrix) or 1 if BRC else 1
-                v3 = GL(start, goal, succ) if GLF else 0
+        successors = identifySuccessors(current_fwd[0], current_fwd[1], came_from_fwd, matrix, goal)
+        for successor in successors:
+            jumpPoint = successor
 
-                tentative_g = g_f[current_f] + lenght(current_f, succ, hchoice)
+            if jumpPoint in close_list_fwd:
+                continue
 
-                if succ not in g_f or tentative_g < g_f[succ]:
-                    came_from_f[succ] = current_f
-                    g_f[succ] = tentative_g
+            tentative_gn = gn_fwd[current_fwd] + lenght(current_fwd, jumpPoint, hchoice)
+            if tentative_gn < gn_fwd.get(jumpPoint, 0) or jumpPoint not in [j[1] for j in open_list_fwd]:
+                came_from_fwd[jumpPoint] = current_fwd
+                gn_fwd[jumpPoint] = tentative_gn
+                fn_fwd[jumpPoint] = tentative_gn + heuristic(jumpPoint, goal, hchoice)
+                heapq.heappush(open_list_fwd, (fn_fwd[jumpPoint], jumpPoint))
 
-                    h_to_goal = heuristic(succ, goal, hchoice)
-                    h_to_current_b = heuristic(succ, current_b, 2)
+        # --- Backward Search ---
+        current_bwd = heapq.heappop(open_list_bwd)[1]
+        close_list_bwd.add(current_bwd)
 
-                    if BRC:
-                        if v2 not in log_cache:
-                            log_cache[v2] = math.log(v2)
-                        f_f[succ] = tentative_g + (h_to_goal * (1 - log_cache[v2])) + v1 + v3 + h_to_current_b
-                    else:
-                        f_f[succ] = tentative_g + h_to_goal + v1 + v3 + h_to_current_b
+        if current_bwd in close_list_fwd:
+            meeting_point = current_bwd
+            break
 
-                    heapq.heappush(open_f, (f_f[succ], succ))
-                    open_set_f.add(succ)
+        successors = identifySuccessors(current_bwd[0], current_bwd[1], came_from_bwd, matrix, start)
+        for successor in successors:
+            jumpPoint = successor
 
-                # Meeting point check (tambahan: juga cek open_set_b)
-                if succ in close_b or succ in open_set_b:
-                    meet_point = succ
-                    break
+            if jumpPoint in close_list_bwd:
+                continue
 
-        # ============ Backward Expand ============
-        if open_b and not meet_point:
-            _, current_b = heapq.heappop(open_b)
-            open_set_b.discard(current_b)
-            close_b.add(current_b)
+            tentative_gn = gn_bwd[current_bwd] + lenght(current_bwd, jumpPoint, hchoice)
+            if tentative_gn < gn_bwd.get(jumpPoint, 0) or jumpPoint not in [j[1] for j in open_list_bwd]:
+                came_from_bwd[jumpPoint] = current_bwd
+                gn_bwd[jumpPoint] = tentative_gn
+                fn_bwd[jumpPoint] = tentative_gn + heuristic(jumpPoint, start, hchoice)
+                heapq.heappush(open_list_bwd, (fn_bwd[jumpPoint], jumpPoint))
 
-            successors_b = identifySuccessors(current_b[0], current_b[1], came_from_b, matrix, start)
-
-            for succ in successors_b:
-                if succ in close_b:
-                    continue
-
-                v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, 2) if TPF else 0
-                v2 = BR(succ, start, matrix) or 1 if BRC else 1
-                v3 = GL(goal, start, succ) if GLF else 0
-
-                tentative_g = g_b[current_b] + lenght(current_b, succ, hchoice)
-
-                if succ not in g_b or tentative_g < g_b[succ]:
-                    came_from_b[succ] = current_b
-                    g_b[succ] = tentative_g
-
-                    h_to_start = heuristic(succ, start, hchoice)
-                    h_to_current_f = heuristic(current_f, succ, 2)
-
-                    if BRC:
-                        if v2 not in log_cache:
-                            log_cache[v2] = math.log(v2)
-                        f_b[succ] = tentative_g + (h_to_start * (1 - log_cache[v2])) + v1 + v3 + h_to_current_f
-                    else:
-                        f_b[succ] = tentative_g + h_to_start + v1 + v3 + h_to_current_f
-
-                    heapq.heappush(open_b, (f_b[succ], succ))
-                    open_set_b.add(succ)
-
-                # Meeting point check (tambahan: juga cek open_set_f)
-                if succ in close_f or succ in open_set_f:
-                    meet_point = succ
-                    break
-
-        # ============ Visual ============
         if show:
-            combined_open = open_f + open_b
-            combined_close = close_f | close_b
-            Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_close)
+            Z_GetMap.Render(surface, matrix, cell_size, open_list_fwd + open_list_bwd, close_list_fwd.union(close_list_bwd))
             clock.tick(speed)
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
                     exit()
 
-    end_time = time.time()
+    endtime = time.time()
 
-    # ============ Path Reconstruction ============
-    if meet_point:
-        path_f = []
-        node = meet_point
-        while node in came_from_f:
-            path_f.append(node)
-            node = came_from_f[node]
-        path_f.append(start)
-        path_f.reverse()
+    if meeting_point is None:
+        return (0, round(endtime - starttime, 6))
 
-        path_b = []
-        node = meet_point
-        while node in came_from_b:
-            node = came_from_b[node]
-            path_b.append(node)
+    # --- Rekonstruksi jalur dari kedua sisi ---
+    path_fwd = []
+    current = meeting_point
+    while current in came_from_fwd:
+        path_fwd.append(current)
+        current = came_from_fwd[current]
+    path_fwd.append(start)
+    path_fwd = path_fwd[::-1]
 
-        full_path = path_f + path_b
+    path_bwd = []
+    current = meeting_point
+    while current in came_from_bwd:
+        current = came_from_bwd[current]
+        path_bwd.append(current)
 
-        if PPO:
-            full_path = prunning(full_path, matrix)
+    full_path = path_fwd + path_bwd
+    full_path = prunning(full_path, matrix)
 
-        if show:
-            Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, full_path)
-            clock.tick(speed)
-            time.sleep(2)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                    pygame.quit()
-                    exit()
-
-        return (full_path, round(end_time - start_time, 6)), (open_f + open_b), (close_f | close_b)
-
-    return (0, round(end_time - start_time, 6)), 0, 0
-
+    return (full_path, round(endtime - starttime, 6))
 
 def lenght(current, jumppoint, hchoice):
     moveX, moveY = direction(current[0], current[1], jumppoint[0], jumppoint[1])

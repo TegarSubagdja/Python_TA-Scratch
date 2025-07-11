@@ -73,7 +73,7 @@ def Init_Visual(grid):
     surface = pygame.display.set_mode((cols * cell_size, rows * cell_size))
     return surface, cell_size
 
-def Render(surface, grid, cell_size, open_list, close_list, path=None):
+def Render(surface, grid, cell_size, open_list=False, close_list=False, path=None, point=None):
     rows, cols = grid.shape
     surface.fill((255, 255, 255))
 
@@ -81,7 +81,7 @@ def Render(surface, grid, cell_size, open_list, close_list, path=None):
     for y in range(rows):
         for x in range(cols):
             value = grid[y, x]
-            
+
             if value == 255:
                 color = (0, 0, 0)  # Hitam
             else:
@@ -91,17 +91,19 @@ def Render(surface, grid, cell_size, open_list, close_list, path=None):
             pygame.draw.rect(surface, (200, 200, 200), (x * cell_size, y * cell_size, cell_size, cell_size), 1)
 
     # Open List
-    for item in open_list:
-        node = item[1] if isinstance(item, tuple) and len(item) > 1 else item
-        y, x = node
-        pygame.draw.rect(surface, hex_to_rgb(colors[5]),
-                         (x * cell_size, y * cell_size, cell_size, cell_size))
+    if open_list:
+        for item in open_list:
+            node = item[1] if isinstance(item, tuple) and len(item) > 1 else item
+            y, x = node
+            pygame.draw.rect(surface, hex_to_rgb(colors[5]),
+                            (x * cell_size, y * cell_size, cell_size, cell_size))
 
     # Closed List
-    for node in close_list:
-        y, x = node
-        pygame.draw.rect(surface, hex_to_rgb(colors[6]),
-                         (x * cell_size, y * cell_size, cell_size, cell_size))
+    if close_list:
+        for node in close_list:
+            y, x = node
+            pygame.draw.rect(surface, hex_to_rgb(colors[6]),
+                            (x * cell_size, y * cell_size, cell_size, cell_size))
 
     # Path
     if path:
@@ -114,8 +116,21 @@ def Render(surface, grid, cell_size, open_list, close_list, path=None):
             y1, x1 = path[i]
             y2, x2 = path[i + 1]
             pygame.draw.line(surface, (255, 0, 255),
-                            (x1 * cell_size + cell_size // 2, y1 * cell_size + cell_size // 2),
-                            (x2 * cell_size + cell_size // 2, y2 * cell_size + cell_size // 2), 2)
+                             (x1 * cell_size + cell_size // 2, y1 * cell_size + cell_size // 2),
+                             (x2 * cell_size + cell_size // 2, y2 * cell_size + cell_size // 2), 2)
+
+    # Titik tambahan berwarna abu-abu
+    if point:
+        gray = hex_to_rgb(colors[7])  # Warna abu dari konfigurasi
+        if isinstance(point, list):
+            for p in point:
+                y, x = p
+                pygame.draw.rect(surface, gray,
+                                 (x * cell_size, y * cell_size, cell_size, cell_size))
+        else:
+            y, x = point
+            pygame.draw.rect(surface, gray,
+                             (x * cell_size, y * cell_size, cell_size, cell_size))
 
     pygame.display.flip()
 
