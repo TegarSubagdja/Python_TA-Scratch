@@ -236,6 +236,9 @@ def method(matrix, start, goal, hchoice, show=False, speed=30):
             data.append(start)
             data = prunning(data, matrix)
             endtime = time.time()
+            data = prunning(data, matrix)
+            data = prunning(data, matrix)
+            data = prunning(data, matrix)
             return (data, round(endtime - starttime, 6))
 
         close_list.add(current)

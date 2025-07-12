@@ -9,16 +9,14 @@ map = Prep(img, start, goal)
 start = np.flip(start[0])
 goal = np.flip(goal[0])
 
-# path, times = jps.method(map, start, goal, 2)
+path, times = jps.method(map, start, goal, 2)
 
-# print(times)
+print(times)
 
-# if path:
-#     for i in range(len(path) - 1):
-#         start = path[i][::-1]
-#         goal = path[i+1][::-1]
-#         cv2.line(img, start, goal, 255, 2)
-
-# img = cv2.resize(img, (0, 0), fx=0.1, fy=0.1)
+if path:
+    for i in range(len(path) - 1):
+        start = path[i][::-1]
+        goal = path[i+1][::-1]
+        cv2.line(img, start, goal, 255, 2)
 
 cv2.imwrite('BenerGa.jpg', img)

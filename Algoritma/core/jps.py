@@ -1,6 +1,5 @@
 import math, time, heapq
 
-
 def heuristic(a, b, hchoice):
     if hchoice == 1:
         xdist = math.fabs(b[0] - a[0])

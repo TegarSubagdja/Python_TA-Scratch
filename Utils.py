@@ -37,7 +37,7 @@ import Z_GetMap
 from Method.BarrierRasterCoefficient import barrierRaster as BR
 from Method.Guideline import guidline as GL
 from Method.PathPolylineOptimization import prunning as PPO
-from Algoritma import jps, astar,  astar_full, jps_full, bds, jbds
+from Algoritma import Astar_Optimize, JPS_Optimize, jps, astar,  bds, jbds
 from GetPath import getPath
 from Control.Serial import pwm
 from GetAlgorithm import method as Algoritm
@@ -50,5 +50,5 @@ __all__ = [
     'Position', 'Preprocessing',
     'prunning', 'guidline', 'jarakGaris', 'Visualize', 'Z_GetMap',
     'PID', 'getPath', 'GetOrientation', 'serial', 'pwm',
-    'bds', 'jps', 'astar',  'astar_full', 'jps_full', 'jbds'
+    'bds', 'jps', 'astar',  'Astar_Optimize', 'JPS_Optimize', 'jbds'
 ]

@@ -118,17 +118,12 @@ while running:
 
     if save_on_mouseup:
         img = toImage(screen)
-        print(img)
-        print("Unique values in image:", np.unique(img))
         start, goal, marker_sz = Pos(img)
         img = Prep(img, start, goal)
-        err = Error(start, goal)
-        cv2.imwrite('hasil_image_rgb.jpg', img)
+        # err = Error(start, goal)
+        cv2.imwrite('ImgInputJPS.jpg', img)
         path, times = jps.method(img, start[0], goal[0], 2, show=False)
-        cv2.imwrite('gray_img.jpg', img)
         save_on_mouseup = False
-        pygame.image.save(screen, "hasil_dengan_path.png")
-
     if path:
         for i in range(len(path) - 1):
             p1 = np.flip(path[i][::-1])
@@ -136,6 +131,7 @@ while running:
             pygame.draw.line(screen, (0, 255, 0), p1, p2, 2)
 
     pygame.display.flip()
+    pygame.image.save(screen, "hasil_dengan_path.png")
     clock.tick(60)
 
 pygame.quit()
