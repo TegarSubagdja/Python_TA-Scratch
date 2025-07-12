@@ -6,7 +6,7 @@ running = True
 path = []
 
 # Setup kamera
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
@@ -21,41 +21,32 @@ while running:
     # Cari posisi robot
     start, goal, marksize = Pos(img)
 
-    # Cari lintasan jika belum ada
     if (
-        not path 
-        and start
-        and goal
-        and errDist > (2 * marksize)
-        ): 
-
-        # Flip koordinat dari (x, y) -> (y, x)
-        start = np.flip(start[0])
-        goal = np.flip(goal[0])
-
-        path, times = jps.method(map, start, goal, 2)
-        print(f"Path ditemukan dengan waktu : ", times)
-
-    if path:
-        
-        # Preprocessing
-        map = Prep(img, start, goal)
-        
+        not path and
+        start and
+        goal
+        ):
         # Cari error ke posisi goal
         errDist, errDegree = Error(start, goal)
 
-        # Cari error ke posisi pertama path
-        goal = np.flip(path[0])
-        errDist, errDegree = Error(start, goal)
-        
-        # Keluarkan path jika telah dikunjungi
-        if errDist <= (2 * marksize):
-            path.pop(0)
+        if errDist < (2 * marksize):
+            break
 
-        for i in range(len(path) - 1):
-            start = path[i][::-1]
-            goal = path[i+1][::-1]
-            cv2.line(img, start, goal, 255, 2)
+        map = Prep(img, start, goal)
+
+        s = tuple(start[0].tolist())
+        g = tuple(goal[0].tolist())
+
+        (path, times), *_ = JPS_Optimize.method(map, s, g, 2)
+        print(path)
+        
+    elif (
+        start and goal
+    ): 
+        # Cari error ke posisi goal
+        p = tuple(path[0][::-1])
+
+        errDist, errDegree = Error(start, p)
 
     # Tampilkan frame
     cv2.imshow("Frame", img)

@@ -14,19 +14,21 @@ def Prep(img, start, goal):
     - Kembalikan: matrix peta 2D berisi 0 (kosong) dan 255 (rintangan)
     """
 
+    frame = img
+
     # Step 0: Grayscale jika RGB
-    if len(img.shape) == 3:
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    if len(frame.shape) == 3:
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # Step 1: Hapus marker robot (dengan lingkaran putih)
     if start is not None and goal is not None:
         pts1 = goal[0].astype(np.int32)
         pts2 = start[0].astype(np.int32)
-        cv2.circle(img, pts1, 100, 255, -1)
-        cv2.circle(img, pts2, 100, 255, -1)
+        cv2.circle(frame, pts1, 50, 255, -1)
+        cv2.circle(frame, pts2, 50, 255, -1)
 
     # Step 2: Threshold -> biner (rintangan = putih = 255)
-    _, binary = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY_INV)
+    _, binary = cv2.threshold(frame, 100, 255, cv2.THRESH_BINARY_INV)
     cv2.imwrite('Map_biner.jpg', binary)
 
     # Step 3: Erosi ringan untuk bersihkan noise
@@ -37,16 +39,16 @@ def Prep(img, start, goal):
     start_time = time.time()
     dist = cv2.distanceTransform(255 - clean, cv2.DIST_L2, 5)
 
-    buffer_radius = 200  # pixel radius robot (½ diameter)
+    buffer_radius = 50  # pixel radius robot (½ diameter)
     buffered_obstacle = np.uint8(dist < buffer_radius) * 255
     end_time = time.time()
     print("Buffering time (distanceTransform):", end_time - start_time)
 
     # Step 5: Overlay visualisasi (buffer merah)
-    if len(img.shape) == 2:
-        img_bgr = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    if len(frame.shape) == 2:
+        img_bgr = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
     else:
-        img_bgr = img.copy()
+        img_bgr = frame.copy()
 
     overlay = img_bgr.copy()
     overlay[buffered_obstacle == 255] = [0, 0, 255]  # merah di area buffer
