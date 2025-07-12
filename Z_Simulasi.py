@@ -112,9 +112,9 @@ while running:
                 drawing = True
 
                 # Cek apakah klik pada marker
-                for i, pos in enumerate([marker1_pos, marker2_pos]):
+                for i, coord in enumerate([marker1_pos, marker2_pos]):
                     rect = pygame.Rect(0, 0, *marker_size)
-                    rect.center = pos
+                    rect.center = coord
                     if rect.collidepoint(mx, my):
                         dragging_marker = i
                         break
@@ -167,36 +167,14 @@ while running:
 
     if save_on_mouseup:
         img = toImage(screen)
-        result = GetOrientation(img, sId=0, gId=1, show_result=False, detector=detector)
-        if result is None:
-            print("Marker tidak terdeteksi.")
-        else:
-            (
-                pos,
-                corners,
-                orientasi_robot,
-                mark_size,
-                distance,
-                error_orientasi,
-                degre,
-                image
-            ) = result
-            path = getPath(img, scale=10, pos=pos, corners=corners)
-            print(f"Path adalah {path}")
-            print(f"Grid adalah {img}")
-            pygame.image.save(screen, "hasil_dengan_path.png")
-            save_on_mouseup = False  # reset flag
+        pos = Pos(img)
+        img = Prep(img)
+        err = Error(pos)
+        cv2.imwrite('gray_img.jpg', img)
+        save_on_mouseup = False  # reset flag
+        pygame.image.save(screen, "hasil_dengan_path.png")
 
-    # Gambar garis antar titik dalam path
-    if path and len(path) > 1:
-        for i in range(len(path) - 1):
-            start = np.flip(path[i])
-            goal = np.flip(path[i + 1])
-            pygame.draw.line(screen, (255, 0, 0), start, goal, 2)  # Warna merah, ketebalan 2 px
-    else:
-        print("Path tidak cukup panjang untuk digambar.")
-
-    pygame.display.flip()  # Update tampilan setelah menggambar garis
+    pygame.display.flip()
     clock.tick(60)
 
 pygame.quit()
