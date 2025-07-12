@@ -76,6 +76,7 @@ def detect_aruco_from_image(image_path, aruco_dict_type=aruco.DICT_4X4_50):
     if ids is not None:
         print(f"Terdeteksi {len(ids)} marker: {ids.flatten()}")
         aruco.drawDetectedMarkers(frame, corners, ids)
+        cv2.imwrite('id marker.jpg', frame)
     else:
         print("Tidak ada marker terdeteksi.")
 
@@ -86,4 +87,4 @@ def detect_aruco_from_image(image_path, aruco_dict_type=aruco.DICT_4X4_50):
 
 if __name__ == "__main__":
     # detect_aruco_realtime()
-    detect_aruco_from_image("hasil.png")  # Ganti dengan path gambar kamu
+    detect_aruco_from_image("Image/4.jpg")  # Ganti dengan path gambar kamu

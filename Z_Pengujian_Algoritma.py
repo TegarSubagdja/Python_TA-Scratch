@@ -158,9 +158,9 @@ if __name__ == "__main__":
     # run(map=map_awal, show=False, size=[32, 64, 128])
     # Z_GetMap.save(map_awal, f"Data/Image/Sample_2_{scale}.jpg")
 
-    scale = 128
+    scale = 4096
     
-    # map_awal = Visualize.upscale(map_awal, scale)
+    map_awal = Visualize.upscale(map_awal, scale)
 
     start = (0, 0)
     goal = map_awal.shape[0] - 1, map_awal.shape[1] - 1
@@ -176,17 +176,17 @@ if __name__ == "__main__":
     open_len = 0
     close_len = 0
 
-    (path, times) = jbds.method(
+    (path, times) = jps.method(
         map_awal, start, goal, hchoice=2,
         show=False, speed=10
     )
     print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
-    (path, times), *_ = astar_full.method(
-        map_awal, start, goal, hchoice=2, BRC=False,
-        show=False, speed=100
-    )
-    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    # (path, times), *_ = astar_full.method(
+    #     map_awal, start, goal, hchoice=2, BRC=False,
+    #     show=False, speed=100
+    # )
+    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
 
     # (path, times), *_ = bds.method(
     #     map_awal, start, goal, hchoice=2, BRC=False, GLF=True,
