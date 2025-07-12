@@ -1,45 +1,31 @@
 from Utils import *
 
-# Inisialisasi pygame
 pygame.init()
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Grid with Dragable Markers & Draw Mode")
+pygame.display.set_caption("Obstacle Drawing with Pathfinding")
 
 # Warna
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
-GRAY = (220, 220, 220)
 
-# Grid config
-CELL_SIZE = 16
-GRID_COLS = WIDTH // CELL_SIZE
-GRID_ROWS = HEIGHT // CELL_SIZE
+# Konfigurasi obstacle
+OBSTACLE_SIZE = (40, 20)  # width x height
+obstacles = []  # menyimpan rect obstacle
 
 # Inisialisasi ArUco
 detector_params = aruco.DetectorParameters()
 detector_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
 detector = aruco.ArucoDetector(detector_dict, detector_params)
 
-# Grid 2D: 0 = kosong, 1 = rintangan
-grid = [[0 for _ in range(GRID_COLS)] for _ in range(GRID_ROWS)]
-
-# Mode gambar
-draw_mode = False
-draw_toggle_ready = True
-drawing = False  # apakah mouse sedang menahan klik kiri
-dragging_marker = None  # marker mana yang sedang digeser
-save_on_mouseup = False
-path = []
-
-# Fungsi konversi cv2 ke pygame surface
+# Konversi cv2 ke pygame surface
 def cvimg_to_pygame(image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     image = np.rot90(image)
     return pygame.surfarray.make_surface(image)
 
-# Load ArUco marker 1
+# Load marker
 aruco_img1_cv = cv2.imread("Aruco/Marker/aruco_marker_id_0DICT_4X4_50.png")
 aruco_img1_cv = cv2.resize(aruco_img1_cv, (0, 0), fx=0.05, fy=0.05)
 aruco_img1_cv = cv2.flip(aruco_img1_cv, 1)
@@ -47,7 +33,6 @@ if aruco_img1_cv is None:
     raise FileNotFoundError("Marker 1 tidak ditemukan.")
 aruco_surface1 = cvimg_to_pygame(aruco_img1_cv)
 
-# Load ArUco marker 2
 aruco_img2_cv = cv2.imread("Aruco/Marker/aruco_marker_id_1DICT_4X4_50.png")
 aruco_img2_cv = cv2.resize(aruco_img2_cv, (0, 0), fx=0.05, fy=0.05)
 aruco_img2_cv = cv2.flip(aruco_img2_cv, 1)
@@ -55,29 +40,22 @@ if aruco_img2_cv is None:
     raise FileNotFoundError("Marker 2 tidak ditemukan.")
 aruco_surface2 = cvimg_to_pygame(aruco_img2_cv)
 
-# Ukuran marker (gunakan salah satu)
 marker_size = aruco_surface1.get_size()
-
-# Posisi awal 2 robot
 marker1_pos = np.array([WIDTH // 3, HEIGHT // 2], dtype=float)
 marker2_pos = np.array([2 * WIDTH // 3, HEIGHT // 2], dtype=float)
 
-# Fungsi menggambar grid dan rintangan
-def draw_grid():
-    for row in range(GRID_ROWS):
-        for col in range(GRID_COLS):
-            rect = pygame.Rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-            if grid[row][col] == 255:
-                pygame.draw.rect(screen, BLACK, rect)
-            pygame.draw.rect(screen, GRAY, rect, 1)
+draw_mode = False
+path = []
+save_on_mouseup = False
+dragging_marker = None
 
 def toImage(surface):
-    # Dapatkan array RGB dari surface
-    rgb_array = pygame.surfarray.array3d(surface)  # shape: (width, height, 3)
-    rgb_array = np.transpose(rgb_array, (1, 0, 2))  # jadi (height, width, 3)
-    return rgb_array
+    rgb_array = pygame.surfarray.array3d(surface)
+    rgb_array = np.transpose(rgb_array, (1, 0, 2))
+    bgr_array = cv2.cvtColor(rgb_array, cv2.COLOR_RGB2BGR)
+    return bgr_array
 
-# Loop utama
+
 clock = pygame.time.Clock()
 running = True
 
@@ -89,26 +67,15 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        # Toggle draw mode (Ctrl+G)
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
-            if (pygame.key.get_mods() & pygame.KMOD_CTRL) and event.key == pygame.K_g and draw_toggle_ready:
+            if (pygame.key.get_mods() & pygame.KMOD_CTRL) and event.key == pygame.K_g:
                 draw_mode = not draw_mode
-                draw_toggle_ready = False
-                print("Draw mode:", draw_mode)
 
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_g:
-                draw_toggle_ready = True
-
-        # Klik kiri tekan
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mx, my = pygame.mouse.get_pos()
-                drawing = True
-
-                # Cek apakah klik pada marker
                 for i, coord in enumerate([marker1_pos, marker2_pos]):
                     rect = pygame.Rect(0, 0, *marker_size)
                     rect.center = coord
@@ -116,38 +83,26 @@ while running:
                         dragging_marker = i
                         break
 
-                # Jika mode gambar dan bukan marker, aktifkan penggambaran
                 if draw_mode and dragging_marker is None:
-                    col, row = mx // CELL_SIZE, my // CELL_SIZE
-                    if 0 <= col < GRID_COLS and 0 <= row < GRID_ROWS:
-                        grid[row][col] = 255 if grid[row][col] == 0 else 0
+                    rect = pygame.Rect(mx, my, *OBSTACLE_SIZE)
+                    obstacles.append(rect)
 
-        # Lepas klik kiri
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
-                drawing = False
+                if dragging_marker is not None:
+                    save_on_mouseup = True
                 dragging_marker = None
-                save_on_mouseup = True  # Aktifkan simpan di akhir frame
 
-        # Mouse digerakkan saat klik kiri ditahan
         elif event.type == pygame.MOUSEMOTION:
-            if draw_mode and drawing and dragging_marker is None:
-                mx, my = pygame.mouse.get_pos()
-                col, row = mx // CELL_SIZE, my // CELL_SIZE
-                if 0 <= col < GRID_COLS and 0 <= row < GRID_ROWS:
-                    grid[row][col] = 255
+            if dragging_marker is not None:
+                if dragging_marker == 0:
+                    marker1_pos = mouse_pos
+                elif dragging_marker == 1:
+                    marker2_pos = mouse_pos
 
-    # Update posisi marker jika sedang diseret
-    if dragging_marker is not None:
-        if dragging_marker == 0:
-            marker1_pos = mouse_pos
-        elif dragging_marker == 1:
-            marker2_pos = mouse_pos
+    for rect in obstacles:
+        pygame.draw.rect(screen, BLACK, rect)
 
-    # Gambar grid
-    draw_grid()
-
-    # Gambar markers
     rotated1 = pygame.transform.rotate(aruco_surface1, 0)
     rect1 = rotated1.get_rect(center=marker1_pos)
     screen.blit(rotated1, rect1)
@@ -156,33 +111,30 @@ while running:
     rect2 = rotated2.get_rect(center=marker2_pos)
     screen.blit(rotated2, rect2)
 
-    # Teks mode
-    font = pygame.font.SysFont(None, 24)
     if draw_mode:
+        font = pygame.font.SysFont(None, 24)
         text = font.render("Draw Mode [ON] - Ctrl+G to toggle", True, RED)
         screen.blit(text, (10, 10))
 
     if save_on_mouseup:
         img = toImage(screen)
+        print(img)
+        print("Unique values in image:", np.unique(img))
         start, goal, marker_sz = Pos(img)
         img = Prep(img, start, goal)
         err = Error(start, goal)
+        cv2.imwrite('hasil_image_rgb.jpg', img)
         path, times = jps.method(img, start[0], goal[0], 2, show=False)
         cv2.imwrite('gray_img.jpg', img)
-        save_on_mouseup = False  
+        save_on_mouseup = False
         pygame.image.save(screen, "hasil_dengan_path.png")
 
     if path:
         for i in range(len(path) - 1):
             p1 = np.flip(path[i][::-1])
             p2 = np.flip(path[i+1][::-1])
-            pygame.draw.line(
-                screen,               # permukaan tempat gambar
-                (0, 255, 0),           # warna garis (hijau)
-                p1,         # koordinat awal (x, y)
-                p2,       # koordinat akhir (x, y)
-                2                      # tebal garis
-                )
+            pygame.draw.line(screen, (0, 255, 0), p1, p2, 2)
+
     pygame.display.flip()
     clock.tick(60)
 

@@ -23,20 +23,20 @@ def Prep(img, start, goal):
         except:
             print(f"Format img tidak valid")
 
+    # Hapus area robot - Convert float32 to int32 dan format untuk fillPoly
+    pts1 = goal[1].astype(np.int32)
+    pts2 = start[1].astype(np.int32)
+    
+    # Pastikan pts dalam format yang benar untuk fillPoly - gunakan list of arrays
+    cv2.fillPoly(img, [pts1], (0, 0, 0))
+    cv2.fillPoly(img, [pts2], (0, 0, 0))
+
     # Rubah kedalam bentuk biner
     _, img = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY_INV)
 
     # Penghapusan noise
     kernel = np.ones((3,3), np.uint8)
     img = cv2.erode(img, kernel, iterations=3)
-
-    # Hapus area robot - Convert float32 to int32 dan format untuk fillPoly
-    pts1 = goal[1].astype(np.int32)
-    pts2 = start[1].astype(np.int32)
-    
-    # Pastikan pts dalam format yang benar untuk fillPoly - gunakan list of arrays
-    cv2.fillPoly(img, [pts1], (255, 255, 255))
-    cv2.fillPoly(img, [pts2], (255, 255, 255))
 
     # Pendefinisian Map
     map = img
