@@ -1,18 +1,16 @@
 from Utils import *
 
-def Prep(img):
-
+def Prep(img, start, goal):
     """
     Melakukan Preprocessing Pada Citra untuk Memastikan Pencarian Jalur Berjalan dengan Baik.
 
     Parameters:
         img (np.ndarray): Gambar akan dipreprocessing.
+        start (tuple): Tuple berisi koordinat pusat dan bounding box start point
+        goal (tuple): Tuple berisi koordinat pusat dan bounding box goal point
 
     Returns:
-        tuple:
-            - start (tuple): (center, pts).
-            - goal (tuple): (center, pts).
-            - mark_size (float): Estimasi ukuran marker berdasarkan jarak antar sudut.
+        np.ndarray: map biner.
 
     Notes:
         - Jika tidak ada marker ditemukan, maka `start` dan `goal` bisa `None`.
@@ -31,6 +29,14 @@ def Prep(img):
     # Penghapusan noise
     kernel = np.ones((3,3), np.uint8)
     img = cv2.erode(img, kernel, iterations=3)
+
+    # Hapus area robot - Convert float32 to int32 dan format untuk fillPoly
+    pts1 = goal[1].astype(np.int32)
+    pts2 = start[1].astype(np.int32)
+    
+    # Pastikan pts dalam format yang benar untuk fillPoly - gunakan list of arrays
+    cv2.fillPoly(img, [pts1], (255, 255, 255))
+    cv2.fillPoly(img, [pts2], (255, 255, 255))
 
     # Pendefinisian Map
     map = img

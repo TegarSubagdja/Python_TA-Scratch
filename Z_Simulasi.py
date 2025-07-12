@@ -75,10 +75,7 @@ def toImage(surface):
     # Dapatkan array RGB dari surface
     rgb_array = pygame.surfarray.array3d(surface)  # shape: (width, height, 3)
     rgb_array = np.transpose(rgb_array, (1, 0, 2))  # jadi (height, width, 3)
-
-    # Konversi RGB ke Grayscale pakai OpenCV
-    gray = cv2.cvtColor(rgb_array, cv2.COLOR_RGB2GRAY)
-    return gray
+    return rgb_array
 
 # Loop utama
 clock = pygame.time.Clock()
@@ -167,13 +164,25 @@ while running:
 
     if save_on_mouseup:
         img = toImage(screen)
-        pos = Pos(img)
-        img = Prep(img)
-        err = Error(pos)
+        start, goal, marker_sz = Pos(img)
+        img = Prep(img, start, goal)
+        err = Error(start, goal)
+        path, times = jps.method(img, start[0], goal[0], 2, show=False)
         cv2.imwrite('gray_img.jpg', img)
-        save_on_mouseup = False  # reset flag
+        save_on_mouseup = False  
         pygame.image.save(screen, "hasil_dengan_path.png")
 
+    if path:
+        for i in range(len(path) - 1):
+            p1 = np.flip(path[i][::-1])
+            p2 = np.flip(path[i+1][::-1])
+            pygame.draw.line(
+                screen,               # permukaan tempat gambar
+                (0, 255, 0),           # warna garis (hijau)
+                p1,         # koordinat awal (x, y)
+                p2,       # koordinat akhir (x, y)
+                2                      # tebal garis
+                )
     pygame.display.flip()
     clock.tick(60)
 

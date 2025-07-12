@@ -210,6 +210,11 @@ def method(matrix, start, goal, hchoice, show=False, speed=30):
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
         clock = pygame.time.Clock()
 
+    if not isinstance(start, tuple):
+        start = tuple(start)
+    if not isinstance(goal, tuple):
+        goal = tuple(goal)
+
     came_from = {}
     close_list = set()
     gn = {start: 0}

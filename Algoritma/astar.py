@@ -35,7 +35,12 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(map)
         clock = pygame.time.Clock()
-        
+
+    if not isinstance(start, tuple):
+        start = tuple(start)
+    if not isinstance(goal, tuple):
+        goal = tuple(goal)
+
     close_set = set()
     came_from = {}
     gscore = {start: 0}
@@ -59,7 +64,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                 current = came_from[current]
             path.append(start)
             path = path[::]
-            print(gscore[goal])
+            # print(gscore[goal])
             endtime = time.time()
             return (path, round(endtime - starttime, 6))
 
