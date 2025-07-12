@@ -46,6 +46,7 @@ def Pos(img):
                 goal = (center, pts)
     else:
         print("Tidak ada marker terdeteksi.")
+        return 0,0,0
 
     return (
         start,
