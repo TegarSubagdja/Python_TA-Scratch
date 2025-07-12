@@ -30,18 +30,24 @@ def Prep(img, start, goal):
         print('dieksekusi')
 
     # Threshold -> binary inverse: rintangan jadi putih (255), background jadi hitam (0)
-    _, binary = cv2.threshold(img, 50, 255, cv2.THRESH_BINARY_INV)
+    _, binary = cv2.threshold(img, 120, 255, cv2.THRESH_BINARY_INV)
+
+    buffer_radius = 100  # contoh: ½ ukuran robot
+    kernels = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2*buffer_radius+1, 2*buffer_radius+1))
 
     # Penghapusan noise kecil
-    kernel = np.ones((32, 32), np.uint8)
-    morp = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel=kernel, iterations=18)
-    # morp = cv2.erode(binary, kernel, iterations=3)
-    # morp = cv2.dilate(morp, kernel, iterations=3)
+    kernel = np.ones((10, 10), np.uint8)
+    morp = cv2.erode(binary, kernel, iterations=5)
+    # morp = cv2.dilate(morp, kernel, iterations=20)
+    starting = time.time()
+    buffered_obstacle = cv2.dilate(morp, kernels, iterations=1)
+    stoping = time.time()
+    print(stoping-starting)
 
     # Salin hasil akhir ke matrix baru
-    matrix = np.copy(morp)
+    matrix = np.copy(buffered_obstacle)
 
     # Simpan untuk debugging
-    cv2.imwrite('Map_GetPath.jpg', morp)
+    cv2.imwrite('Map_GetPath.jpg', buffered_obstacle)
 
     return matrix
