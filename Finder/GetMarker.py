@@ -44,6 +44,7 @@ def Pos(img):
                 pts = corners[i][0]
                 center = np.mean(pts, axis=0).astype(int)
                 goal = (center, pts)
+        aruco.drawDetectedMarkers(img, corners, ids, (255,0,255))
     else:
         return 0,0,0
 

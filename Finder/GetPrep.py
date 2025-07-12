@@ -24,8 +24,8 @@ def Prep(img, start, goal):
     if start is not None and goal is not None:
         pts1 = goal[0].astype(np.int32)
         pts2 = start[0].astype(np.int32)
-        cv2.circle(frame, pts1, 50, 255, -1)
-        cv2.circle(frame, pts2, 50, 255, -1)
+        cv2.circle(frame, pts1, 32, 255, -1)
+        cv2.circle(frame, pts2, 32, 255, -1)
 
     # Step 2: Threshold -> biner (rintangan = putih = 255)
     _, binary = cv2.threshold(frame, 100, 255, cv2.THRESH_BINARY_INV)

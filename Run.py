@@ -39,14 +39,30 @@ while running:
 
         (path, times), *_ = JPS_Optimize.method(map, s, g, 2)
         print(path)
-        
+
     elif (
         start and goal
     ): 
         # Cari error ke posisi goal
-        p = tuple(path[0][::-1])
+        p = tuple(path[0])
+
+        cv2.circle(img, p, 5, 255, -1)
+
+        for i in range(len(path)-1):
+            p1 = path[i]
+            p2 = path[i+1]
+            cv2.line(img, p1, p2, 255, 2)
 
         errDist, errDegree = Error(start, p)
+
+        print(f"Posisi path ke-0 : {p}")
+        print(f"Posisi start : {start}")
+
+        if errDist < (2 * marksize):
+            print(f"len path : {len(path)}")
+            path.pop(0)
+
+        print(f"errDist ke path-0 : {errDist}")
 
     # Tampilkan frame
     cv2.imshow("Frame", img)
