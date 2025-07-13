@@ -15,18 +15,16 @@ def to_tuple(data):
     else:
         return data
 
-def Error(start, goal):
+def Error(img, start, goal):
     """
     Menghitung Error ID 0 (start) ke Goal.
     """
+
+    print(f"Format goal : {tuple(goal[0])}")
+
     if isinstance(goal, tuple):
         # Konversi ke tuple biasa jika diperlukan
         start_pos = to_tuple(start[0])
-        
-        # Periksa struktur goal
-        print(f"DEBUG - goal structure: {goal}")
-        print(f"DEBUG - goal type: {type(goal)}")
-        print(f"DEBUG - goal length: {len(goal)}")
         
         # Jika goal adalah tuple koordinat langsung (x, y)
         if len(goal) == 2 and isinstance(goal[0], (int, float)):
@@ -38,22 +36,19 @@ def Error(start, goal):
             # Fallback - anggap goal[0] dan goal[1] adalah x dan y
             goal_pos = (goal[0], goal[1])
         
-        # DEBUG: Print nilai aktual
-        print(f"DEBUG - start_pos: {start_pos}")
-        print(f"DEBUG - goal_pos: {goal_pos}")
-        
         # Menghitung jarak start ke goal
         distance = euclidean(start_pos, goal_pos)
-        print(f"DEBUG - calculated distance: {distance}")
         
-        # Manual calculation untuk verifikasi
-        manual_dist = np.sqrt((start_pos[0] - goal_pos[0])**2 + (start_pos[1] - goal_pos[1])**2)
-        print(f"DEBUG - manual distance: {manual_dist}")
-        
-        ## Menghitung error arah robot
+        # Menghitung error arah robot
         start_pts = [to_tuple(pt) for pt in start[1]]
         dx, dy = np.array(goal_pos) - np.array(start_pos)
         arah_ke_goal = np.arctan2(dy, dx)
+
+        # Gambar panah orientasi marker (hijau)
+        cv2.arrowedLine(img, tuple(start[1][1].astype(int)), tuple(start[1][0].astype(int)), (255, 255, 255), 10, tipLength=0.1)
+        # # Gambar panah ke goal (merah)
+        cv2.line(img, tuple(start[0].astype(int)), tuple(goal[0].astype(int)), (255, 255, 255), 10)
+        cv2.imwrite('Map_arrow.jpg', img)
         
         # Kemiringan robot saat ini
         vector = np.array(start_pts[1]) - np.array(start_pts[0])

@@ -4,7 +4,10 @@ img = cv2.imread('Image/4.jpg')
 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 start, goal, marksize = Pos(img)
-map = Prep(img, start, goal)
+map = Prep(img, start, goal, marksize)
+errDist, errDegree = Error(img, start, goal)
+
+sys.exit()
 
 start = np.flip(start[0])
 goal = np.flip(goal[0])

@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import time
 
-def Prep(img, start, goal):
+def Prep(img, start, goal, markSize):
     """
     Preprocessing untuk citra pencarian jalur:
     - Grayscale
@@ -14,7 +14,7 @@ def Prep(img, start, goal):
     - Kembalikan: matrix peta 2D berisi 0 (kosong) dan 255 (rintangan)
     """
 
-    frame = img
+    frame = img.copy()
 
     # Step 0: Grayscale jika RGB
     if len(frame.shape) == 3:
@@ -24,8 +24,8 @@ def Prep(img, start, goal):
     if start is not None and goal is not None:
         pts1 = goal[0].astype(np.int32)
         pts2 = start[0].astype(np.int32)
-        cv2.circle(frame, pts1, 32, 255, -1)
-        cv2.circle(frame, pts2, 32, 255, -1)
+        cv2.circle(frame, pts1, int(markSize), 255, -1)
+        cv2.circle(frame, pts2, int(markSize), 255, -1)
 
     # Step 2: Threshold -> biner (rintangan = putih = 255)
     _, binary = cv2.threshold(frame, 100, 255, cv2.THRESH_BINARY_INV)
@@ -39,7 +39,7 @@ def Prep(img, start, goal):
     start_time = time.time()
     dist = cv2.distanceTransform(255 - clean, cv2.DIST_L2, 5)
 
-    buffer_radius = 50  # pixel radius robot (½ diameter)
+    buffer_radius = int(markSize)  # pixel radius robot (½ diameter)
     buffered_obstacle = np.uint8(dist < buffer_radius) * 255
     end_time = time.time()
     print("Buffering time (distanceTransform):", end_time - start_time)
