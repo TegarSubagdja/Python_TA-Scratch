@@ -27,16 +27,17 @@ from Finder.GetError import Error
 from GetPosition import Position
 from GetContuor import Contour
 from GetPreprocessing import Preprocessing
-from Method.PathPolylineOptimization import prunning
+from Method.TurnPenaltyFunction import Turn 
+from Method.TurnPenaltyFunction import TurnPenalty as TP 
+from Method.PathPolylineOptimization import Prunning
 from Method.Guideline import guidline, jarakGaris
-from Method.TurnPenaltyFunction import TurnPenalty as TP
 from PID.Pid import PID
 from GetErrorPosition import GetOrientation
 import Z_GetMap as Visualize
 import Z_GetMap
 from Method.BarrierRasterCoefficient import barrierRaster as BR
 from Method.Guideline import guidline as GL
-from Method.PathPolylineOptimization import prunning as PPO
+from Method.PathPolylineOptimization import Prunning as PPO
 from Algoritma import Astar_Optimize, JPS_Optimize, jps, astar,  bds, jbds
 from GetPath import getPath
 from Control.Serial import pwm
@@ -44,11 +45,11 @@ from GetAlgorithm import method as Algoritm
 
 # __all__ defines what will be imported via `from common import *`
 __all__ = [
-    'sys', 'deque', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'ast', 'tk', 'filedialog', 'Prep', 'Pos', 'Error',
+    'sys', 'deque', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'ast', 'tk', 'filedialog', 'Prep', 'Pos', 'Error', 'Turn',
     'time', 'json', 'math', 'random', 'itertools', 'Algoritm', 'csv',
     'BR', 'GL', 'TP', 'PPO', 'Contour',
     'Position', 'Preprocessing',
-    'prunning', 'guidline', 'jarakGaris', 'Visualize', 'Z_GetMap',
+    'Prunning', 'guidline', 'jarakGaris', 'Visualize', 'Z_GetMap',
     'PID', 'getPath', 'GetOrientation', 'serial', 'pwm',
     'bds', 'jps', 'astar',  'Astar_Optimize', 'JPS_Optimize', 'jbds'
 ]

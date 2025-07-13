@@ -234,12 +234,21 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
             data = data[::-1]
             endtime = time.time()
             if PPO:
-                data = prunning(data, matrix)
+                data = Prunning(data, matrix)
             if show:
 
                 Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, data)
                 clock.tick(speed)  # Batasi ke 200 FPS
-                time.sleep(2)
+                
+                # Tunggu sampai tombol ditekan
+                waiting = True
+                while waiting:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                        elif event.type == pygame.KEYDOWN:
+                            waiting = False
 
                 # Handle event disini
                 for event in pygame.event.get():
@@ -467,7 +476,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
         full_path = path_f + path_b
 
         if PPO:
-            full_path = prunning(full_path, matrix)
+            full_path = Prunning(full_path, matrix)
 
         if show:
             Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, full_path)

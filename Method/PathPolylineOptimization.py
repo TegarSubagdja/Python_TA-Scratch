@@ -115,7 +115,7 @@ def is_45_degree(awal, akhir):
     slope = (y2 - y1) / (x2 - x1)
     return slope == 1 or slope == -1
 
-def prunning(path, map):
+def Prunning(path, map):
     start = 0
     goal = 1
     start_t = start

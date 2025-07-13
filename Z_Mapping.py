@@ -1,6 +1,6 @@
 from Utils import *
 from Algoritma import Astar_Komentar
-from Method.PathPolylineOptimization import prunning
+from Method.PathPolylineOptimization import Prunning
 
 # Variabel untuk ketebalan garis
 LINE_WIDTH = 2  # Menentukan ketebalan garis, bisa diubah sesuai kebutuhan
@@ -341,7 +341,7 @@ while running:
                         goal = tuple(map(int, goal[0]))
                         print(f"Start adalah {start} dan goal adalah {goal}")
                         path_result, closet, pqueue = Astar_Komentar.method(map_grid, start, goal, 2)
-                        path_prunning = prunning(path_result[0], map_grid)
+                        path_prunning = Prunning(path_result[0], map_grid)
                         print(f"Path asli adalah : {path_result}")
                         print(f"Path prunning adalah : {path_prunning}")
                 

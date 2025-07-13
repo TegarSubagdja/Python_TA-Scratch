@@ -234,11 +234,11 @@ def method(matrix, start, goal, hchoice, show=False, speed=30):
                 data.append(current)
                 current = came_from[current]
             data.append(start)
-            data = prunning(data, matrix)
+            data = Prunning(data, matrix)
             endtime = time.time()
-            data = prunning(data, matrix)
-            data = prunning(data, matrix)
-            data = prunning(data, matrix)
+            data = Prunning(data, matrix)
+            data = Prunning(data, matrix)
+            data = Prunning(data, matrix)
             return (data, round(endtime - starttime, 6))
 
         close_list.add(current)

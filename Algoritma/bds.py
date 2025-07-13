@@ -161,7 +161,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
     path = path_fwd + path_bwd
 
     if PPO:
-        path = prunning(path, map)
+        path = Prunning(path, map)
 
     if show:
         Z_GetMap.Render(surface, map, cell_size, open_list_fwd + open_list_bwd, close_list_fwd.union(close_list_bwd), path)

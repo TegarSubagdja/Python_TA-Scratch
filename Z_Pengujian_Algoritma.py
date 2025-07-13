@@ -17,7 +17,7 @@ def get(grid_size, jumlah_rintangan):
 
     return grid
 
-def run(map=None, show=False, size=[32, 64, 128]):
+def run(map=None, show=False, size=[32, 64, 128], name='All'):
 
     if map is not None:
         map_awal = Visualize.load_grid()
@@ -32,17 +32,18 @@ def run(map=None, show=False, size=[32, 64, 128]):
     hasil_path = []
     hasil_open = []
     hasil_close = []
+    hasil_turn = []
 
     for flags in kombinasi_flags:
         JPS, BDS, GLF, BRC, TPF, PPO = flags
 
         aktif_flags = []
-        if BDS: aktif_flags.append("BDS")
-        if PPO: aktif_flags.append("PPO")
-        if BRC: aktif_flags.append("BRC")
-        if GLF: aktif_flags.append("GLM")
-        if TPF: aktif_flags.append("TPF")
         if JPS: aktif_flags.append("JPS")
+        if BDS: aktif_flags.append("BDS")
+        if GLF: aktif_flags.append("GL")
+        if BRC: aktif_flags.append("BRC")
+        if TPF: aktif_flags.append("TPF")
+        if PPO: aktif_flags.append("PPO")
         method_name = "-".join(aktif_flags) if aktif_flags else "DEFAULT"
 
         aktif_count = len(aktif_flags)  # Hitung jumlah flag aktif
@@ -51,6 +52,7 @@ def run(map=None, show=False, size=[32, 64, 128]):
         row_path = {"count": aktif_count, "method": method_name}
         row_open = {"count": aktif_count, "method": method_name}
         row_close = {"count": aktif_count, "method": method_name}
+        row_turn = {"count": aktif_count, "method": method_name}
 
 
         for sz in size:
@@ -66,6 +68,7 @@ def run(map=None, show=False, size=[32, 64, 128]):
             path_lens = []
             open_lens = []
             close_lens = []
+            turn = []
 
             for _ in range(3):
                 (path, times), openlist, closelist = Algoritm(
@@ -79,11 +82,14 @@ def run(map=None, show=False, size=[32, 64, 128]):
                     path_lens.append(len(path))
                     open_lens.append(len(openlist))
                     close_lens.append(len(closelist))
+                    close_lens.append(len(closelist))
+                    turn.append((len(Turn(path))))
 
             row_time[str(sz)] = np.mean(times_list)
             row_path[str(sz)] = np.mean(path_lens) if path_lens else 0
             row_open[str(sz)] = np.mean(open_lens) if open_lens else 0
             row_close[str(sz)] = np.mean(close_lens) if close_lens else 0
+            row_turn[str(sz)] = np.mean(turn) if turn else 0
 
             print(f"{method_name:20} | {sz} | Time: {row_time[str(sz)]:.6f} | Path: {row_path[str(sz)]:.1f}")
 
@@ -91,13 +97,15 @@ def run(map=None, show=False, size=[32, 64, 128]):
         hasil_path.append(row_path)
         hasil_open.append(row_open)
         hasil_close.append(row_close)
+        hasil_turn.append(row_turn)
 
     # Simpan ke satu file dengan sheet berbeda
-    with pd.ExcelWriter("Data/Pengujian/hasil_pengujian_512_Avg10_AllComb.xlsx") as writer:
+    with pd.ExcelWriter(f"Data/Pengujian/{name}.xlsx") as writer:
         pd.DataFrame(hasil_time).to_excel(writer, sheet_name="Time", index=False)
         pd.DataFrame(hasil_path).to_excel(writer, sheet_name="Path Length", index=False)
         pd.DataFrame(hasil_open).to_excel(writer, sheet_name="Open Set", index=False)
         pd.DataFrame(hasil_close).to_excel(writer, sheet_name="Close Set", index=False)
+        pd.DataFrame(hasil_turn).to_excel(writer, sheet_name="Turn Count", index=False)
     print("\n✅ Semua file berhasil disimpan secara terpisah dan rapi.")
 
 def runMethod(JPS=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, show=False, size=[32, 64, 128]):
@@ -152,62 +160,39 @@ def runMethod(JPS=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, 
 
 # Contoh pemanggilan:
 if __name__ == "__main__":
-    map_awal = Visualize.load_grid(path="Map/JSON/Map_2.json")
-    # run(map=map_awal, show=False, size=[32, 64, 128])
-    # runMethod(jps=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, show=False)
-    # run(map=map_awal, show=False, size=[32, 64, 128])
-    # Z_GetMap.save(map_awal, f"Data/Image/Sample_2_{scale}.jpg")
 
-    scale = 4096
+    maps = [
+        "Map/JSON/Map.json",
+        "Map/JSON/Map_1.json",
+        "Map/JSON/Map_2.json",
+        "Map/JSON/Map_3.json",
+        "Map/JSON/Map_4.json",
+    ]
+
+    name = "ALl"
+    map_awal = Visualize.load_grid(path="Map/JSON/Map_1.json")
+
+
+    ## Aren run untuk pengujian kombinasi
+    # mulai = time.time()
+    # run(map=map_awal, show=False, size=[32, 64], name=name)
+    # selesai = time.time()
+    # print(f"Waktu yang diperlukan untuk mendapatkan hasil : {selesai-mulai}")
+    # os.startfile(f"D:/SEMHAS/TA_Python_Server/Data/Pengujian/All.xlsx")
+
     
-    map_awal = Visualize.upscale(map_awal, scale)
-
-    start = (0, 0)
-    goal = map_awal.shape[0] - 1, map_awal.shape[1] - 1
-    print(f"start : {start}")
-    print(f"goal : {goal}")
-
     np.place(map_awal, map_awal == 1, 255)
     np.place(map_awal, map_awal == 2, 0)
     np.place(map_awal, map_awal == 3, 0)
 
-    avg = []
-    path_len = 0
-    open_len = 0
-    close_len = 0
+    start = (0, 0)
+    goal = map_awal.shape[0] - 1, map_awal.shape[1] - 1
 
-    (path, times) = jps.method(
-        map_awal, start, goal, hchoice=2,
-        show=False, speed=10
-    )
-    print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    (path, times), *_ = Astar_Optimize.method(map_awal, start, goal, 2, show=True)
 
-    # (path, times), *_ = astar_full.method(
-    #     map_awal, start, goal, hchoice=2, BRC=False,
-    #     show=False, speed=100
-    # )
-    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    count = Turn(path)
 
-    # (path, times), *_ = bds.method(
-    #     map_awal, start, goal, hchoice=2, BRC=False, GLF=True,
-    #     show=False, speed=100
-    # )
-    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
-
-    # (path, times), *_ = bds.method(
-    #     map_awal, start, goal, hchoice=1, BRC=False, GLF=False,
-    #     show=True, speed=100
-    # )
-    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
-
-    # (path, times) = jbds.method(
-    #     map_awal, start, goal, hchoice=2, 
-    #     show=False, speed=10
-    # )
-    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
-
-    # (path, times), *_ = jps_full.method(
-    #     map_awal, start, goal, hchoice=2, BRC=False,
-    #     show=False, speed=100
-    # )
-    # print(f"Time: {times:.6f} detik | Path Length: {path_len}")
+    print(path)
+    print(len(path))
+    print(count)
+    print(len(count))

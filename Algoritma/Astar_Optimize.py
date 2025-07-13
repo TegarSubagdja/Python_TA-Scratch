@@ -60,12 +60,21 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
             path = path[::-1]
             endtime = time.time()
             if PPO:
-                path = prunning(path, map)
+                path = Prunning(path, map)
             if show:
 
                 Z_GetMap.Render(surface, map, cell_size, open_list, close_list, path)
                 clock.tick(speed)  # Batasi ke 200 FPS
-                time.sleep(2)
+
+                # Tunggu sampai tombol ditekan
+                waiting = True
+                while waiting:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                        elif event.type == pygame.KEYDOWN:
+                            waiting = False
 
                 # Handle event disini
                 for event in pygame.event.get():
@@ -153,7 +162,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
         endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0
 
-def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=30):
+def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=30):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(map)
@@ -284,12 +293,22 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
     path = path_fwd + path_bwd
 
     if PPO:
-        path = prunning(path, map)
+        path = Prunning(path, map)
 
     if show:
         Z_GetMap.Render(surface, map, cell_size, open_list_fwd + open_list_bwd, close_list_fwd.union(close_list_bwd), path)
         clock.tick(speed)
-        time.sleep(2)
+
+        # Tunggu sampai tombol ditekan
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN:
+                    waiting = False
+                    
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()

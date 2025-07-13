@@ -135,7 +135,7 @@ def Render(surface, grid, cell_size, open_list=False, close_list=False, path=Non
     pygame.display.flip()
 
 # Tampilkan grid ke layar
-def show(grid, window_size=1024):
+def show(grid, window_size=512):
     rows, cols = grid.shape
     cell_w = window_size / cols
     cell_h = window_size / rows

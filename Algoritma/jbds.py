@@ -344,7 +344,7 @@ def method(matrix, start, goal, hchoice, show=False, speed=30):
         path_bwd.append(current)
 
     full_path = path_fwd + path_bwd
-    full_path = prunning(full_path, matrix)
+    full_path = Prunning(full_path, matrix)
 
     return (full_path, round(endtime - starttime, 6))
 
