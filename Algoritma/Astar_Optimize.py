@@ -168,7 +168,10 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
         surface, cell_size = Z_GetMap.Init_Visual(map)
         clock = pygame.time.Clock()
 
-    v1, v2, v3 = 0, 0, 0
+    if not isinstance(start, tuple):
+        start = tuple(start)
+    if not isinstance(goal, tuple):
+        goal = tuple(goal)
 
     open_list_fwd, open_list_bwd = [], []
     close_list_fwd, close_list_bwd = set(), set()

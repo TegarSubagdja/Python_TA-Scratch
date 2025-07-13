@@ -2,21 +2,6 @@ from Utils import *
 
 
 def Pos(img):
-    """
-    Mendeteksi marker ID 0 (start) dan ID 1 (goal) dari citra ArUco.
-
-    Parameters:
-        img (np.ndarray): Gambar grayscale yang akan dianalisis.
-
-    Returns:
-        tuple:
-            - start (tuple): (center, pts).
-            - goal (tuple): (center, pts).
-            - mark_size (float): Estimasi ukuran marker berdasarkan jarak antar sudut.
-
-    Notes:
-        - Jika tidak ada marker ditemukan, maka `start` dan `goal` bisa `None`.
-    """
     
     # Inisialisasi ArUco
     detector_params = aruco.DetectorParameters()
@@ -47,6 +32,15 @@ def Pos(img):
         aruco.drawDetectedMarkers(img, corners, ids, (255,0,255))
     else:
         return 0,0,0
+    
+    startPts = [(int(x), int(y)) for x, y in start[1]]
+    goalPts = [(int(x), int(y)) for x, y in goal[1]]
+
+    s = tuple(int(x) for x in start[0])
+    g = tuple(int(x) for x in goal[0])
+
+    start = (s, startPts)
+    goal = (g, goalPts)
 
     return (
         start,

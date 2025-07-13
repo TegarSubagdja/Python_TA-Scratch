@@ -216,8 +216,6 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
     gn = {start: 0}
     fn = {start: heuristic(start, goal, hchoice)}
 
-    v1, v2, v3 = 0, 0, 0
-
     heapq.heappush(open_list, (fn[start], start))
 
     starttime = time.time()
@@ -325,6 +323,11 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
         clock = pygame.time.Clock()
+
+    if not isinstance(start, tuple):
+        start = tuple(start)
+    if not isinstance(goal, tuple):
+        goal = tuple(goal)
 
     # Forward
     came_from_f = {}

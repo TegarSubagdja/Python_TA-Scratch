@@ -4,15 +4,6 @@ import numpy as np
 import time
 
 def Prep(img, start, goal, markSize):
-    """
-    Preprocessing untuk citra pencarian jalur:
-    - Grayscale
-    - Hapus marker robot
-    - Threshold biner (obstacle = putih)
-    - Bersihkan noise
-    - Buat buffer keluar dari obstacle
-    - Kembalikan: matrix peta 2D berisi 0 (kosong) dan 255 (rintangan)
-    """
 
     frame = img.copy()
 
@@ -22,8 +13,8 @@ def Prep(img, start, goal, markSize):
 
     # Step 1: Hapus marker robot (dengan lingkaran putih)
     if start is not None and goal is not None:
-        pts1 = goal[0].astype(np.int32)
-        pts2 = start[0].astype(np.int32)
+        pts1 = goal[0]
+        pts2 = start[0]
         cv2.circle(frame, pts1, int(markSize), 255, -1)
         cv2.circle(frame, pts2, int(markSize), 255, -1)
 
