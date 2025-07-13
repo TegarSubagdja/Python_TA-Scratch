@@ -37,7 +37,6 @@ import Z_GetMap as Visualize
 import Z_GetMap
 from Method.BarrierRasterCoefficient import barrierRaster as BR
 from Method.Guideline import guidline as GL
-from Method.PathPolylineOptimization import Prunning as PPO
 from Algoritma import Astar_Optimize, JPS_Optimize, jps, astar,  bds, jbds
 from GetPath import getPath
 from Control.Serial import pwm
@@ -47,7 +46,7 @@ from GetAlgorithm import method as Algoritm
 __all__ = [
     'sys', 'deque', 'os', 'cv2', 'aruco', 'np', 'pd', 'pygame', 'heapq', 'ast', 'tk', 'filedialog', 'Prep', 'Pos', 'Error', 'Turn',
     'time', 'json', 'math', 'random', 'itertools', 'Algoritm', 'csv',
-    'BR', 'GL', 'TP', 'PPO', 'Contour',
+    'BR', 'GL', 'TP', 'Contour',
     'Position', 'Preprocessing',
     'Prunning', 'guidline', 'jarakGaris', 'Visualize', 'Z_GetMap',
     'PID', 'getPath', 'GetOrientation', 'serial', 'pwm',

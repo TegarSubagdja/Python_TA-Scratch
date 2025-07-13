@@ -1,198 +1,146 @@
 from Utils import *
 
-def get(grid_size, jumlah_rintangan):
-    grid = np.zeros((grid_size, grid_size), dtype=int)
+# Contoh pemanggilan:
+if __name__ == "__main__":
 
-    for _ in range(jumlah_rintangan):
-        # Titik awal acak, pastikan aman untuk area 2x2
-        row = random.randint(0, grid_size - 2)
-        col = random.randint(0, grid_size - 2)
+    map = Z_GetMap.load_grid(path="Map/JSON/Map.json")
+    print(map.dtype)
+    print(map.shape)
+    map = Z_GetMap.upscale(map, 32)
+    print(map.dtype)
+    print(map.shape)
 
-        # Isi 4 titik berdekatan (2x2 area)
-        val = 255
-        grid[row, col] = val
-        grid[row + 1, col] = val
-        grid[row, col + 1] = val
-        grid[row + 1, col + 1] = val
+    start = (0, 0)
+    goal = (map.shape[0] - 1, map.shape[1] - 1)
 
-    return grid
+    np.place(map, map == 1, 255)
+    np.place(map, map == 2, 0)
+    np.place(map, map == 3, 0)
 
-def run(map=None, show=False, size=[32, 64, 128], name='All'):
+    (path, times), openlist, closelist = Algoritm(
+                    map.copy(), start, goal, hchoice=2,
+                    BRC=False,
+                    TPF=False,
+                    GLF=False,
+                    BDS=True,
+                    PPO=False,
+                    JPS=False,
+                    show=False, speed=100
+                )
+    
+    print(len(Turn(path)))
+    print(len(path))
+    print(times)
 
-    if map is not None:
-        map_awal = Visualize.load_grid()
-    else:
-        map_awal = map
+    sys.exit()
+
+    size = [32, 64, 128, 256, 512]
 
     kombinasi_flags = list(itertools.product([False, True], repeat=6))
     print(f"Total kombinasi: {len(kombinasi_flags)}\n")
 
-    # Dictionary besar untuk simpan semua metrik
-    hasil_time = []
-    hasil_path = []
-    hasil_open = []
-    hasil_close = []
-    hasil_turn = []
+    # Kumpulan hasil per sheet
+    rows_comb = []
+    rows_method = []
+    rows_time = []
+    rows_path = []
+    rows_open = []
+    rows_close = []
+    rows_turn = []
+    rows_size = []
 
-    for flags in kombinasi_flags:
-        JPS, BDS, GLF, BRC, TPF, PPO = flags
+    for sz in size:
 
-        aktif_flags = []
-        if JPS: aktif_flags.append("JPS")
-        if BDS: aktif_flags.append("BDS")
-        if GLF: aktif_flags.append("GL")
-        if BRC: aktif_flags.append("BRC")
-        if TPF: aktif_flags.append("TPF")
-        if PPO: aktif_flags.append("PPO")
-        method_name = "-".join(aktif_flags) if aktif_flags else "DEFAULT"
+        map = Z_GetMap.upscale(map, sz)
 
-        aktif_count = len(aktif_flags)  # Hitung jumlah flag aktif
+        for flags in kombinasi_flags:
+            JPS, BDS, GLF, BRC, TPF, PPO = flags
 
-        row_time = {"count": aktif_count, "method": method_name}
-        row_path = {"count": aktif_count, "method": method_name}
-        row_open = {"count": aktif_count, "method": method_name}
-        row_close = {"count": aktif_count, "method": method_name}
-        row_turn = {"count": aktif_count, "method": method_name}
+            aktif_flags = []
+            if JPS: aktif_flags.append("JPS")
+            if BDS: aktif_flags.append("BDS")
+            if GLF: aktif_flags.append("GL")
+            if BRC: aktif_flags.append("BRC")
+            if TPF: aktif_flags.append("TPF")
+            if PPO: aktif_flags.append("PPO")
+            method_name = "-".join(aktif_flags) if aktif_flags else "A*"
 
-
-        for sz in size:
-            map_ = Visualize.upscale(map_awal, sz)
             start = (0, 0)
-            goal = map_.shape[0] - 1, map_.shape[1] - 1
+            goal = (map.shape[0] - 1, map.shape[1] - 1)
 
-            np.place(map_, map_ == 1, 255)
-            map_[start] = 2
-            map_[goal] = 3
+            np.place(map, map == 1, 255)
+            np.place(map, map == 2, 0)
+            np.place(map, map == 3, 0)
 
-            times_list = []
-            path_lens = []
-            open_lens = []
-            close_lens = []
-            turn = []
+            tempTimes = []
+            tempOpen = []
+            tempClose = []
 
-            for _ in range(3):
+            for i in range(2):
                 (path, times), openlist, closelist = Algoritm(
-                    map_.copy(), start, goal, hchoice=2,
+                    map.copy(), start, goal, hchoice=2,
                     JPS=JPS, BDS=BDS, GLF=GLF,
                     BRC=BRC, TPF=TPF, PPO=PPO,
-                    show=show, speed=200
+                    show=False, speed=200
                 )
-                times_list.append(times)
-                if path:
-                    path_lens.append(len(path))
-                    open_lens.append(len(openlist))
-                    close_lens.append(len(closelist))
-                    close_lens.append(len(closelist))
-                    turn.append((len(Turn(path))))
 
-            row_time[str(sz)] = np.mean(times_list)
-            row_path[str(sz)] = np.mean(path_lens) if path_lens else 0
-            row_open[str(sz)] = np.mean(open_lens) if open_lens else 0
-            row_close[str(sz)] = np.mean(close_lens) if close_lens else 0
-            row_turn[str(sz)] = np.mean(turn) if turn else 0
+                tempTimes.append(times)
 
-            print(f"{method_name:20} | {sz} | Time: {row_time[str(sz)]:.6f} | Path: {row_path[str(sz)]:.1f}")
+            print(f"{sz} {method_name}")
 
-        hasil_time.append(row_time)
-        hasil_path.append(row_path)
-        hasil_open.append(row_open)
-        hasil_close.append(row_close)
-        hasil_turn.append(row_turn)
+            rows_size.append(sz)
+            rows_comb.append(len(aktif_flags))
+            rows_method.append(method_name)
+            rows_time.append(np.mean(tempTimes))
+            rows_path.append(len(path))
+            rows_open.append(len(openlist))
+            rows_close.append(len(closelist))
+            rows_turn.append(len(Turn(path)))
+            
 
-    # Simpan ke satu file dengan sheet berbeda
-    with pd.ExcelWriter(f"Data/Pengujian/{name}.xlsx") as writer:
-        pd.DataFrame(hasil_time).to_excel(writer, sheet_name="Time", index=False)
-        pd.DataFrame(hasil_path).to_excel(writer, sheet_name="Path Length", index=False)
-        pd.DataFrame(hasil_open).to_excel(writer, sheet_name="Open Set", index=False)
-        pd.DataFrame(hasil_close).to_excel(writer, sheet_name="Close Set", index=False)
-        pd.DataFrame(hasil_turn).to_excel(writer, sheet_name="Turn Count", index=False)
-    print("\n✅ Semua file berhasil disimpan secara terpisah dan rapi.")
+    data = pd.DataFrame({
+        "Jumlah Kombinasi" : rows_comb,
+        "Size Map" : rows_size,
+        "Kombinasi" : rows_method,
+        "waktu Pencarian" : rows_time,
+        "Panjang Jalur" : rows_path,
+        "Jumlah Open Set" : rows_open,
+        "Jumlah Close Set" : rows_close,
+        "Jumlah Belokan" : rows_turn
+    })
 
-def runMethod(JPS=False, BDS=False, GLF=False, BRC=False, TPF=False, PPO=False, show=False, size=[32, 64, 128]):
-    sizes = [32, 64, 128, 256]
+    data.to_excel("output.xlsx", index=False)
 
-    # Buat nama metode dari flag aktif
-    aktif_flags = []
-    if BDS: aktif_flags.append("BDS")
-    if PPO: aktif_flags.append("PPO")
-    if BRC: aktif_flags.append("BRC")
-    if GLF: aktif_flags.append("GLM")
-    if TPF: aktif_flags.append("TPF")
-    if JPS: aktif_flags.append("JPS")
-    method_name = "-".join(aktif_flags) if aktif_flags else "DEFAULT"
+    def pivot_metric(df, metric_name):
+        # Gunakan pivot_table dengan multiindex + agregasi rata-rata
+        pivot = df.pivot_table(
+            index=["Jumlah Kombinasi", "Kombinasi"],
+            columns="Size Map",
+            values=metric_name,
+            aggfunc="mean"  # jika terjadi duplikat entry
+        )
+        # Pastikan semua kolom berupa string (32, 64, ...)
+        pivot.columns = [f"{col}" for col in pivot.columns]
+        return pivot.reset_index()
 
-    map_awal = Visualize.load_grid()
+    # Pivot masing-masing metrik
+    pivot_waktu = pivot_metric(data, "waktu Pencarian")
+    pivot_panjang = pivot_metric(data, "Panjang Jalur")
+    pivot_open = pivot_metric(data, "Jumlah Open Set")
+    pivot_close = pivot_metric(data, "Jumlah Close Set")
+    pivot_belok = pivot_metric(data, "Jumlah Belokan")
 
-    waktu_per_map = {"method": method_name}
+    # Simpan semua ke dalam satu file Excel (multi-sheet)
+    with pd.ExcelWriter("hasil_pivot_lima_sheet.xlsx") as writer:
+        pivot_waktu.to_excel(writer, sheet_name="Waktu Pencarian", index=False)
+        pivot_panjang.to_excel(writer, sheet_name="Panjang Jalur", index=False)
+        pivot_open.to_excel(writer, sheet_name="Jumlah Open", index=False)
+        pivot_close.to_excel(writer, sheet_name="Jumlah Close", index=False)
+        pivot_belok.to_excel(writer, sheet_name="Jumlah Belok", index=False)
 
-    for sz in sizes:
-        map_ = Visualize.upscale(map_awal, sz)
-        start = (0, 0)
-        goal = map_.shape[0] - 1, map_.shape[1] - 1
-
-        # Siapkan map
-        np.place(map_, map_ == 1, 255)
-        map_[start] = 2
-        map_[goal] = 3
-
-        print(f"Testing method={method_name} di map size {sz}x{sz}")
-
-        times_list = []
-
-        for _ in range(10):
-            (path, times), _, _ = Algoritm(
-                map_.copy(), start, goal, hchoice=2,
-                JPS=JPS, BDS=BDS, GLF=GLF,
-                BRC=BRC, TPF=TPF, PPO=PPO,
-                show=show, speed=200
-            )
-            times_list.append(times)
-
-        avg_time = np.mean(times_list)
-        waktu_per_map[str(sz)] = avg_time
-        print(f"  → rata-rata waktu: {avg_time:.6f} detik")
-
-    # Simpan ke Excel
-    df = pd.DataFrame([waktu_per_map])
-    nama_file = f"hasil_rerata_{method_name}.xlsx"
-    df.to_excel(nama_file, index=False)
-    print(f"\n✅ Data berhasil disimpan ke {nama_file}")
-
-# Contoh pemanggilan:
-if __name__ == "__main__":
-
-    maps = [
-        "Map/JSON/Map.json",
-        "Map/JSON/Map_1.json",
-        "Map/JSON/Map_2.json",
-        "Map/JSON/Map_3.json",
-        "Map/JSON/Map_4.json",
-    ]
-
-    name = "ALl"
-    map_awal = Visualize.load_grid(path="Map/JSON/Map_1.json")
+    os.startfile("D:\SEMHAS\TA_Python_Server\output.xlsx")
+    os.startfile("D:\SEMHAS\TA_Python_Server\hasil_pivot_lima_sheet.xlsx")
 
 
-    ## Aren run untuk pengujian kombinasi
-    # mulai = time.time()
-    # run(map=map_awal, show=False, size=[32, 64], name=name)
-    # selesai = time.time()
-    # print(f"Waktu yang diperlukan untuk mendapatkan hasil : {selesai-mulai}")
-    # os.startfile(f"D:/SEMHAS/TA_Python_Server/Data/Pengujian/All.xlsx")
 
-    
-    np.place(map_awal, map_awal == 1, 255)
-    np.place(map_awal, map_awal == 2, 0)
-    np.place(map_awal, map_awal == 3, 0)
 
-    start = (0, 0)
-    goal = map_awal.shape[0] - 1, map_awal.shape[1] - 1
-
-    (path, times), *_ = Astar_Optimize.method(map_awal, start, goal, 2, show=True)
-
-    count = Turn(path)
-
-    print(path)
-    print(len(path))
-    print(count)
-    print(len(count))
