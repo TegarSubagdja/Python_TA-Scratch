@@ -3,35 +3,47 @@ from Utils import *
 # Contoh pemanggilan:
 if __name__ == "__main__":
 
-    map = Z_GetMap.load_grid(path="Map/JSON/Map.json")
-    print(map.dtype)
+    mapChoice = 1
+
+    if mapChoice < 1:
+        nameMap = "Map"
+    else:
+        nameMap = f"Map_{mapChoice}"
+
+    map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
+    # Z_GetMap.show(map)
     print(map.shape)
-    map = Z_GetMap.upscale(map, 32)
-    print(map.dtype)
     print(map.shape)
 
     start = (0, 0)
-    goal = (map.shape[0] - 1, map.shape[1] - 1)
+    goal = (map.shape[0] - 4, map.shape[1] - 1)
 
     np.place(map, map == 1, 255)
     np.place(map, map == 2, 0)
     np.place(map, map == 3, 0)
 
     (path, times), openlist, closelist = Algoritm(
-                    map.copy(), start, goal, hchoice=2,
+                    map=map.copy(), 
+                    start=start, 
+                    goal=goal, 
+                    hchoice=2,
                     BRC=False,
                     TPF=False,
                     GLF=False,
                     BDS=True,
                     PPO=False,
                     JPS=False,
-                    show=False, speed=100
+                    show=True, speed=5
                 )
-    
-    print(len(Turn(path)))
-    print(len(path))
-    print(times)
+    print(f"path : {path}")
+    print(f"Panjang Path : {len(path)}")
+    print(f"Jumlah Open Set : {len(openlist)}")
+    print(f"Jumlah Close Set : {len(closelist)}")
+    print(f"Jumlah Belokan : {Turn(path)}")
+    print(f"Jumlah Belokan : {len(Turn(path))}")
+    print(f"Waktu Pencarian : {times}")
 
+    # Stop ke pengujian total
     sys.exit()
 
     size = [32, 64, 128, 256, 512]
@@ -48,6 +60,8 @@ if __name__ == "__main__":
     rows_close = []
     rows_turn = []
     rows_size = []
+
+    awal = time.time()
 
     for sz in size:
 
@@ -76,15 +90,14 @@ if __name__ == "__main__":
             tempOpen = []
             tempClose = []
 
-            for i in range(2):
-                (path, times), openlist, closelist = Algoritm(
-                    map.copy(), start, goal, hchoice=2,
-                    JPS=JPS, BDS=BDS, GLF=GLF,
-                    BRC=BRC, TPF=TPF, PPO=PPO,
-                    show=False, speed=200
-                )
+            (path, times), openlist, closelist = Algoritm(
+                map.copy(), start, goal, hchoice=2,
+                JPS=JPS, BDS=BDS, GLF=GLF,
+                BRC=BRC, TPF=TPF, PPO=PPO,
+                show=False, speed=200
+            )
 
-                tempTimes.append(times)
+            tempTimes.append(times)
 
             print(f"{sz} {method_name}")
 
@@ -130,16 +143,18 @@ if __name__ == "__main__":
     pivot_close = pivot_metric(data, "Jumlah Close Set")
     pivot_belok = pivot_metric(data, "Jumlah Belokan")
 
+    akhir = time.time()
+    waktu = akhir - awal
+    
     # Simpan semua ke dalam satu file Excel (multi-sheet)
-    with pd.ExcelWriter("hasil_pivot_lima_sheet.xlsx") as writer:
+    with pd.ExcelWriter(f"Hasil_Pengujian_{size[-1]}_{waktu}.xlsx") as writer:
         pivot_waktu.to_excel(writer, sheet_name="Waktu Pencarian", index=False)
         pivot_panjang.to_excel(writer, sheet_name="Panjang Jalur", index=False)
         pivot_open.to_excel(writer, sheet_name="Jumlah Open", index=False)
         pivot_close.to_excel(writer, sheet_name="Jumlah Close", index=False)
         pivot_belok.to_excel(writer, sheet_name="Jumlah Belok", index=False)
 
-    os.startfile("D:\SEMHAS\TA_Python_Server\output.xlsx")
-    os.startfile("D:\SEMHAS\TA_Python_Server\hasil_pivot_lima_sheet.xlsx")
+    os.startfile(f"D:\SEMHAS\TA_Python_Server\Hasil_Pengujian_{size[-1]}_{waktu}.xlsx")
 
 
 

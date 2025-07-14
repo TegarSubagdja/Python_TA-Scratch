@@ -286,7 +286,6 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
             ) or jumpPoint not in [j[1] for j in open_list]:
                 came_from[jumpPoint] = current
                 gn[jumpPoint] = tentative_gn
-
                 if BRC:
                     fn[jumpPoint] = tentative_gn + (heuristic(
                         jumpPoint, 
@@ -350,9 +349,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
     start_time = time.time()
     meet_point = None
-    
-    # Pre-compute log untuk BRC jika diperlukan
-    log_cache = {}
 
     # ============ OPTIMIZED MAIN LOOP ============
     while open_f and open_b and not meet_point:
@@ -385,17 +381,14 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     
                     # Optimized f-value calculation
                     if BRC:
-                        # Cache log calculation
-                        if v2 not in log_cache:
-                            log_cache[v2] = math.log(v2)
-                        f_f[succ] = tentative_g + (h_to_goal * (1 - log_cache[v2])) + v1 + v3 + h_to_current_b
+                        f_f[succ] = tentative_g + (h_to_goal * (1 - math.log(v2))) + v1 + v3 + h_to_current_b
                     else:
                         f_f[succ] = tentative_g + h_to_goal + v1 + v3 + h_to_current_b
 
                     heapq.heappush(open_f, (f_f[succ], succ))
 
                 # Meeting point check
-                if succ in close_b:
+                if succ in close_b or succ in open_b:
                     meet_point = succ
                     break
 
@@ -428,16 +421,14 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     # Optimized f-value calculation
                     if BRC:
                         # Cache log calculation
-                        if v2 not in log_cache:
-                            log_cache[v2] = math.log(v2)
-                        f_b[succ] = tentative_g + (h_to_start * (1 - log_cache[v2])) + v1 + v3 + h_to_current_f
+                        f_b[succ] = tentative_g + (h_to_start * (1 - math.log(v2))) + v1 + v3 + h_to_current_f
                     else:
                         f_b[succ] = tentative_g + h_to_start + v1 + v3 + h_to_current_f
 
                     heapq.heappush(open_b, (f_b[succ], succ))
 
                 # Meeting point check
-                if succ in close_f:
+                if succ in close_f or succ in open_f:
                     meet_point = succ
                     break
 

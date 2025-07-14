@@ -36,7 +36,6 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
         surface, cell_size = Z_GetMap.Init_Visual(map)
         clock = pygame.time.Clock()
 
-    v1, v2, v3 = 0, 0, 0
     close_list = set()
     came_from = {}
     gn = {start: 0}
@@ -62,7 +61,6 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
             if PPO:
                 path = Prunning(path, map)
             if show:
-
                 Z_GetMap.Render(surface, map, cell_size, open_list, close_list, path)
                 clock.tick(speed)  # Batasi ke 200 FPS
 
@@ -130,7 +128,6 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
             ) or neighbour not in [i[1] for i in open_list]:
                 came_from[neighbour] = current
                 gn[neighbour] = tentative_gn
-
                 if BRC:
                     fn[neighbour] = tentative_gn + (heuristic(
                         neighbour, 
@@ -173,133 +170,149 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
     if not isinstance(goal, tuple):
         goal = tuple(goal)
 
-    open_list_fwd, open_list_bwd = [], []
-    close_list_fwd, close_list_bwd = set(), set()
-    came_from_fwd, came_from_bwd = {}, {}
+    # Forward
+    came_from_f = {}
+    open_f = []
+    close_f = set()
+    g_f = {start: 0}
+    f_f = {start: heuristic(start, goal, hchoice)}
 
-    gn_fwd = {start: 0}
-    gn_bwd = {goal: 0}
-    fn_fwd = {start: heuristic(start, goal, hchoice)}
-    fn_bwd = {goal: heuristic(goal, start, hchoice)}
+    #Backward
+    came_from_b = {}
+    open_b = []
+    close_b = set()
+    g_b = {goal: 0}
+    f_b = {goal: heuristic(goal, start, hchoice)}
 
-    heapq.heappush(open_list_fwd, (fn_fwd[start], start))
-    heapq.heappush(open_list_bwd, (fn_bwd[goal], goal))
+    current_f, current_b = start, goal
 
-    meeting_point = None
-    starttime = time.time()
+    heapq.heappush(open_f, (f_f[start], start))
+    heapq.heappush(open_b, (f_b[goal], goal))
 
-    while open_list_fwd and open_list_bwd:
+    start_time = time.time()
+    meet_point = None
+
+    while open_f and open_b and not meet_point:
 
         # --- Forward Search ---
-        current_fwd = heapq.heappop(open_list_fwd)[1]
-        close_list_fwd.add(current_fwd)
+        if open_f:
+            _, current_f = heapq.heappop(open_f)
+            close_f.add(current_f)
 
-        if current_fwd in close_list_bwd:
-            meeting_point = current_fwd
-            break
+            for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+                neighbour = current_f[0] + dX, current_f[1] + dY
 
-        for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
-            if blocked(current_fwd[0], current_fwd[1], dX, dY, map):
-                continue
+                if neighbour in close_f:
+                    continue
 
-            neighbour = current_fwd[0] + dX, current_fwd[1] + dY
+                if blocked(current_f[0], current_f[1], dX, dY, map):
+                    continue
 
-            if hchoice == 1:
-                cost = 14 if dX != 0 and dY != 0 else 10
-            else:
-                cost = math.sqrt(2) if dX != 0 and dY != 0 else 1
+                if hchoice == 1:
+                    cost = 14 if dX != 0 and dY != 0 else 10
+                else:
+                    cost = math.sqrt(2) if dX != 0 and dY != 0 else 1
 
-            tentative_gn = gn_fwd[current_fwd] + cost
-            if neighbour in close_list_fwd:
-                continue
+                tentative_gn = g_f[current_f] + cost
+                if neighbour in close_f:
+                    continue
 
-            v1 = TP(came_from_fwd.get(current_fwd, current_fwd), current_fwd, neighbour, 2) if TPF else 0
-            v2 = BR(neighbour, goal, map) or 1 if BRC else 1
-            v3 = GL(start, goal, neighbour) if GLF else 0
+                v1 = TP(came_from_f.get(current_f, current_f), current_f, neighbour, 2) if TPF else 0
+                v2 = BR(neighbour, goal, map) or 1 if BRC else 1
+                v3 = GL(start, goal, neighbour) if GLF else 0
 
-            if tentative_gn < gn_fwd.get(neighbour, float('inf')):
-                came_from_fwd[neighbour] = current_fwd
-                gn_fwd[neighbour] = tentative_gn
-                fn = tentative_gn + heuristic(neighbour, goal, hchoice)
-                if BRC:
-                    fn += (heuristic(neighbour, goal, hchoice) * (1 - math.log(v2)))
-                fn += v1 + v3
-                fn_fwd[neighbour] = fn
-                heapq.heappush(open_list_fwd, (fn, neighbour))
+                if tentative_gn < g_f.get(neighbour, float('inf')):
+                    came_from_f[neighbour] = current_f
+                    g_f[neighbour] = tentative_gn
+                    
+                    if BRC:
+                        f_f[neighbour] = tentative_gn + (heuristic(neighbour, goal, hchoice) * (1 - math.log(v2))) + v1 + v3
+                    else:
+                        f_f[neighbour] = tentative_gn + heuristic(neighbour, goal, hchoice) + v1 + v3
+                    heapq.heappush(open_f, (f_f[neighbour], neighbour))
+
+                if neighbour in close_b or neighbour in open_b:
+                    meet_point = neighbour
+                    break
 
         # --- Backward Search ---
-        current_bwd = heapq.heappop(open_list_bwd)[1]
-        close_list_bwd.add(current_bwd)
+        if open_b and not meet_point:
+            _, current_b = heapq.heappop(open_b)
+            close_b.add(current_b)
 
-        if current_bwd in close_list_fwd:
-            meeting_point = current_bwd
-            break
+            for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+                neighbour = current_b[0] + dX, current_b[1] + dY
 
-        for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
-            if blocked(current_bwd[0], current_bwd[1], dX, dY, map):
-                continue
+                if neighbour in close_b:
+                    continue
 
-            neighbour = current_bwd[0] + dX, current_bwd[1] + dY
+                if blocked(current_b[0], current_b[1], dX, dY, map):
+                    continue
 
-            if hchoice == 1:
-                cost = 14 if dX != 0 and dY != 0 else 10
-            else:
-                cost = math.sqrt(2) if dX != 0 and dY != 0 else 1
+                if hchoice == 1:
+                    cost = 14 if dX != 0 and dY != 0 else 10
+                else:
+                    cost = math.sqrt(2) if dX != 0 and dY != 0 else 1
 
-            tentative_gn = gn_bwd[current_bwd] + cost
-            if neighbour in close_list_bwd:
-                continue
+                v1 = TP(came_from_b.get(current_b, current_b), current_b, neighbour, 2) if TPF else 0
+                v2 = BR(neighbour, start, map) or 1 if BRC else 1
+                v3 = GL(goal, start, neighbour) if GLF else 0
 
-            v1 = TP(came_from_bwd.get(current_bwd, current_bwd), current_bwd, neighbour, 2) if TPF else 0
-            v2 = BR(neighbour, start, map) or 1 if BRC else 1
-            v3 = GL(goal, start, neighbour) if GLF else 0
+                tentative_gn = g_b[current_b] + cost
+                if neighbour in close_b:
+                    continue
 
-            if tentative_gn < gn_bwd.get(neighbour, float('inf')):
-                came_from_bwd[neighbour] = current_bwd
-                gn_bwd[neighbour] = tentative_gn
-                fn = tentative_gn + heuristic(neighbour, start, hchoice)
-                if BRC:
-                    fn += (heuristic(neighbour, start, hchoice) * (1 - math.log(v2)))
-                fn += v1 + v3
-                fn_bwd[neighbour] = fn
-                heapq.heappush(open_list_bwd, (fn, neighbour))
+                if tentative_gn < g_b.get(neighbour, float('inf')):
+                    came_from_b[neighbour] = current_b
+                    g_b[neighbour] = tentative_gn
+                    if BRC:
+                        f_b[neighbour] = tentative_gn + (heuristic(neighbour, start, hchoice) * (1 - math.log(v2))) + v1 + v3
+                    else:
+                        f_b[neighbour] = tentative_gn + heuristic(neighbour, start, hchoice) + v1 + v3
+                    heapq.heappush(open_b, (f_b[neighbour], neighbour))
 
-        # --- Visualisasi ---
-        if show:
-            path_preview = [meeting_point] if meeting_point else []
-            Z_GetMap.Render(surface, map, cell_size, open_list_fwd + open_list_bwd, close_list_fwd.union(close_list_bwd), path_preview)
-            clock.tick(speed)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                    pygame.quit()
-                    exit()
+                if neighbour in close_f or neighbour in open_f:
+                    print("Yaa ketemu")
+                    meet_point = neighbour
+                    break
+
+            # --- Visualisasi ---
+            if show:
+                path_preview = [meet_point] if meet_point else []
+                Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path_preview)
+                clock.tick(speed)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                        pygame.quit()
+                        exit()
 
     endtime = time.time()
 
-    if meeting_point is None:
-        return (0, round(endtime - starttime, 6)), 0, 0
+    if meet_point is None:
+        return (0, round(endtime - start_time, 6)), 0, 0
 
     # --- Rekonstruksi Jalur ---
     path_fwd = []
-    node = meeting_point
-    while node in came_from_fwd:
+    node = meet_point
+    while node in came_from_f:
         path_fwd.append(node)
-        node = came_from_fwd[node]
+        node = came_from_f[node]
     path_fwd.append(start)
     path_fwd.reverse()
 
     path_bwd = []
-    node = meeting_point
-    while node in came_from_bwd:
-        node = came_from_bwd[node]
+    node = meet_point
+    while node in came_from_b:
+        node = came_from_b[node]
         path_bwd.append(node)
+        
     path = path_fwd + path_bwd
 
     if PPO:
         path = Prunning(path, map)
 
     if show:
-        Z_GetMap.Render(surface, map, cell_size, open_list_fwd + open_list_bwd, close_list_fwd.union(close_list_bwd), path)
+        Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path)
         clock.tick(speed)
 
         # Tunggu sampai tombol ditekan
@@ -317,4 +330,4 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                 pygame.quit()
                 exit()
 
-    return (path, round(endtime - starttime, 6)), open_list_fwd + open_list_bwd, close_list_fwd.union(close_list_bwd)
+    return (path, round(endtime - start_time, 6)), open_f + open_b, close_f.union(close_b)

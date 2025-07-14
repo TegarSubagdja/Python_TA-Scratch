@@ -15,4 +15,9 @@ def barrierRaster(awal, akhir, peta):
     tinggi = y2 - y1
     luas = lebar * tinggi if lebar * tinggi > 0 else 1
 
+    # Keperluan Debuging
+    # print(f"Area")
+    # print(area)
+    # print(f"Jumlah Rintangan : {jumlah}")
+
     return jumlah / luas

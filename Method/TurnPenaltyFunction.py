@@ -1,3 +1,5 @@
+from math import gcd #Sama dengan FPB (Faktor Persekutuan Terbesar).
+
 def TurnPenalty(prev, current, next_point, K=1):
     n1, n2 = prev
     g1, g2 = current
@@ -13,9 +15,10 @@ def TurnPenalty(prev, current, next_point, K=1):
     return penalty
 
 def normalize(dx, dy):
-    if dx != 0: dx = dx // abs(dx)
-    if dy != 0: dy = dy // abs(dy)
-    return (dx, dy)
+    if dx == 0 and dy == 0:
+        return (0, 0)
+    g = gcd(abs(dx), abs(dy))
+    return (dx // g, dy // g)
 
 def Turn(path):
     turns = []
@@ -29,7 +32,7 @@ def Turn(path):
         dir2 = normalize(x_next - x_curr, y_next - y_curr)
 
         if dir1 != dir2:
-            turns.append(path[i])  # titik tengah adalah titik belok
+            turns.append(path[i])
 
     return turns
 

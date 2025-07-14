@@ -1,7 +1,4 @@
-import pygame
-import numpy as np
-import json
-import os
+from Utils import *
 
 # Konfigurasi warna
 colors = {
@@ -15,6 +12,39 @@ colors = {
     7: "#778899",
     8: "#e8175d",
 }
+
+# Tampilkan grid ke layar
+def show(grid, window_size=512):
+    rows, cols = grid.shape
+    cell_w = window_size / cols
+    cell_h = window_size / rows
+    cell_size = min(cell_w, cell_h)
+
+    width = int(cell_size * cols)
+    height = int(cell_size * rows)
+
+    # Pastikan tidak ada sisa dummy mode sebelumnya
+    if "SDL_VIDEODRIVER" in os.environ:
+        del os.environ["SDL_VIDEODRIVER"]
+
+    pygame.init()
+    screen = pygame.display.set_mode((width, height))
+    pygame.display.set_caption("Grid Viewer")
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+
+        screen.fill(hex_to_rgb("#FFFFFF"))
+        draw_grid(grid, screen, cell_size)
+        pygame.display.flip()
+
+    pygame.quit()
 
 # Konversi HEX ke RGB
 def hex_to_rgb(hex_code):
@@ -38,10 +68,12 @@ def save_JSON(map, fixed_path="Map/JSON/ArrMap.json"):
         print(f"Gagal menyimpan grid: {e}")
 
 # Muat grid dari file JSON
-def load_grid(path="Map/JSON/Map.json"):
+def load_grid(path="Map/JSON/Map.json", s=True):
     with open(path, 'r') as f:
         data = json.load(f)
         return np.array(data)
+
+
 
 # Upscale grid ke ukuran target
 def upscale(grid, target_size):
@@ -133,39 +165,6 @@ def Render(surface, grid, cell_size, open_list=False, close_list=False, path=Non
                              (x * cell_size, y * cell_size, cell_size, cell_size))
 
     pygame.display.flip()
-
-# Tampilkan grid ke layar
-def show(grid, window_size=512):
-    rows, cols = grid.shape
-    cell_w = window_size / cols
-    cell_h = window_size / rows
-    cell_size = min(cell_w, cell_h)
-
-    width = int(cell_size * cols)
-    height = int(cell_size * rows)
-
-    # Pastikan tidak ada sisa dummy mode sebelumnya
-    if "SDL_VIDEODRIVER" in os.environ:
-        del os.environ["SDL_VIDEODRIVER"]
-
-    pygame.init()
-    screen = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Grid Viewer")
-
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-
-        screen.fill(hex_to_rgb("#FFFFFF"))
-        draw_grid(grid, screen, cell_size)
-        pygame.display.flip()
-
-    pygame.quit()
 
 # Simpan grid ke gambar tanpa tampil
 def save(grid, save_path="Map/Image/Map.jpg", image_size=4096):
