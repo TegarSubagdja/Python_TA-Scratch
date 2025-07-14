@@ -350,7 +350,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     start_time = time.time()
     meet_point = None
 
-    # ============ OPTIMIZED MAIN LOOP ============
     while open_f and open_b and not meet_point:
         
         # ============ Forward Expand ============
@@ -432,7 +431,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     meet_point = succ
                     break
 
-        # ============ Visual (optimized) ============
         if show:
             # Combine sets sekali saja
             combined_open = open_f + open_b
@@ -446,45 +444,45 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     pygame.quit()
                     exit()
 
-    end_time = time.time()
+    endTime = time.time()
+    
+    if meet_point is None:
+        return (0, round(endTime - start_time, 6)), 0, 0
 
     # ============ Path Reconstruction ============
-    if meet_point:
-        # Forward path
-        path_f = []
-        node = meet_point
-        while node in came_from_f:
-            path_f.append(node)
-            node = came_from_f[node]
-        path_f.append(start)
-        path_f.reverse()
+    # Forward path
+    path_f = []
+    node = meet_point
+    while node in came_from_f:
+        path_f.append(node)
+        node = came_from_f[node]
+    path_f.append(start)
+    path_f.reverse()
 
-        # Backward path
-        path_b = []
-        node = meet_point
-        while node in came_from_b:
-            node = came_from_b[node]
-            path_b.append(node)
+    # Backward path
+    path_b = []
+    node = meet_point
+    while node in came_from_b:
+        node = came_from_b[node]
+        path_b.append(node)
 
-        # Combine path tanpa duplikasi
-        full_path = path_f + path_b
+    # Combine path tanpa duplikasi
+    full_path = path_f + path_b
 
-        if PPO:
-            full_path = Prunning(full_path, matrix)
+    if PPO:
+        full_path = Prunning(full_path, matrix)
 
-        if show:
-            Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, full_path)
-            clock.tick(speed)
-            time.sleep(2)
+    if show:
+        Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, full_path)
+        clock.tick(speed)
+        time.sleep(2)
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                    pygame.quit()
-                    exit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                pygame.quit()
+                exit()
 
-        return (full_path, round(end_time - start_time, 6)), (open_f + open_b), (close_f | close_b)
-
-    return 0, round(end_time - start_time, 6)
+    return (full_path, round(endTime - start_time, 6)), (open_f + open_b), (close_f | close_b)
 
 def lenght(current, jumppoint, hchoice):
     moveX, moveY = direction(current[0], current[1], jumppoint[0], jumppoint[1])

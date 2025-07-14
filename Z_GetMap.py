@@ -14,7 +14,7 @@ colors = {
 }
 
 # Tampilkan grid ke layar
-def show(grid, window_size=512):
+def show(grid, window_size=512, name=None):
     rows, cols = grid.shape
     cell_w = window_size / cols
     cell_h = window_size / rows
@@ -43,6 +43,9 @@ def show(grid, window_size=512):
         screen.fill(hex_to_rgb("#FFFFFF"))
         draw_grid(grid, screen, cell_size)
         pygame.display.flip()
+
+    if name:
+        pygame.image.save(screen, f'Map/Image/{name}.jpg')
 
     pygame.quit()
 
@@ -80,12 +83,20 @@ def upscale(grid, target_size):
     rows, cols = grid.shape
     if rows != cols:
         raise ValueError("Grid harus persegi (NxN)")
-    if target_size % rows != 0:
-        raise ValueError(f"Target size {target_size} harus kelipatan {rows}")
+    if target_size % rows != 0 and rows % target_size != 0:
+        raise ValueError(f"Target size {target_size} harus kelipatan dari {rows} atau sebaliknya")
 
-    scale = target_size // rows
-    new_grid = np.repeat(np.repeat(grid, scale, axis=0), scale, axis=1)
+    if target_size > rows:
+        # Upscaling
+        scale = target_size // rows
+        new_grid = np.repeat(np.repeat(grid, scale, axis=0), scale, axis=1)
+    else:
+        # Downscaling
+        scale = rows // target_size
+        new_grid = grid.reshape(target_size, scale, target_size, scale).mean(axis=(1,3)).astype(grid.dtype)
+
     return new_grid
+
 
 # Gambar grid ke permukaan
 def draw_grid(grid, surface, cell_size):

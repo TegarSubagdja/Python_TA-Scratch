@@ -230,7 +230,8 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     else:
                         f_f[neighbour] = tentative_gn + heuristic(neighbour, goal, hchoice) + v1 + v3
                     heapq.heappush(open_f, (f_f[neighbour], neighbour))
-
+                    
+                # Meeting point check
                 if neighbour in close_b or neighbour in open_b:
                     meet_point = neighbour
                     break
@@ -272,7 +273,6 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     heapq.heappush(open_b, (f_b[neighbour], neighbour))
 
                 if neighbour in close_f or neighbour in open_f:
-                    print("Yaa ketemu")
                     meet_point = neighbour
                     break
 

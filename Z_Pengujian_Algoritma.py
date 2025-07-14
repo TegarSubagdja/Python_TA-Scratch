@@ -12,6 +12,8 @@ if __name__ == "__main__":
 
     map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
     # Z_GetMap.show(map)
+    map = Z_GetMap.upscale(map, 16)
+    Z_GetMap.show(map, name=nameMap)
     print(map.shape)
     print(map.shape)
 
@@ -32,8 +34,8 @@ if __name__ == "__main__":
                     GLF=False,
                     BDS=True,
                     PPO=False,
-                    JPS=False,
-                    show=True, speed=5
+                    JPS=True,
+                    show=True, speed=1
                 )
     print(f"path : {path}")
     print(f"Panjang Path : {len(path)}")
@@ -50,6 +52,7 @@ if __name__ == "__main__":
 
     kombinasi_flags = list(itertools.product([False, True], repeat=6))
     print(f"Total kombinasi: {len(kombinasi_flags)}\n")
+    print(kombinasi_flags)
 
     # Kumpulan hasil per sheet
     rows_comb = []

@@ -86,7 +86,7 @@ def GetOrientation(image, gId=None, sId=None, show_result=True, save_path=None, 
         cv2.destroyAllWindows()
 
     return (
-        (start, goal),                 # 0
+        (start, goal),             # 0
         corners,                   # 1
         orientasi_robot,           # 2
         mark_size,                 # 3
