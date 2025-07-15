@@ -38,7 +38,7 @@ while running:
         g = tuple(goal[0].tolist())
 
         (path, times), *_ = JPS_Optimize.method(map, s, g, 2)
-        print(path)
+        print(f"ya")
 
     elif (
         start and goal
