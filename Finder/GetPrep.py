@@ -24,13 +24,9 @@ def Prep(img, start, goal, markSize):
     clean = cv2.erode(binary, kernel, iterations=1)
 
     # Step 4: Distance Transform → buffer ke luar
-    start_time = time.time()
     dist = cv2.distanceTransform(255 - clean, cv2.DIST_L2, 5)
-
     buffer_radius = int(markSize)  # pixel radius robot (½ diameter)
     buffered_obstacle = np.uint8(dist < buffer_radius) * 255
-    end_time = time.time()
-    print("Buffering time (distanceTransform):", end_time - start_time)
 
     # Step 5: Overlay visualisasi (buffer merah)
     if len(img.shape) == 2:
@@ -39,7 +35,7 @@ def Prep(img, start, goal, markSize):
         img_bgr = img.copy()
 
     overlay = img_bgr.copy()
-    overlay[buffered_obstacle == 255] = [0, 0, 255]  # merah di area buffer
+    overlay[buffered_obstacle == 255] = [0, 0, 255]
     visual = cv2.addWeighted(img_bgr, 1, overlay, 0.5, 0)
 
     # Simpan hasil

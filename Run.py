@@ -21,33 +21,29 @@ while running:
     # Cari posisi robot
     start, goal, marksize = Pos(img)
 
-    if (
-        not path and
-        start and
-        goal
-        ):
+    if (not path and start and goal):
 
         # Cari error ke posisi goal
         errDist, errDegree = Error(img.copy(), start, goal)
-        print("Tanpa Path")
 
         if errDist < (5 * marksize):
-            time.sleep(2)
-            continue
+            cv2.imshow("Frame", img)
+            if cv2.waitKey(1) & 0xFF == 27:
+                running = False
+                continue
 
         map = Prep(img.copy(), start, goal, markSize=marksize)
 
         s = start[0]
         g = goal[0]
 
-        (path, times), *_ = JPS_Optimize.method(map, s, g, 2)
+        (path, times), *_ = JPS_Optimize.methodBds(map, s, g, 2, BRC=True, PPO=False)
 
         if path:
             path.pop(0)
 
-    elif (
-        start and goal
-    ): 
+    elif (start and goal): 
+
         # Cari error ke posisi goal
         target = tuple(path[0])
 
