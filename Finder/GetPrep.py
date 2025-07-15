@@ -18,7 +18,6 @@ def Prep(img, start, goal, markSize):
 
     # Step 2: Threshold -> biner (rintangan = putih = 255)
     _, binary = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY_INV)
-    cv2.imwrite('Map_biner.jpg', binary)
 
     # Step 3: Erosi ringan untuk bersihkan noise
     kernel = np.ones((16, 16), np.uint8)

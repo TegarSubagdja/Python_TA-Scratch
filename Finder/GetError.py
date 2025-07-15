@@ -18,7 +18,6 @@ def Error(img, start, goal):
 
         # Gambar panah orientasi marker (hijau)
         cv2.arrowedLine(img, start[1][1], start[1][0], (255, 255, 255), 1, tipLength=0.1)
-        cv2.imwrite('Map_arrow.jpg', img)
         
         # Kemiringan robot saat ini
         start_pts = start[1]
