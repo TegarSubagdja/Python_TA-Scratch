@@ -12,16 +12,16 @@ def Error(img, start, goal):
         distance = euclidean(start[0], goal[0])
         
         # Menghitung error arah robot
-        start_pts = start[1]
-        dx = start[0][0] - goal[0][0]
-        dy = start[0][1] - goal[0][1]
-        arah_ke_goal = np.arctan2(dy, dx)
+        x1, y1 = start[0] if isinstance(start[0], (list, tuple)) else start
+        x2, y2 = goal[0] if isinstance(goal[0], (list, tuple)) else goal
+        arah_ke_goal = np.arctan2(y1 - y2, x1 - x2)
 
         # Gambar panah orientasi marker (hijau)
         cv2.arrowedLine(img, start[1][1], start[1][0], (255, 255, 255), 1, tipLength=0.1)
         cv2.imwrite('Map_arrow.jpg', img)
         
         # Kemiringan robot saat ini
+        start_pts = start[1]
         vector = np.array(start_pts[1]) - np.array(start_pts[0])
         orientasi_robot = np.arctan2(vector[1], vector[0])
         error_orientasi = normalize_angle(arah_ke_goal - orientasi_robot)

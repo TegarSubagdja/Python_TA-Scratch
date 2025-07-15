@@ -5,21 +5,19 @@ import time
 
 def Prep(img, start, goal, markSize):
 
-    frame = img.copy()
-
     # Step 0: Grayscale jika RGB
-    if len(frame.shape) == 3:
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    if len(img.shape) == 3:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Step 1: Hapus marker robot (dengan lingkaran putih)
     if start is not None and goal is not None:
         pts1 = goal[0]
         pts2 = start[0]
-        cv2.circle(frame, pts1, int(markSize), 255, -1)
-        cv2.circle(frame, pts2, int(markSize), 255, -1)
+        cv2.circle(img, pts1, int(markSize), 255, -1)
+        cv2.circle(img, pts2, int(markSize), 255, -1)
 
     # Step 2: Threshold -> biner (rintangan = putih = 255)
-    _, binary = cv2.threshold(frame, 100, 255, cv2.THRESH_BINARY_INV)
+    _, binary = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY_INV)
     cv2.imwrite('Map_biner.jpg', binary)
 
     # Step 3: Erosi ringan untuk bersihkan noise
@@ -36,10 +34,10 @@ def Prep(img, start, goal, markSize):
     print("Buffering time (distanceTransform):", end_time - start_time)
 
     # Step 5: Overlay visualisasi (buffer merah)
-    if len(frame.shape) == 2:
-        img_bgr = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+    if len(img.shape) == 2:
+        img_bgr = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     else:
-        img_bgr = frame.copy()
+        img_bgr = img.copy()
 
     overlay = img_bgr.copy()
     overlay[buffered_obstacle == 255] = [0, 0, 255]  # merah di area buffer

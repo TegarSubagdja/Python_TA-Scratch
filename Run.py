@@ -27,15 +27,15 @@ while running:
         goal
         ):
         # Cari error ke posisi goal
-        errDist, errDegree = Error(start, goal)
+        errDist, errDegree = Error(img.copy(), start, goal)
 
-        if errDist < (2 * marksize):
+        if errDist < (5 * marksize):
             break
 
-        map = Prep(img, start, goal)
+        map = Prep(img.copy(), start, goal, markSize=marksize)
 
-        s = tuple(start[0].tolist())
-        g = tuple(goal[0].tolist())
+        s = start[0]
+        g = goal[0]
 
         (path, times), *_ = JPS_Optimize.method(map, s, g, 2)
         print(f"ya")
@@ -53,16 +53,15 @@ while running:
             p2 = path[i+1]
             cv2.line(img, p1, p2, 255, 2)
 
-        errDist, errDegree = Error(start, p)
+        errDist, errDegree = Error(img.copy(), start, p)
 
-        print(f"Posisi path ke-0 : {p}")
-        print(f"Posisi start : {start}")
+        # print(f"Posisi path ke-0 : {p}")
 
         if errDist < (2 * marksize):
             print(f"len path : {len(path)}")
             path.pop(0)
 
-        print(f"errDist ke path-0 : {errDist}")
+        print(errDist)
 
     # Tampilkan frame
     cv2.imshow("Frame", img)
