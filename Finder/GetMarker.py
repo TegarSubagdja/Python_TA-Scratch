@@ -14,10 +14,6 @@ def Pos(img):
     goal = None
 
     if ids is not None:
-        # Menghitung Lebar Marker
-        pts = corners[0][0] 
-        mark_size = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
-
         # Mencari Corner
         ids = ids.flatten()
         for i, marker_id in enumerate(ids):
@@ -29,6 +25,7 @@ def Pos(img):
                 pts = corners[i][0]
                 center = np.mean(pts, axis=0).astype(int)
                 goal = (center, pts)
+                mark_size = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
 
         aruco.drawDetectedMarkers(img, corners)
 
