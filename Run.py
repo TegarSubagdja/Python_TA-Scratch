@@ -59,8 +59,8 @@ while running:
             cv2.line(img, p1, p2, 255, 2)
 
             # Tambahkan teks koordinat path di titik p1
-            cv2.putText(img, str(p1), (p1[0] - 80, p1[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1, cv2.LINE_AA)
-            cv2.circle(img, p1, 3, 255, -1)
+            cv2.putText(img, str(p1), (p1[0] + 10, p1[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1, cv2.LINE_AA)
+            cv2.circle(img, p1, 8, 255, -1)
 
         # Tampilkan semua koordinat path di bagian bawah layar
         path_str = "Path: " + str(list(path))

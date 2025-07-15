@@ -17,7 +17,7 @@ def Error(img, start, goal):
         arah_ke_goal = np.arctan2(y1 - y2, x1 - x2)
 
         # Gambar panah orientasi marker
-        cv2.arrowedLine(img, start[1][1], start[1][0], (255, 255, 255), 2, tipLength=0.1)
+        cv2.arrowedLine(img, start[1][1], start[1][0], (255, 255, 255), 2, tipLength=0.2)
 
         # Gambar panah orientasi marker ke goal
         cv2.line(img, (x1, y1), (x2, y2), (128), 2)

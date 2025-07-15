@@ -43,7 +43,6 @@ def Prep(img, start, goal, markSize):
     visual = cv2.addWeighted(img_bgr, 1, overlay, 0.5, 0)
 
     # Simpan hasil
-    cv2.imwrite('Map_GetPath.jpg', buffered_obstacle)
     cv2.imwrite('Map_With_Buffer_Overlay.jpg', visual)
 
     # Kembalikan matrix peta
