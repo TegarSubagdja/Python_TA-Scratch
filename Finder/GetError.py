@@ -8,13 +8,13 @@ def normalize_angle(angle):
 
 def Error(img, start, goal):
 
-        # Menghitung jarak start ke goal
-        distance = euclidean(start[0], goal[0])
-        
         # Menghitung error arah robot
         x1, y1 = start[0] if isinstance(start[0], (list, tuple)) else start
         x2, y2 = goal[0] if isinstance(goal[0], (list, tuple)) else goal
         arah_ke_goal = np.arctan2(y1 - y2, x1 - x2)
+
+        # Menghitung jarak start ke goal
+        distance = euclidean((x1, y1), (x2, y2))
 
         # Gambar panah orientasi marker
         cv2.arrowedLine(img, start[1][1], start[1][0], (255, 255, 255), 2, tipLength=0.2)

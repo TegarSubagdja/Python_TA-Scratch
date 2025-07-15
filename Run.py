@@ -26,11 +26,14 @@ while running:
         start and
         goal
         ):
+
         # Cari error ke posisi goal
         errDist, errDegree = Error(img.copy(), start, goal)
+        print("Tanpa Path")
 
         if errDist < (5 * marksize):
-            break
+            time.sleep(2)
+            continue
 
         map = Prep(img.copy(), start, goal, markSize=marksize)
 
@@ -38,15 +41,17 @@ while running:
         g = goal[0]
 
         (path, times), *_ = JPS_Optimize.method(map, s, g, 2)
-        path.pop(0)
+
+        if path:
+            path.pop(0)
 
     elif (
         start and goal
     ): 
         # Cari error ke posisi goal
-        p = tuple(path[0])
+        target = tuple(path[0])
 
-        errDist, errDegree = Error(img, start, p)
+        errDist, errDegree = Error(img, start, target)
 
         # Menampilkan errDegree di pojok kiri atas
         cv2.putText(img, f"Error Degree: {marksize:.2f}°", (100, 100),
@@ -60,8 +65,8 @@ while running:
 
             # Tambahkan teks koordinat path di titik p1
             cv2.circle(img, p1, 4, 255, -1)
-            cv2.circle(img, p2, 4, 255, -1)
             cv2.putText(img, str(p1), (p1[0] + 10, p1[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1, cv2.LINE_AA)
+            cv2.putText(img, f"Robot", (start[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1, cv2.LINE_AA)
 
         # Tampilkan semua koordinat path di bagian bawah layar
         path_str = "Path: " + str(list(path))
@@ -69,7 +74,7 @@ while running:
                     cv2.FONT_HERSHEY_PLAIN, 1, 200, 1, cv2.LINE_AA)
 
         # Jika jarak robot ke tujuan sudah dekat, keluarkan titik tujuan
-        if errDist < (2 * marksize):
+        if errDist < ( 3/2 * marksize):
             path.pop(0)
 
     # Tampilkan frame
