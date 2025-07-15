@@ -119,7 +119,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                 continue
         
             # Single-line conditional calculations
-            v1 = TP(came_from.get(current, current), current, neighbour, 2) if TPF else 0
+            v1 = TP(came_from.get(current, current), current, neighbour, 0.14) if TPF else 0
             v2 = BR(neighbour, goal, map) or 1 if BRC else 1
             v3 = GL(start, goal, neighbour) if GLF else 0
 
@@ -138,7 +138,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                         neighbour, 
                         goal, 
                         hchoice
-                    ) + v1 + v3
+                    ) + v1 + v3 # Pengkalian 2 harus dihilangkan
 
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
                     # Visualisasi setiap langkah
@@ -189,7 +189,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
     heapq.heappush(open_f, (f_f[start], start))
     heapq.heappush(open_b, (f_b[goal], goal))
 
-    start_time = time.time()
+    startTime = time.time()
     meet_point = None
 
     while open_f and open_b and not meet_point:
@@ -217,18 +217,20 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                 if neighbour in close_f:
                     continue
 
-                v1 = TP(came_from_f.get(current_f, current_f), current_f, neighbour, 2) if TPF else 0
+                v1 = TP(came_from_f.get(current_f, current_f), current_f, neighbour, 0.14) if TPF else 0
                 v2 = BR(neighbour, goal, map) or 1 if BRC else 1
                 v3 = GL(start, goal, neighbour) if GLF else 0
 
                 if tentative_gn < g_f.get(neighbour, float('inf')):
                     came_from_f[neighbour] = current_f
                     g_f[neighbour] = tentative_gn
+
+                    h_to_current_b = heuristic(neighbour, current_b, 2)
                     
                     if BRC:
-                        f_f[neighbour] = tentative_gn + (heuristic(neighbour, goal, hchoice) * (1 - math.log(v2))) + v1 + v3
+                        f_f[neighbour] = tentative_gn + (heuristic(neighbour, goal, hchoice) * (1 - math.log(v2))) + v1 + v3 + h_to_current_b
                     else:
-                        f_f[neighbour] = tentative_gn + heuristic(neighbour, goal, hchoice) + v1 + v3
+                        f_f[neighbour] = tentative_gn + heuristic(neighbour, goal, hchoice) + v1 + v3 + h_to_current_b
                     heapq.heappush(open_f, (f_f[neighbour], neighbour))
                     
                 # Meeting point check
@@ -255,7 +257,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                 else:
                     cost = math.sqrt(2) if dX != 0 and dY != 0 else 1
 
-                v1 = TP(came_from_b.get(current_b, current_b), current_b, neighbour, 2) if TPF else 0
+                v1 = TP(came_from_b.get(current_b, current_b), current_b, neighbour, 0.14) if TPF else 0
                 v2 = BR(neighbour, start, map) or 1 if BRC else 1
                 v3 = GL(goal, start, neighbour) if GLF else 0
 
@@ -266,10 +268,13 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                 if tentative_gn < g_b.get(neighbour, float('inf')):
                     came_from_b[neighbour] = current_b
                     g_b[neighbour] = tentative_gn
+
+                    h_to_current_f = heuristic(neighbour, current_f, 2)
+
                     if BRC:
-                        f_b[neighbour] = tentative_gn + (heuristic(neighbour, start, hchoice) * (1 - math.log(v2))) + v1 + v3
+                        f_b[neighbour] = tentative_gn + (heuristic(neighbour, start, hchoice) * (1 - math.log(v2))) + v1 + v3 + h_to_current_f
                     else:
-                        f_b[neighbour] = tentative_gn + heuristic(neighbour, start, hchoice) + v1 + v3
+                        f_b[neighbour] = tentative_gn + heuristic(neighbour, start, hchoice) + v1 + v3 + h_to_current_f
                     heapq.heappush(open_b, (f_b[neighbour], neighbour))
 
                 if neighbour in close_f or neighbour in open_f:
@@ -286,10 +291,8 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                         pygame.quit()
                         exit()
 
-    endtime = time.time()
-
     if meet_point is None:
-        return (0, round(endtime - start_time, 6)), 0, 0
+        return (0, 0), 0, 0
 
     # --- Rekonstruksi Jalur ---
     path_fwd = []
@@ -307,6 +310,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
         path_bwd.append(node)
         
     path = path_fwd + path_bwd
+    endTime = time.time()
 
     if PPO:
         path = Prunning(path, map)
@@ -330,4 +334,4 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                 pygame.quit()
                 exit()
 
-    return (path, round(endtime - start_time, 6)), open_f + open_b, close_f.union(close_b)
+    return (path, round(endTime - startTime, 6)), open_f + open_b, close_f.union(close_b)

@@ -11,10 +11,12 @@ colors = {
     6: "#FFA500",
     7: "#778899",
     8: "#e8175d",
+    9: "#bb17e8",
+    10: "#590a6f",
 }
 
 # Tampilkan grid ke layar
-def show(grid, window_size=512, name=None):
+def show(grid, window_size=512, name=None, path=None, openlist=None, closelist=None):
     rows, cols = grid.shape
     cell_w = window_size / cols
     cell_h = window_size / rows
@@ -23,7 +25,6 @@ def show(grid, window_size=512, name=None):
     width = int(cell_size * cols)
     height = int(cell_size * rows)
 
-    # Pastikan tidak ada sisa dummy mode sebelumnya
     if "SDL_VIDEODRIVER" in os.environ:
         del os.environ["SDL_VIDEODRIVER"]
 
@@ -31,21 +32,57 @@ def show(grid, window_size=512, name=None):
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Grid Viewer")
 
+    def draw_path(path, surface, color=(255, 64, 255), thickness=6):
+        if len(path) < 2:
+            return
+        for i in range(len(path) - 1):
+            x1, y1 = path[i][::-1]
+            x2, y2 = path[i + 1][::-1]
+            start_pos = (x1 * cell_size + cell_size / 2, y1 * cell_size + cell_size / 2)
+            end_pos = (x2 * cell_size + cell_size / 2, y2 * cell_size + cell_size / 2)
+            pygame.draw.line(surface, hex_to_rgb(colors[9]), start_pos, end_pos, thickness)
+
+        for pt in path:
+            x, y = pt[::-1]  # dibalik jika path berupa (row, col)
+            center = (int(x * cell_size + cell_size / 2), int(y * cell_size + cell_size / 2))
+            pygame.draw.circle(surface, colors[10], center, int(cell_size // 4))
+
     running = True
     while running:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
 
         screen.fill(hex_to_rgb("#FFFFFF"))
         draw_grid(grid, screen, cell_size)
-        pygame.display.flip()
+        if path:
+            draw_path(path, screen)
 
-    if name:
-        pygame.image.save(screen, f'Map/Image/{name}.jpg')
+        if name:
+            # Simpan gambar (termasuk path jika ada)
+            screen.fill(hex_to_rgb("#FFFFFF"))
+            draw_grid(grid, screen, cell_size)
+
+            # Open List
+            if openlist:
+                for item in openlist:
+                    node = item[1] if isinstance(item, tuple) and len(item) > 1 else item
+                    y, x = node
+                    pygame.draw.rect(screen, hex_to_rgb(colors[5]),
+                                    (x * cell_size, y * cell_size, cell_size, cell_size))
+
+            # Closed List
+            if closelist:
+                for node in closelist:
+                    y, x = node
+                    pygame.draw.rect(screen, hex_to_rgb(colors[6]),
+                                    (x * cell_size, y * cell_size, cell_size, cell_size))
+
+            if path:
+                draw_path(path, screen)
+
+            pygame.image.save(screen, f'Map/Image/{name}.jpg')
+            pygame.display.flip()
 
     pygame.quit()
 
@@ -76,8 +113,6 @@ def load_grid(path="Map/JSON/Map.json", s=True):
         data = json.load(f)
         return np.array(data)
 
-
-
 # Upscale grid ke ukuran target
 def upscale(grid, target_size):
     rows, cols = grid.shape
@@ -96,7 +131,6 @@ def upscale(grid, target_size):
         new_grid = grid.reshape(target_size, scale, target_size, scale).mean(axis=(1,3)).astype(grid.dtype)
 
     return new_grid
-
 
 # Gambar grid ke permukaan
 def draw_grid(grid, surface, cell_size):

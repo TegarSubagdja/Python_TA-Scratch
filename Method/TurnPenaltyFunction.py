@@ -1,9 +1,13 @@
 from math import gcd #Sama dengan FPB (Faktor Persekutuan Terbesar).
 
 def TurnPenalty(prev, current, next_point, K=1):
-    n1, n2 = prev
-    g1, g2 = current
-    s1, s2 = next_point
+
+    if prev == (0, 0) or current == (0, 0) or next_point == (0, 0):
+        return 0
+    
+    n1, n2 = current
+    g1, g2 = next_point
+    s1, s2 = prev
 
     dx1 = abs(g1 - n1)
     dy1 = abs(g2 - n2)
@@ -35,5 +39,14 @@ def Turn(path):
             turns.append(path[i])
 
     return turns
+
+if __name__ == "__main__":
+    prev = (2,4)
+    current = (3,4)
+    neighbor = (4,3)
+
+    turn = TurnPenalty(prev, current, neighbor)
+    print(turn)
+
 
 

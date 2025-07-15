@@ -78,7 +78,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
             if neighbour in close_list_fwd:
                 continue
 
-            v1 = TP(came_from_fwd.get(current_fwd, current_fwd), current_fwd, neighbour, 2) if TPF else 0
+            v1 = TP(came_from_fwd.get(current_fwd, current_fwd), current_fwd, neighbour, 0.14) if TPF else 0
             v2 = BR(neighbour, goal, map) or 1 if BRC else 1
             v3 = GL(start, goal, neighbour) if GLF else 0
 
@@ -115,7 +115,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
             if neighbour in close_list_bwd:
                 continue
 
-            v1 = TP(came_from_bwd.get(current_bwd, current_bwd), current_bwd, neighbour, 2) if TPF else 0
+            v1 = TP(came_from_bwd.get(current_bwd, current_bwd), current_bwd, neighbour, 0.14) if TPF else 0
             v2 = BR(neighbour, start, map) or 1 if BRC else 1
             v3 = GL(goal, start, neighbour) if GLF else 0
 

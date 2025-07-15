@@ -184,7 +184,6 @@ def process_cell(row, col):
     elif active_mode == 9:  # Mode pink
         map_grid[row, col] = 8
     # Mode 2 (start) dan 3 (goal) ditangani khusus di event klik
-
 # Program utama
 running = True
 drawing_line = False  # Apakah sedang menggambar garis

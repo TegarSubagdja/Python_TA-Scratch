@@ -273,7 +273,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
             ):  # and tentative_gn >= gn.get(jumpPoint,0):
                 continue
 
-            v1 = TP(came_from.get(jumpPoint, jumpPoint), current, jumpPoint, 2) if TPF else 0
+            v1 = TP(came_from.get(jumpPoint, jumpPoint), current, jumpPoint, 0.14) if TPF else 0
             v2 = BR(jumpPoint, goal, matrix) or 1 if BRC else 1
             v3 = GL(start, goal, jumpPoint) if GLF else 0
 
@@ -347,7 +347,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     heapq.heappush(open_f, (f_f[start], start))
     heapq.heappush(open_b, (f_b[goal], goal))
 
-    start_time = time.time()
+    startTime = time.time()
     meet_point = None
 
     while open_f and open_b and not meet_point:
@@ -364,7 +364,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     continue
 
                 # Single-line conditional calculations
-                v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, 2) if TPF else 0
+                v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, 0.14) if TPF else 0
                 v2 = BR(succ, goal, matrix) or 1 if BRC else 1
                 v3 = GL(start, goal, succ) if GLF else 0
 
@@ -387,7 +387,8 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     heapq.heappush(open_f, (f_f[succ], succ))
 
                 # Meeting point check
-                if succ in close_b or succ in open_b:
+                open_positions = {pos for _, pos in open_b}
+                if succ in close_f or succ in open_positions:
                     meet_point = succ
                     break
 
@@ -403,7 +404,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     continue
 
                 # Single-line conditional calculations
-                v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, 2) if TPF else 0
+                v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, 0.14) if TPF else 0
                 v2 = BR(succ, start, matrix) or 1 if BRC else 1
                 v3 = GL(goal, start, succ) if GLF else 0
 
@@ -427,7 +428,8 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     heapq.heappush(open_b, (f_b[succ], succ))
 
                 # Meeting point check
-                if succ in close_f or succ in open_f:
+                open_positions = {pos for _, pos in open_f}
+                if succ in close_f or succ in open_positions:
                     meet_point = succ
                     break
 
@@ -443,11 +445,9 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
                     exit()
-
-    endTime = time.time()
     
     if meet_point is None:
-        return (0, round(endTime - start_time, 6)), 0, 0
+        return (0, 0), 0, 0
 
     # ============ Path Reconstruction ============
     # Forward path
@@ -468,6 +468,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
     # Combine path tanpa duplikasi
     full_path = path_f + path_b
+    endTime = time.time()
 
     if PPO:
         full_path = Prunning(full_path, matrix)
@@ -482,7 +483,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                 pygame.quit()
                 exit()
 
-    return (full_path, round(endTime - start_time, 6)), (open_f + open_b), (close_f | close_b)
+    return (full_path, round(endTime - startTime, 6)), (open_f + open_b), (close_f | close_b)
 
 def lenght(current, jumppoint, hchoice):
     moveX, moveY = direction(current[0], current[1], jumppoint[0], jumppoint[1])
