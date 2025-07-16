@@ -1,45 +1,45 @@
 from Utils import *
-import cv2
-import numpy as np
-import time
 
 def Prep(img, start, goal, markSize):
-
-    # Step 0: Grayscale jika RGB
+    # Step 1: Grayscale
     if len(img.shape) == 3:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Step 1: Hapus marker robot (dengan lingkaran putih)
-    if start is not None and goal is not None:
-        pts1 = goal[0]
-        pts2 = start[0]
-        cv2.circle(img, pts1, int(markSize), 255, -1)
-        cv2.circle(img, pts2, int(markSize), 255, -1)
+    # Step 2: Thresholding
+    _, binary = cv2.threshold(img, 52, 255, cv2.THRESH_BINARY_INV)
 
-    # Step 2: Threshold -> biner (rintangan = putih = 255)
-    _, binary = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY_INV)
-
-    # Step 3: Erosi ringan untuk bersihkan noise
-    kernel = np.ones((16, 16), np.uint8)
-    clean = cv2.erode(binary, kernel, iterations=1)
-
-    # Step 4: Distance Transform → buffer ke luar
-    dist = cv2.distanceTransform(255 - clean, cv2.DIST_L2, 5)
-    buffer_radius = int(markSize)  # pixel radius robot (½ diameter)
+    # Step 3: Distance Transform
+    dist = cv2.distanceTransform(255 - binary, cv2.DIST_L2, 5)
+    buffer_radius = int(markSize)
     buffered_obstacle = np.uint8(dist < buffer_radius) * 255
 
-    # Step 5: Overlay visualisasi (buffer merah)
-    if len(img.shape) == 2:
-        img_bgr = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    # Step 4: Tambahkan buffer ke binary → hasil baru
+    binary_with_buffer = cv2.bitwise_or(binary, buffered_obstacle)
+
+    # Step 5: Timpa robot dengan warna hitam
+    if start is not None and goal is not None:
+        cv2.circle(binary_with_buffer, goal[0], int(2*markSize), 0, -1)
+        cv2.circle(binary_with_buffer, start[0], int(2*markSize), 0, -1)
+
+    _, resize = cv2.threshold(binary_with_buffer, 52, 255, cv2.THRESH_BINARY)
+
+    resize = cv2.resize(binary_with_buffer, (0,0), fx=0.2, fy=0.2)
+
+    return resize 
+
+def PrepCoord(start, goal, path=None):
+    if path is None:
+        # Hanya ubah start dan goal (misal kalikan 5)
+        x, y = start[0]
+        pStart = (y // 5, x // 5)
+        x, y = goal[0]
+        pGoal = (y // 5, x // 5)
+        return pStart, pGoal
     else:
-        img_bgr = img.copy()
-
-    overlay = img_bgr.copy()
-    overlay[buffered_obstacle == 255] = [0, 0, 255]
-    visual = cv2.addWeighted(img_bgr, 1, overlay, 0.5, 0)
-
-    # Simpan hasil
-    cv2.imwrite('Map_With_Buffer_Overlay.jpg', visual)
-
-    # Kembalikan matrix peta
-    return buffered_obstacle
+        # Ubah start, goal, dan path (misal dibagi 5)
+        x, y = start
+        pStart = (y * 5, x * 5)
+        x, y = goal
+        pGoal = (y * 5, x * 5)
+        newPath = [(y * 5, x * 5) for (x, y) in path]
+        return pStart, pGoal, newPath

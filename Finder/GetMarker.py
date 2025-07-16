@@ -17,11 +17,11 @@ def Pos(img):
         # Mencari Corner
         ids = ids.flatten()
         for i, marker_id in enumerate(ids):
-            if marker_id == 3:
+            if marker_id == 3 or marker_id == 1:
                 pts = corners[i][0]
                 center = np.mean(pts, axis=0).astype(int)
                 start = (center, pts)
-            elif marker_id == 9:
+            elif marker_id == 9 or marker_id == 7:
                 pts = corners[i][0]
                 center = np.mean(pts, axis=0).astype(int)
                 goal = (center, pts)

@@ -314,6 +314,9 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                             pygame.quit()
                             exit()
 
+        # pygame.image.save(surface, "Loop Pertama JPS.jpg")
+        # sys.exit()
+
     endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0
 

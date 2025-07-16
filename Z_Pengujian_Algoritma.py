@@ -138,9 +138,9 @@ if __name__ == "__main__":
 
     # sys.exit()
 
-    for i in range(5):
+    # for i in range(5):
 
-        mapChoice = 2
+        mapChoice = 1
 
         if mapChoice < 1:
             nameMap = "Map"
@@ -149,7 +149,7 @@ if __name__ == "__main__":
 
         # Load dan persiapan peta
         map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
-        map = Z_GetMap.upscale(map, 512)
+        map = Z_GetMap.upscale(map, 32)
         matrix = map.copy()
 
         start = (0, 0)

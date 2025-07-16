@@ -86,4 +86,4 @@ def detect_aruco_from_image(image_path, aruco_dict_type=aruco.DICT_4X4_50):
 
 if __name__ == "__main__":
     # detect_aruco_realtime()
-    detect_aruco_from_image("Image/4.jpg")  # Ganti dengan path gambar kamu
+    detect_aruco_from_image("Image/1.jpg")  # Ganti dengan path gambar kamu
