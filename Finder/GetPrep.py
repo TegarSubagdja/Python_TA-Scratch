@@ -1,12 +1,12 @@
 from Utils import *
 
-def Prep(img, start, goal, markSize):
+def Prep(img, start, goal, markSize, scale=5):
     # Step 1: Grayscale
     if len(img.shape) == 3:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Step 2: Thresholding
-    _, binary = cv2.threshold(img, 52, 255, cv2.THRESH_BINARY_INV)
+    _, binary = cv2.threshold(img, 60, 255, cv2.THRESH_BINARY_INV)
 
     # Step 3: Distance Transform
     dist = cv2.distanceTransform(255 - binary, cv2.DIST_L2, 5)
@@ -23,23 +23,24 @@ def Prep(img, start, goal, markSize):
 
     _, resize = cv2.threshold(binary_with_buffer, 52, 255, cv2.THRESH_BINARY)
 
-    resize = cv2.resize(binary_with_buffer, (0,0), fx=0.2, fy=0.2)
+    resize = cv2.resize(binary_with_buffer, (0,0), fx=0.5, fy=0.5)
 
-    return resize 
+    return resize
 
-def PrepCoord(start, goal, path=None):
+def PrepCoord(start, goal, path=None, scale=2):
+
     if path is None:
-        # Hanya ubah start dan goal (misal kalikan 5)
+        # Hanya ubah start dan goal (misal kalikan scale)
         x, y = start[0]
-        pStart = (y // 5, x // 5)
+        pStart = (y // scale, x // scale)
         x, y = goal[0]
-        pGoal = (y // 5, x // 5)
+        pGoal = (y // scale, x // scale)
         return pStart, pGoal
     else:
-        # Ubah start, goal, dan path (misal dibagi 5)
-        x, y = start
-        pStart = (y * 5, x * 5)
-        x, y = goal
-        pGoal = (y * 5, x * 5)
-        newPath = [(y * 5, x * 5) for (x, y) in path]
+        # Ubah start, goal, dan path (misal dibagi scale)
+        x, y = path[0]
+        pStart = (y * scale, x * scale)
+        x, y = path[-1]
+        pGoal = (y * scale, x * scale)
+        newPath = [(y * scale, x * scale) for (x, y) in path]
         return pStart, pGoal, newPath
