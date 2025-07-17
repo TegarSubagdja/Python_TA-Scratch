@@ -1,15 +1,37 @@
-# File Python cache
+# ===================
+# General Python Ignore
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
 
-# File lingkungan
-.env
-*.env
+# Virtual env, logs, compiled
+*.log
+*.egg-info/
+.env/
+venv/
+build/
+dist/
 
-# File konfigurasi editor
+# VSCode
 .vscode/
 
-# File hasil compile ESP32
-*.bin
-*.elf
-*.map
+# Output & data
+Output/
+Data/Image/
+Data/Pengujian/
+
+# ===================
+# Arduino Ignore
+Arduino/**/*.hex
+Arduino/**/*.elf
+Arduino/**/*.bin
+Arduino/**/*.eep
+Arduino/**/*.map
+Arduino/**/*.o
+Arduino/**/*.d
+Arduino/**/*.bak
+Arduino/**/*~
+
+# Optional: Ignore full Arduino folder
+# Arduino/
