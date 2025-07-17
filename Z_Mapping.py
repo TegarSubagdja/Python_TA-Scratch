@@ -3,12 +3,12 @@ from Algoritma import Astar_Komentar
 from Method.PathPolylineOptimization import Prunning
 
 # Variabel untuk ketebalan garis
-LINE_WIDTH = 2  # Menentukan ketebalan garis, bisa diubah sesuai kebutuhan
-LINE_COLOR = "#0E88EF"
+LINE_WIDTH = 4  # Menentukan ketebalan garis, bisa diubah sesuai kebutuhan
+LINE_COLOR = "#590a6f"
 
 # Variabel untuk pengaturan warna dan ukuran bulatan
-CIRCLE_RADIUS = 10  # Ukuran radius bulatan (dalam pixel)
-CIRCLE_COLOR = "#000000"  # Warna bulatan, misalnya tomat
+CIRCLE_RADIUS = 6  # Ukuran radius bulatan (dalam pixel)
+CIRCLE_COLOR = "#590a6f"  # Warna bulatan, misalnya tomat
 
 # Konfigurasi grid
 GRID_SIZE = 16
@@ -120,17 +120,17 @@ def display_mode(text):
 def draw_lines():
     """Menggambar semua garis yang tersimpan di daftar lines."""
     for line in lines:
-        pygame.draw.line(screen, hex_to_rgb(LINE_COLOR), line[0], line[1], LINE_WIDTH)  # Width dapat disesuaikan
+        pygame.draw.line(screen, (255, 0, 255), line[0], line[1], LINE_WIDTH)  # Width dapat disesuaikan
 
         # Titik awal dan akhir garis (tambah bulatan kecil)
         start_x, start_y = line[0]
         end_x, end_y = line[1]
         
         # Menambahkan bulatan di titik awal
-        pygame.draw.circle(screen, hex_to_rgb(CIRCLE_COLOR), (start_x, start_y), CIRCLE_RADIUS)  # Radius sesuai variabel
+        pygame.draw.circle(screen, hex_to_rgb(LINE_COLOR), (start_x, start_y), CIRCLE_RADIUS)  # Radius sesuai variabel
         
         # Menambahkan bulatan di titik akhir
-        pygame.draw.circle(screen, hex_to_rgb(CIRCLE_COLOR), (end_x, end_y), CIRCLE_RADIUS)  # Radius sesuai variabel
+        pygame.draw.circle(screen, hex_to_rgb(LINE_COLOR), (end_x, end_y), CIRCLE_RADIUS)  # Radius sesuai variabel
 
 # Fungsi untuk menyimpan gambar dengan nama yang dipilih pengguna
 def save_image(replace=False, default_filename='grid_image.png'):

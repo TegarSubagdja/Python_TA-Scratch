@@ -91,7 +91,7 @@ def bresenham_line(awal, akhir):
 
 def lompatanAman(awal, akhir, map):
     """Check if any node in the path is an obstacle (1)."""
-    nodes = bresenham_line(awal, akhir)
+    nodes = supercover_line(awal, akhir)
     if(any(map[x][y] == 255 for x, y in nodes)):
         return False
     else:
