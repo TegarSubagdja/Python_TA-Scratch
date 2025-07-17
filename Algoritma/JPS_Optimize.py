@@ -204,7 +204,7 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
     return successors
 
 
-def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60):
+def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60, k=0.5):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
@@ -273,7 +273,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
             ):  # and tentative_gn >= gn.get(jumpPoint,0):
                 continue
 
-            v1 = TP(came_from.get(jumpPoint, jumpPoint), current, jumpPoint, 0.6) if TPF else 0
+            v1 = TP(came_from.get(jumpPoint, jumpPoint), current, jumpPoint, k) if TPF else 0
             v2 = BR(jumpPoint, goal, matrix) or 1 if BRC else 1
             v3 = GL(start, goal, jumpPoint) if GLF else 0
 
@@ -320,7 +320,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
     endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0
 
-def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60):
+def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60, k=0.5):
     
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
@@ -367,7 +367,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     continue
 
                 # Single-line conditional calculations
-                v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, 0.6) if TPF else 0
+                v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, k) if TPF else 0
                 v2 = BR(succ, goal, matrix) or 1 if BRC else 1
                 v3 = GL(start, goal, succ) if GLF else 0
 
@@ -407,7 +407,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     continue
 
                 # Single-line conditional calculations
-                v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, 0.6) if TPF else 0
+                v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, k) if TPF else 0
                 v2 = BR(succ, start, matrix) or 1 if BRC else 1
                 v3 = GL(goal, start, succ) if GLF else 0
 
