@@ -119,7 +119,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                 continue
         
             # Single-line conditional calculations
-            v1 = TP(came_from.get(current, current), current, neighbour, 0.14) if TPF else 0
+            v1 = TP(came_from.get(current, current), current, neighbour, 0.6) if TPF else 0
             v2 = BR(neighbour, goal, map) or 1 if BRC else 1
             v3 = GL(start, goal, neighbour) if GLF else 0
 
@@ -217,7 +217,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                 if neighbour in close_f:
                     continue
 
-                v1 = TP(came_from_f.get(current_f, current_f), current_f, neighbour, 0.14) if TPF else 0
+                v1 = TP(came_from_f.get(current_f, current_f), current_f, neighbour, 0.6) if TPF else 0
                 v2 = BR(neighbour, goal, map) or 1 if BRC else 1
                 v3 = GL(start, goal, neighbour) if GLF else 0
 
@@ -257,7 +257,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                 else:
                     cost = math.sqrt(2) if dX != 0 and dY != 0 else 1
 
-                v1 = TP(came_from_b.get(current_b, current_b), current_b, neighbour, 0.14) if TPF else 0
+                v1 = TP(came_from_b.get(current_b, current_b), current_b, neighbour, 0.6) if TPF else 0
                 v2 = BR(neighbour, start, map) or 1 if BRC else 1
                 v3 = GL(goal, start, neighbour) if GLF else 0
 

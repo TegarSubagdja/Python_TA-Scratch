@@ -149,7 +149,7 @@ if __name__ == "__main__":
 
         # Load dan persiapan peta
         map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
-        map = Z_GetMap.upscale(map, 32)
+        # map = Z_GetMap.upscale(map, 32)
         matrix = map.copy()
 
         start = (0, 0)
@@ -165,14 +165,14 @@ if __name__ == "__main__":
         try:
             (path, times), openlist, closelist = Algoritm(
                 matrix, start, goal, 2,
-                JPS=True,
+                JPS=False,
                 BDS=False,
                 BRC=False,
                 PPO=False,
                 TPF=False,
                 GLF=False,
-                show=False,
-                speed=10,
+                show=True,
+                speed=200,
             )
 
             belokan = len(Turn(path)) if path else None
@@ -186,7 +186,7 @@ if __name__ == "__main__":
             print(f"[!] Error di iterasi : {e}")
 
         # Munculkan dan simpan map
-        # Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
-        # Z_GetMap.show(map, window_size=1024, name=nameMap)
+        Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
+        # Z_GetMap.show(map, window_size=512, name=nameMap)
 
 
