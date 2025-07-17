@@ -138,9 +138,9 @@ if __name__ == "__main__":
 
     # sys.exit()
 
-    for i in range(10):
+    for i in range(5):
 
-        mapChoice = 5
+        mapChoice = i
 
         if mapChoice < 1:
             nameMap = "Map"
@@ -168,8 +168,8 @@ if __name__ == "__main__":
                 JPS=False,
                 BDS=False,
                 BRC=False,
-                PPO=False,
-                TPF=True,
+                PPO=True,
+                TPF=False,
                 GLF=False,
                 show=False,
                 speed=200,
@@ -187,7 +187,7 @@ if __name__ == "__main__":
             print(f"[!] Error di iterasi : {e}")
 
         # Munculkan dan simpan map
-        # Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
+        Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
         # Z_GetMap.show(map, window_size=512, name=nameMap)
 
 
