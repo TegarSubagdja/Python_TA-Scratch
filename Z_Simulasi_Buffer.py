@@ -10,7 +10,8 @@ cv2.createTrackbar("Buffer Radius", "Preview Gabungan", 20, 100, nothing)
 cv2.createTrackbar("Kernel Size", "Preview Gabungan", 16, 50, nothing)
 
 # Kamera
-cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+# cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture("C:/Users/kingt/Pictures/Camera Roll/WIN_20250717_19_15_46_Pro.mp4")
 
 while True:
     ret, frame = cap.read()
@@ -29,6 +30,9 @@ while True:
     # Step 2: Thresholding
     _, binary = cv2.threshold(gray, thresh_val, 255, cv2.THRESH_BINARY_INV)
 
+    kernel = np.ones((kernel_size,kernel_size), np.uint8)
+    binary = cv2.erode(binary, kernel, iterations=3)
+
     start, goal, marksize = Pos(frame)
 
     if not start and not goal:
@@ -36,7 +40,7 @@ while True:
 
     # Step 3: Distance Transform
     dist = cv2.distanceTransform(255 - binary, cv2.DIST_L2, 5)
-    buffered_obstacle = np.uint8(dist < int(marksize)) * 255
+    buffered_obstacle = np.uint8(dist < int(3*marksize)) * 255
 
     # Step 4: Tambahkan buffer ke binary → hasil baru
     binary_with_buffer = cv2.bitwise_or(binary, buffered_obstacle)
@@ -47,24 +51,24 @@ while True:
 
     _, resize = cv2.threshold(binary_with_buffer, thresh_val, 255, cv2.THRESH_BINARY)
 
-    resize = cv2.resize(binary_with_buffer, (0,0), fx=0.2, fy=0.2)
+    resize = cv2.resize(binary_with_buffer, (0,0), fx=0.05, fy=0.05)
 
     x, y = start[0]
-    start = (y // 5, x // 5)
+    start = (y // 20, x // 20)
     x, y = goal[0]
-    goal = (y // 5, x // 5)
+    goal = (y // 20, x // 20)
 
-    (path, times), *_ = JPS_Optimize.method(resize, start, goal, 2, PPO=True)
+    (path, times), *_ = Astar_Optimize.methodBds(resize, start, goal, 2, PPO=True, BRC=True)
 
     cv2.putText(frame, f"Robot", (start), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1, cv2.LINE_AA)
     cv2.putText(frame, f"Goal", (goal), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1, cv2.LINE_AA)
     
     if path:
         x, y = path[0]
-        start = (y * 5, x * 5)
+        start = (y * 20, x * 20)
         x, y = path[-1]
-        goal = (y * 5, x * 5)
-        path = tuple((y * 5, x * 5) for (x, y) in path)
+        goal = (y * 20, x * 20)
+        path = tuple((y * 20, x * 20) for (x, y) in path)
         for i in range(len(path)-1):
             cv2.line(frame, path[i], path[i+1], (255,128,255), 3)
 
