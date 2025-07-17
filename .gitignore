@@ -1,0 +1,15 @@
+# File Python cache
+__pycache__/
+*.pyc
+
+# File lingkungan
+.env
+*.env
+
+# File konfigurasi editor
+.vscode/
+
+# File hasil compile ESP32
+*.bin
+*.elf
+*.map
