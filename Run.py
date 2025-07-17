@@ -46,7 +46,7 @@ while running:
         pStart, pGoal = PrepCoord(start, goal)
         print(pStart, pGoal)
 
-        (path, times), *_ = JPS_Optimize.methodBds(map, pStart, pGoal, 2)
+        (path, times), *_ = JPS_Optimize.methodBds(map, pStart, pGoal, 2, PPO=True)
         print(path, times)
 
         if path:
