@@ -209,6 +209,7 @@ def Render(surface, grid, cell_size, open_list=False, close_list=False, path=Non
             pygame.draw.rect(surface, gray,
                              (x * cell_size, y * cell_size, cell_size, cell_size))
 
+    pygame.image.save(surface, 'Map/Image/Map.jpg')
     pygame.display.flip()
 
 # Simpan grid ke gambar tanpa tampil
