@@ -1,5 +1,3 @@
-import numpy as np
-import pandas as pd
 import math
 
 def supercover_line(awal, akhir):
@@ -9,7 +7,9 @@ def supercover_line(awal, akhir):
     points = []
     dx = abs(x2 - x1)
     dy = abs(y2 - y1)
+
     x, y = x1, y1
+    
     xstep = 1 if x2 > x1 else -1
     ystep = 1 if y2 > y1 else -1
 
@@ -88,7 +88,6 @@ def bresenham_line(awal, akhir):
 
     points.append((x2, y2))  # Tambahkan titik akhir
     return points
-
 
 def lompatanAman(awal, akhir, map):
     """Check if any node in the path is an obstacle (1)."""
