@@ -27,7 +27,7 @@ def Pos(img):
                 goal = (center, pts)
                 mark_size = 0.5 * (np.linalg.norm(pts[0] - pts[1]) + np.linalg.norm(pts[2] - pts[3]))
 
-        aruco.drawDetectedMarkers(img, corners)
+        aruco.drawDetectedMarkers(image=img, corners=corners)
 
         if not start or not goal:
             return 0,0,0

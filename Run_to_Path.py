@@ -6,10 +6,13 @@ running = True
 path = None
 
 # Setup kamera
-# cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
-cap = cv2.VideoCapture("C:/Users/kingt/Pictures/Camera Roll/WIN_20250717_19_15_46_Pro.mp4")
-# cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-# cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+# cap = cv2.VideoCapture("C:/Users/kingt/Pictures/Camera Roll/WIN_20250717_19_15_46_Pro.mp4")
+desired_width = 1280
+desired_height = 720
+
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, desired_width)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, desired_height)
 
 current = time.time()
 
@@ -48,7 +51,7 @@ while running:
 
         pStart, pGoal = PrepCoord(start, goal)
 
-        (path, times), *_ = JPS_Optimize.methodBds(map, pStart, pGoal, 2, PPO=False)
+        (path, times), *_ = Astar_Optimize.methodBds(map, pStart, pGoal, 2, PPO=True)
 
         if path:
             pStart, pGoal, path = PrepCoord(pStart, pGoal, path)
