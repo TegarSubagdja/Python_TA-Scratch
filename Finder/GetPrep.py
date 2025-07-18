@@ -6,14 +6,14 @@ def Prep(img, start, goal, markSize, scale=5):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Step 2: Thresholding
-    _, binary = cv2.threshold(img, 50, 255, cv2.THRESH_BINARY_INV)
+    _, binary = cv2.threshold(img, 60, 255, cv2.THRESH_BINARY_INV)
 
     kernel = np.ones((9,9), np.uint8)
     binary = cv2.erode(binary, kernel=kernel, iterations=3)
 
     # Step 3: Distance Transform
     dist = cv2.distanceTransform(255 - binary, cv2.DIST_L2, 5)
-    buffer_radius = int(2*markSize)
+    buffer_radius = int(3 * markSize)
     buffered_obstacle = np.uint8(dist < buffer_radius) * 255
 
     # Step 4: Tambahkan buffer ke binary → hasil baru

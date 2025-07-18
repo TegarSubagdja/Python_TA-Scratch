@@ -475,6 +475,8 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
     if PPO:
         full_path = Prunning(full_path, matrix)
+        full_path = Prunning(full_path, matrix)
+        full_path = Prunning(full_path, matrix)
 
     if show:
         Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, full_path)

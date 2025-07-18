@@ -47,10 +47,9 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 base_speed = 50
 MAX_SPEED = 50
 MIN_PWM = 0
-correction_limit = 20  # agar max total speed = 60 ± 20 = 80
-
-pid = PID(Kp=0.5, Ki=0.05, Kd=0.2, dt=0.1, output_limit=correction_limit, integral_limit=100)
-degree_buffer = deque(maxlen=10)
+correction_limit = 40  # agar max total speed = 60 ± 20 = 80
+pid = PID(Kp=0.52, Ki=0.5, Kd=0.26, dt=0.5, output_limit=correction_limit, integral_limit=10)
+degree_buffer = deque(maxlen=3)
 
 # ==============================
 # VARIABLE UTAMA
@@ -60,6 +59,7 @@ left_speed = 0
 right_speed = 0
 errDist, errDegree, avg_degree = 0, 0, 0
 marker_lost_time = None
+last_time = time.time()
 
 while running:
     ret, frame = cap.read()
@@ -86,7 +86,14 @@ while running:
         avg_degree = sum(degree_buffer) / len(degree_buffer)
 
         if errDist > 3 * marksize:
-            correction = pid.calc(int(avg_degree))
+
+            # Hitung dt secara real time
+            current_time = time.time()
+            dt = current_time - last_time
+            last_time = current_time
+            # Update PID dengan dt yang sebenarnya
+            pid.dt = dt
+            correction = pid.calc(avg_degree)
 
             left_speed = int(base_speed + correction)
             right_speed = int(base_speed - correction)
