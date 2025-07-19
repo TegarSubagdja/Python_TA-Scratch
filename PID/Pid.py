@@ -27,6 +27,10 @@ class PID:
 
         self.last_error = error
         return output
+    
+    def reset(self):
+        self.integral = 0.0
+        self.last_error = 0.0
 
 # Dummy callback
 def nothing(x):
