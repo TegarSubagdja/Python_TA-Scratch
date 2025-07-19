@@ -1,0 +1,180 @@
+from Utils import *
+
+ser = None
+selected_port = "COM9"
+try:
+    ser = serial.Serial(selected_port, 9600, timeout=1)
+    print(f"Tersambung ke {selected_port}")
+except Exception as e:
+    print(f"Gagal membuka port {selected_port}: {e}")
+    exit()
+
+# Buka webcam
+cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
+# Inisialisasi ArUco detector
+aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
+aruco_params = aruco.DetectorParameters()
+detector = aruco.ArucoDetector(aruco_dict, aruco_params)
+
+# Paramerter Control
+MAX_SPEED = 40
+MIN_PWM = 0
+base_speed = MAX_SPEED
+correction_limit = MAX_SPEED
+kp = 0.42
+ki = 0.06
+kd = 0.06
+dt = 0.1
+pid = PID(Kp=kp, Ki=ki, Kd=kd, dt=dt, output_limit=MAX_SPEED, integral_limit=40)
+
+# Buffer untuk error yang stabil
+degree_buffer = deque(maxlen=3)
+
+start = None
+last_time = 0
+
+targetId= 0
+
+def midpoint(p1, p2):
+    return (int((p1[0] + p2[0]) / 2), int((p1[1] + p2[1]) / 2))
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        print("Gagal membaca frame dari kamera.")
+        break
+
+    tinggi, lebar, _ = frame.shape
+
+    # Gambar area batas dan titik pojok
+    area_pts = [(300, 200), (lebar - 300, 200), (lebar - 300, tinggi - 200), (300, tinggi - 200)]
+
+    # Deteksi marker
+    corners, ids, _ = detector.detectMarkers(frame)
+
+    if ids is not None:
+        ids = ids.flatten()
+        for i, marker_id in enumerate(ids):
+            if marker_id == 1 or marker_id == 3:
+                pts = corners[i][0]
+                center = tuple(np.mean(pts, axis=0).astype(int))
+                start = (center, pts)
+
+    if start:
+        center, pts = start
+        goal = area_pts[targetId]
+
+        # Hitung jarak ke goal
+        dx =  goal[1] - center[1] 
+        dy =  goal[0] - center[0] 
+        dist = np.hypot(dx, dy)
+
+        # Arah ke goal
+        arah_ke_goal = np.arctan2(dy, dx)
+
+        # Arah hadap robot (dari bottom ke top marker)
+        top = midpoint(pts[3], pts[0])
+        bottom = midpoint(pts[2], pts[1])
+        arah_robot = np.arctan2(top[0] - bottom[0], top[1] - bottom[1])
+
+        # Hitung selisih sudut arah
+        error_rad = np.arctan2(np.sin(arah_ke_goal - arah_robot), np.cos(arah_ke_goal - arah_robot))
+        error_deg = np.degrees(error_rad)
+
+        # Buffer untuk degree
+        degree_buffer.append(error_deg)
+        avg_degree = sum(degree_buffer) / len(degree_buffer)
+
+        # # Hitung dt secara real time
+        current_time = time.time()
+        dt = current_time - last_time 
+        last_time = current_time
+        
+        # Update PID dengan dt yang sebenarnya
+        pid.Kp = kp
+        pid.Ki = ki
+        pid.Kd = kd
+        pid.dt = dt
+        correction = pid.calc(avg_degree)
+
+        # Clamp ke max speed dan min PWM
+        left_speed = int(base_speed - correction)
+        right_speed = int(base_speed + correction)
+        left_speed = max(MIN_PWM, min(MAX_SPEED, left_speed))
+        right_speed = max(MIN_PWM, min(MAX_SPEED, right_speed))
+
+        if ser: pwm(ser, left_speed, right_speed)
+
+        if dist < 35:
+            targetId += 1
+            if targetId >= 4:
+                targetId = 0
+
+        # Visualisasi
+
+        for i in range(4):
+            cv2.line(frame, area_pts[i], area_pts[(i + 1) % 4], (255, 0, 255), 4)
+            cv2.circle(frame, area_pts[i], 10, (255, 128, 255), -1)
+
+        cv2.arrowedLine(frame, bottom, top, (255, 255, 255), 2, tipLength=0.2)
+        cv2.line(frame, center, goal, (0, 255, 255), 2)
+
+        cv2.putText(frame, f"Error Angle: {error_deg:.2f} deg", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        cv2.putText(frame, f"Distance: {dist:.2f} px", (10, 60),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        cv2.putText(frame, f"Kp: {kp}", (10, 90),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        cv2.putText(frame, f"Ki: {ki}", (10, 120),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        cv2.putText(frame, f"Kd: {kd}", (10, 150),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        cv2.putText(frame, f"dt: {dt}", (10, 180),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        cv2.putText(frame, f"correction: {correction}", (10, 210),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
+    # Tampilkan hasil
+    cv2.imshow("Webcam", frame)
+    time.sleep(0.1)
+
+    key = cv2.waitKey(1)
+
+    if key == 27:  # ESC
+        if ser:
+            pwm(ser, 0, 0)
+        print("Keluar...")
+        break
+
+    elif key != -1:
+        char = chr(key)
+        if char.lower() == 'p':
+            if char.islower():
+                kp += 0.01
+            else:
+                kp -= 0.01
+            kp = round(kp, 2)  # pembulatan nilai disimpan
+            print(f"kp: {kp:.2f}")
+
+        elif char.lower() == 'i':
+            if char.islower():
+                ki += 0.01
+            else:
+                ki -= 0.01
+            ki = round(ki, 2)
+            print(f"ki: {ki:.2f}")
+
+        elif char.lower() == 'd':
+            if char.islower():
+                kd += 0.01
+            else:
+                kd -= 0.01
+            kd = round(kd, 2)
+            print(f"kd: {kd:.2f}")
+
+
+cap.release()
+cv2.destroyAllWindows()
