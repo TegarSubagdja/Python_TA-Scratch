@@ -26,18 +26,18 @@ current = time.time()
 # Variabel untuk informasi
 errDist, errDegree, avg_degree = 0, 0, 0
 left_speed, right_speed = 0, 0
-marker_lost_time = None
+marker_lost_time = time.time()
 last_time = time.time()
 
 # Paramerter Control
 base_speed = 40
 MAX_SPEED = 40
 MIN_PWM = 0
-correction_limit = 45  # agar max total speed = 60 ± 20 = 80
-pid = PID(Kp=0.3, Ki=0.1, Kd=0.13, dt=0.5, output_limit=correction_limit, integral_limit=10)
+correction_limit = MAX_SPEED  # agar max total speed = 60 ± 20 = 80
+pid = PID(Kp=0.45, Ki=0.1, Kd=0.13, dt=0.1, output_limit=correction_limit, integral_limit=MAX_SPEED)
 
 #Buffer untuk error yang stabil
-degree_buffer = deque(maxlen=10)
+degree_buffer = deque(maxlen=3)
 
 running = True
 while running:
@@ -51,39 +51,36 @@ while running:
     # Cari posisi robot
     start, goal, marksize = Pos(img)
 
-    if (not start and not goal):
+    if start is None and goal is None:
         if marker_lost_time is None:
             marker_lost_time = time.time()
         elif time.time() - marker_lost_time >= 2:
-            marker_lost_time = None
             path = None
+    else:
+        # Marker muncul kembali, reset timer
+        marker_lost_time = None
 
     if (not path and start and goal):
-
-        if marker_lost_time is None:
-            marker_lost_time = time.time()
-        elif time.time() - marker_lost_time >= 2:
-            marker_lost_time = None
-            left_speed = 0
-            right_speed = 0
-            if ser: pwm(ser, 0, 0)
 
         # Cari error ke posisi goal
         errDist, errDegree = Error(img.copy(), start, goal)
 
         if errDist < ( 2 * marksize):
-            if ser: pwm(ser, 0, 0)
             cv2.imshow("Frame", img)
-            cv2.waitKey(0)
             if cv2.waitKey(1) & 0xFF == 27:
                 running = False
                 continue
+
+        left_speed = 0
+        right_speed = 0
+
+        if ser: pwm(ser, 0, 0)
 
         map = Prep(img.copy(), start, goal, markSize=marksize)
 
         pStart, pGoal = PrepCoord(start, goal)
 
-        (path, times), *_ = JPS_Optimize.methodBds(map, pStart, pGoal, 2, PPO=True, TPF=True)
+        (path, times), *_ = Astar_Optimize.methodBds(map, pStart, pGoal, 2, PPO=True)
 
         if path:
             pStart, pGoal, path = PrepCoord(pStart, pGoal, path)
@@ -128,8 +125,14 @@ while running:
             cv2.putText(img, str(p1), (p1[0] + 10, p1[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1, cv2.LINE_AA)
 
         # Jika jarak robot ke tujuan sudah dekat, keluarkan titik tujuan
-        if errDist < (2 * marksize):
-            if ser: pwm(ser, 0, 0)
+        if len(path) == 1:
+            if errDist < (3 * marksize):
+                # if ser: pwm(ser, 0, 0)
+                # pid.reset()
+                path = None
+        elif errDist < (marksize):
+            # if ser: pwm(ser, 0, 0)
+            # pid.reset()
             path.pop(0)
     
     # Tampilkan informasi
