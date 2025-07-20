@@ -87,6 +87,7 @@ while running:
             path.pop(0)
 
     elif (start and goal): 
+        marker_lost_time = None
 
         # Cari error ke posisi goal
         target = tuple(path[0])
