@@ -167,13 +167,13 @@ if __name__ == "__main__":
         (path, times), openlist, closelist = Algoritm(
             matrix, start, goal, 2,
             JPS=True,
-            BDS=False,
-            EL=False,
+            BDS=True,
+            EL=True,
             BRC=False,
             PPO=False,
             TPF=False,
             GLF=False,
-            show=True,
+            show=False,
             speed=1,
         )
 
