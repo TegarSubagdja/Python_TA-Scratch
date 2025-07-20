@@ -163,35 +163,35 @@ if __name__ == "__main__":
         np.place(map, map == 2, 0)
         np.place(map, map == 3, 0)
 
-        try:
-            (path, times), openlist, closelist = Algoritm(
-                matrix, start, goal, 2,
-                JPS=True,
-                BDS=True,
-                EL=True,
-                BRC=False,
-                PPO=False,
-                TPF=False,
-                GLF=False,
-                show=True,
-                speed=1,
-            )
+        # try:
+        (path, times), openlist, closelist = Algoritm(
+            matrix, start, goal, 2,
+            JPS=True,
+            BDS=False,
+            EL=False,
+            BRC=False,
+            PPO=False,
+            TPF=False,
+            GLF=False,
+            show=True,
+            speed=1,
+        )
 
-            timesArr.append(times)
+        timesArr.append(times)
 
-            belokan = len(Turn(path)) if path else None
+        belokan = len(Turn(path)) if path else None
 
-            print(f"  Map : {nameMap}")
-            # print(f"  Size : {sz}")
-            # print(f"  Metod Name : {method_name}")
-            print(f"  Waktu Pencarian : {times}")
-            # print(f"  Jumlah Open Set : {len(openlist)}")
-            # print(f"  Jumlah Close Set : {len(closelist)}")
-            # print(f"  Jumlah Open + Close di i {i} : {len(openlist) + len(closelist)}")
-            print(f"  Jumlah Belokan : {belokan}")
+        # print(f"  Map : {nameMap}")
+        # print(f"  Size : {sz}")
+        # print(f"  Metod Name : {method_name}")
+        # print(f"  Waktu Pencarian : {times}")
+        # print(f"  Jumlah Open Set : {len(openlist)}")
+        # print(f"  Jumlah Close Set : {len(closelist)}")
+        # print(f"  Jumlah Open + Close di i {i} : {len(openlist) + len(closelist)}")
+        # print(f"  Jumlah Belokan : {belokan}")
 
-        except Exception as e:
-            print(f"[!] Error di iterasi : {e}")
+        # except Exception as e:
+        #     print(f"[!] Error di iterasi : {e}")
 
     print(f"Rate : {np.mean(timesArr)}")
 

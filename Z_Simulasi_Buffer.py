@@ -63,14 +63,14 @@ while True:
     cv2.putText(frame, f"Robot", (start), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1, cv2.LINE_AA)
     cv2.putText(frame, f"Goal", (goal), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1, cv2.LINE_AA)
     
-    if path:
-        x, y = path[0]
-        start = (y * 20, x * 20)
-        x, y = path[-1]
-        goal = (y * 20, x * 20)
-        path = tuple((y * 20, x * 20) for (x, y) in path)
-        for i in range(len(path)-1):
-            cv2.line(frame, path[i], path[i+1], (255,128,255), 3)
+    # if path:
+    #     x, y = path[0]
+    #     start = (y * 20, x * 20)
+    #     x, y = path[-1]
+    #     goal = (y * 20, x * 20)
+    #     path = tuple((y * 20, x * 20) for (x, y) in path)
+    #     for i in range(len(path)-1):
+    #         cv2.line(frame, path[i], path[i+1], (255,128,255), 3)
 
     # Step 5: Overlay visualisasi
     overlay = frame.copy()
@@ -81,6 +81,8 @@ while True:
     gray_3ch    = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
     binary_3ch  = cv2.cvtColor(binary, cv2.COLOR_GRAY2BGR)
     withbuf_3ch = cv2.cvtColor(binary_with_buffer, cv2.COLOR_GRAY2BGR)
+
+    cv2.imwrite('HasilBuffer.jpg', visual)
 
 # Gabungkan semua dalam dua baris
     row1 = np.hstack((visual, binary_3ch))
