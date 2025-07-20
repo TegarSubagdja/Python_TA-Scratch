@@ -1,6 +1,6 @@
 from Utils import *
 
-def runPengujian(size = [16, 32, 64, 128, 256, 512]):
+def runPengujian(size = [16, 32, 64, 128]):
         
     for i in range(5):
 
@@ -14,9 +14,6 @@ def runPengujian(size = [16, 32, 64, 128, 256, 512]):
         # Load Grid
         map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
         
-        print(map.shape)
-        print(map.shape)
-
         start = (0, 0)
         goal = (map.shape[0] - 1, map.shape[1] - 1)
 
@@ -24,7 +21,7 @@ def runPengujian(size = [16, 32, 64, 128, 256, 512]):
         np.place(map, map == 2, 0)
         np.place(map, map == 3, 0)
 
-        kombinasi_flags = list(itertools.product([False, True], repeat=6))
+        kombinasi_flags = list(itertools.product([False, True], repeat=7))
         print(f"Total kombinasi: {len(kombinasi_flags)}\n")
         print(kombinasi_flags)
 
@@ -38,14 +35,12 @@ def runPengujian(size = [16, 32, 64, 128, 256, 512]):
         rows_turn = []
         rows_size = []
 
-        awal = time.time()
-
         for sz in size:
 
             map = Z_GetMap.upscale(map, sz)
 
             for flags in kombinasi_flags:
-                JPS, BDS, GLF, BRC, TPF, PPO = flags
+                JPS, BDS, GLF, BRC, TPF, PPO, EL = flags
 
                 aktif_flags = []
                 if JPS: aktif_flags.append("JPS")
@@ -54,6 +49,7 @@ def runPengujian(size = [16, 32, 64, 128, 256, 512]):
                 if BRC: aktif_flags.append("BRC")
                 if TPF: aktif_flags.append("TPF")
                 if PPO: aktif_flags.append("PPO")
+                if EL and BDS: aktif_flags.append("EL")
                 method_name = "-".join(aktif_flags) if aktif_flags else "A*"
 
                 start = (0, 0)
@@ -64,27 +60,36 @@ def runPengujian(size = [16, 32, 64, 128, 256, 512]):
                 np.place(map, map == 3, 0)
 
                 tempTimes = []
+                tempPaths = []
+                tempOpens = []
+                tempCloses = []
+                tempTurns = []
 
-                (path, times), openlist, closelist = Algoritm(
-                    map.copy(), start, goal, hchoice=2,
-                    JPS=JPS, BDS=BDS, GLF=GLF,
-                    BRC=BRC, TPF=TPF, PPO=PPO,
-                    show=False, speed=200
-                )
+                for _ in range(1):
+                    (path, times), openlist, closelist = Algoritm(
+                        map.copy(), start, goal, hchoice=2,
+                        JPS=JPS, BDS=BDS, GLF=GLF,
+                        BRC=BRC, TPF=TPF, PPO=PPO, EL=EL,
+                        show=False, speed=200
+                    )
 
-                tempTimes.append(times)
+                    tempTimes.append(times)
+                    tempPaths.append(len(path))
+                    tempOpens.append(len(openlist))
+                    tempCloses.append(len(closelist))
+                    tempTurns.append(len(Turn(path)))
 
-                print(f"{sz} {method_name}")
+                # Rata-rata dari 10 kali uji
+                print(f"{sz} {method_name} - mean_time: {np.mean(tempTimes):.4f}")
 
                 rows_size.append(sz)
                 rows_comb.append(len(aktif_flags))
                 rows_method.append(method_name)
                 rows_time.append(np.mean(tempTimes))
-                rows_path.append(len(path))
-                rows_open.append(len(openlist))
-                rows_close.append(len(closelist))
-                rows_turn.append(len(Turn(path)))
-                
+                rows_path.append(np.mean(tempPaths))
+                rows_open.append(np.mean(tempOpens))
+                rows_close.append(np.mean(tempCloses))
+                rows_turn.append(np.mean(tempTurns))
 
         data = pd.DataFrame({
             "Jumlah Kombinasi" : rows_comb,
@@ -117,9 +122,6 @@ def runPengujian(size = [16, 32, 64, 128, 256, 512]):
         pivot_open = pivot_metric(data, "Jumlah Open Set")
         pivot_close = pivot_metric(data, "Jumlah Close Set")
         pivot_belok = pivot_metric(data, "Jumlah Belokan")
-
-        akhir = time.time()
-        waktu = akhir - awal
         
         # Simpan semua ke dalam satu file Excel (multi-sheet)
         with pd.ExcelWriter(f"Hasil_Pengujian_{nameMap}_{size[-1]}.xlsx") as writer:
@@ -134,9 +136,11 @@ def runPengujian(size = [16, 32, 64, 128, 256, 512]):
 # Contoh pemanggilan:
 if __name__ == "__main__":
 
-    # runPengujian(size=[16, 32, 64, 128])
+    # runPengujian()
 
     # sys.exit()
+
+    timesArr = []
 
     for i in range(5):
 
@@ -149,14 +153,11 @@ if __name__ == "__main__":
 
         # Load dan persiapan peta
         map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
-        # map = Z_GetMap.upscale(map, 32)
+        map = Z_GetMap.upscale(map, 128)
         matrix = map.copy()
 
         start = (0, 0)
         goal = (map.shape[0]-1, map.shape[0]-1)
-
-        print(start)
-        print(goal)
 
         np.place(matrix, matrix == 1, 255)
         np.place(map, map == 2, 0)
@@ -165,29 +166,37 @@ if __name__ == "__main__":
         try:
             (path, times), openlist, closelist = Algoritm(
                 matrix, start, goal, 2,
-                JPS=False,
-                BDS=False,
+                JPS=True,
+                BDS=True,
+                EL=True,
                 BRC=False,
-                PPO=True,
+                PPO=False,
                 TPF=False,
                 GLF=False,
-                show=False,
-                speed=200,
+                show=True,
+                speed=1,
             )
+
+            timesArr.append(times)
 
             belokan = len(Turn(path)) if path else None
 
+            print(f"  Map : {nameMap}")
+            # print(f"  Size : {sz}")
+            # print(f"  Metod Name : {method_name}")
             print(f"  Waktu Pencarian : {times}")
-            print(f"  Jumlah Open Set : {len(openlist)}")
-            print(f"  Jumlah Close Set : {len(closelist)}")
-            print(f"  Jumlah Open + Close di i {i} : {len(openlist) + len(closelist)}")
+            # print(f"  Jumlah Open Set : {len(openlist)}")
+            # print(f"  Jumlah Close Set : {len(closelist)}")
+            # print(f"  Jumlah Open + Close di i {i} : {len(openlist) + len(closelist)}")
             print(f"  Jumlah Belokan : {belokan}")
 
         except Exception as e:
             print(f"[!] Error di iterasi : {e}")
 
+    print(f"Rate : {np.mean(timesArr)}")
+
         # Munculkan dan simpan map
-        Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
+        # Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
         # Z_GetMap.show(map, window_size=512, name=nameMap)
 
 

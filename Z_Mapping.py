@@ -374,7 +374,7 @@ while running:
         8: "Pink (Ctrl + Q)",
         9: "Euclidean Measure (Ctrl + H)"
     }
-    display_mode(mode_texts.get(active_mode, "Unknown"))
+    # display_mode(mode_texts.get(active_mode, "Unknown"))
 
     pygame.display.flip()
 

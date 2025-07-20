@@ -57,9 +57,9 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                 current = came_from[current]
             path.append(start)
             path = path[::-1]
-            endtime = time.time()
             if PPO:
                 path = Prunning(path, map)
+            endtime = time.time()
             if show:
                 Z_GetMap.Render(surface, map, cell_size, open_list, close_list, path)
                 clock.tick(speed)  # Batasi ke 200 FPS
@@ -156,10 +156,10 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                             pygame.quit()
                             exit()
                 
-        endtime = time.time()
+    endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0
 
-def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=30, k=0.5):
+def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=False, EL=False, show=False, speed=30, k=0.5):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(map)
@@ -225,16 +225,17 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     came_from_f[neighbour] = current_f
                     g_f[neighbour] = tentative_gn
 
-                    h_to_current_b = heuristic(neighbour, current_b, 2)
+                    h_to_goal = heuristic(neighbour, goal, hchoice)
+                    h_to_current_b = heuristic(neighbour, current_b, 2) if EL else 0
                     
                     if BRC:
-                        f_f[neighbour] = tentative_gn + (heuristic(neighbour, goal, hchoice) * (1 - math.log(v2))) + v1 + v3 + h_to_current_b
+                        f_f[neighbour] = tentative_gn + (h_to_goal * (1 - math.log(v2))) + v1 + v3 + h_to_current_b
                     else:
-                        f_f[neighbour] = tentative_gn + heuristic(neighbour, goal, hchoice) + v1 + v3 + h_to_current_b
+                        f_f[neighbour] = tentative_gn + h_to_goal + v1 + v3 + h_to_current_b
                     heapq.heappush(open_f, (f_f[neighbour], neighbour))
                     
                 # Meeting point check
-                if neighbour in close_b or neighbour in open_b:
+                if neighbour in close_b:
                     meet_point = neighbour
                     break
 
@@ -269,15 +270,17 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     came_from_b[neighbour] = current_b
                     g_b[neighbour] = tentative_gn
 
-                    h_to_current_f = heuristic(neighbour, current_f, 2)
+                    h_to_start = heuristic(neighbour, start, hchoice)
+                    h_to_current_f = heuristic(neighbour, current_f, 2) if EL else 0
 
                     if BRC:
-                        f_b[neighbour] = tentative_gn + (heuristic(neighbour, start, hchoice) * (1 - math.log(v2))) + v1 + v3 + h_to_current_f
+                        f_b[neighbour] = tentative_gn + (h_to_start * (1 - math.log(v2))) + v1 + v3 + h_to_current_f
                     else:
-                        f_b[neighbour] = tentative_gn + heuristic(neighbour, start, hchoice) + v1 + v3 + h_to_current_f
+                        f_b[neighbour] = tentative_gn + h_to_start + v1 + v3 + h_to_current_f
+
                     heapq.heappush(open_b, (f_b[neighbour], neighbour))
 
-                if neighbour in close_f or neighbour in open_f:
+                if neighbour in close_f:
                     meet_point = neighbour
                     break
 
@@ -292,9 +295,11 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                         exit()
 
     if meet_point is None:
-        return (0, 0), 0, 0
+        endTime = time.time()
+        return (0, round(endTime - startTime, 6)), 0, 0
 
     # --- Rekonstruksi Jalur ---
+    # Forward path
     path_fwd = []
     node = meet_point
     while node in came_from_f:
@@ -303,17 +308,20 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
     path_fwd.append(start)
     path_fwd.reverse()
 
+    # Backward path
     path_bwd = []
     node = meet_point
     while node in came_from_b:
         node = came_from_b[node]
         path_bwd.append(node)
-        
+    
+    # Combine path tanpa duplikasi
     path = path_fwd + path_bwd
-    endTime = time.time()
 
     if PPO:
         path = Prunning(path, map)
+
+    endTime = time.time()
 
     if show:
         Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path)

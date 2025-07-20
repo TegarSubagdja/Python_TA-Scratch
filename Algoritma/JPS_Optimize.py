@@ -117,7 +117,7 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
 
     if (nX, nY) == goal:
         return (nX, nY)
-
+    
     oX = nX
     oY = nY
 
@@ -211,11 +211,12 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
         clock = pygame.time.Clock()
 
     came_from = {}
-    open_list = []
     close_list = set()
     gn = {start: 0}
     fn = {start: heuristic(start, goal, hchoice)}
 
+    open_list = []
+    
     heapq.heappush(open_list, (fn[start], start))
 
     starttime = time.time()
@@ -230,9 +231,9 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 current = came_from[current]
             data.append(start)
             data = data[::-1]
-            endtime = time.time()
             if PPO:
                 data = Prunning(data, matrix)
+            endtime = time.time()
             if show:
 
                 Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, data)
@@ -320,7 +321,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
     endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0
 
-def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60, k=0.5):
+def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, EL=False, show=False, speed=60, k=0.5):
     
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
@@ -379,7 +380,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
                     # Pre-compute heuristic values
                     h_to_goal = heuristic(succ, goal, hchoice)
-                    h_to_current_b = heuristic(succ, current_b, 2)
+                    h_to_current_b = heuristic(succ, current_b, 2) if EL else 0
                     
                     # Optimized f-value calculation
                     if BRC:
@@ -390,8 +391,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     heapq.heappush(open_f, (f_f[succ], succ))
 
                 # Meeting point check
-                open_positions = {pos for _, pos in open_b}
-                if succ in close_f or succ in open_positions:
+                if succ in close_b:
                     meet_point = succ
                     break
 
@@ -419,7 +419,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
                     # Pre-compute heuristic values
                     h_to_start = heuristic(succ, start, hchoice)
-                    h_to_current_f = heuristic(current_f, succ, 2)
+                    h_to_current_f = heuristic(current_f, succ, 2) if EL else 0
                     
                     # Optimized f-value calculation
                     if BRC:
@@ -431,8 +431,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     heapq.heappush(open_b, (f_b[succ], succ))
 
                 # Meeting point check
-                open_positions = {pos for _, pos in open_f}
-                if succ in close_f or succ in open_positions:
+                if succ in close_f:
                     meet_point = succ
                     break
 
@@ -450,7 +449,8 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     exit()
     
     if meet_point is None:
-        return (0, 0), 0, 0
+        endTime = time.time()
+        return (0, round(endTime - startTime, 6)), 0, 0
 
     # ============ Path Reconstruction ============
     # Forward path
@@ -471,10 +471,11 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
     # Combine path tanpa duplikasi
     full_path = path_f + path_b
-    endTime = time.time()
 
     if PPO:
         full_path = Prunning(full_path, matrix)
+
+    endTime = time.time()
 
     if show:
         Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, full_path)
