@@ -26,11 +26,12 @@ def Prep(img, start, goal, markSize):
         cv2.circle(binary_with_buffer, goal[0], int(2*markSize), 0, -1)
         cv2.circle(binary_with_buffer, start[0], int(2*markSize), 0, -1)
 
-    _, resize = cv2.threshold(binary_with_buffer, 100, 255, cv2.THRESH_BINARY)
-
     x, y = (1/scale), (1/scale)
-
     resize = cv2.resize(binary_with_buffer, (0,0), fx=x, fy=y)
+
+    _, resize = cv2.threshold(resize, 100, 255, cv2.THRESH_BINARY)
+
+    print(np.unique(resize))
 
     cv2.imwrite('Hasil Prep.jpg', resize)
 
