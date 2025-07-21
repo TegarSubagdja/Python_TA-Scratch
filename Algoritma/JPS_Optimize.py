@@ -472,6 +472,8 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
     if PPO:
         full_path = Prunning(full_path, matrix)
+        full_path = Prunning(full_path, matrix)
+        full_path = Prunning(full_path, matrix)
 
     endTime = time.time()
 

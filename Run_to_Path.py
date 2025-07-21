@@ -1,151 +1,144 @@
 from Utils import *
+import cv2
+import time
+import serial
+from collections import deque
 
-# Setup Serial
-ser = None
-selected_port = "COM9"
-try:
-    ser = serial.Serial(selected_port, 9600, timeout=1)
-    print(f"Tersambung ke {selected_port}")
-except Exception as e:
-    print(f"Gagal membuka port {selected_port}: {e}")
-    exit()
-
-# Set Path
-path = None
-
-# Setup kamera
-cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
-desired_width = 1280
-desired_height = 720
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, desired_width)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, desired_height)
-
-# Set current dengan waktu terkini
-current = time.time()
-
-# Variabel untuk informasi
-errDist, errDegree, avg_degree = 0, 0, 0
-left_speed, right_speed = 0, 0
-marker_lost_time = time.time()
-last_time = time.time()
-
-# Paramerter Control
-base_speed = 40
+# --- Konfigurasi ---
+PORT = "COM9"
+CAM_ID = 1
+FRAME_SIZE = (1280, 720)
+BASE_SPEED = 40
 MAX_SPEED = 40
 MIN_PWM = 0
-correction_limit = MAX_SPEED  # agar max total speed = 60 ± 20 = 80
-pid = PID(Kp=0.45, Ki=0.1, Kd=0.13, dt=0.1, output_limit=correction_limit, integral_limit=MAX_SPEED)
+MARKER_LOST_TIMEOUT = 2
 
-#Buffer untuk error yang stabil
+# --- Inisialisasi Serial ---
+try:
+    ser = serial.Serial(PORT, 9600, timeout=1)
+    print(f"Tersambung ke {PORT}")
+except Exception as e:
+    print(f"Gagal membuka port {PORT}: {e}")
+    exit()
+
+# --- Inisialisasi Kamera ---
+cap = cv2.VideoCapture(CAM_ID, cv2.CAP_DSHOW)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_SIZE[0])
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_SIZE[1])
+
+# --- Inisialisasi Variabel ---
+path = None
+pid = PID(Kp=0.5, Ki=0.1, Kd=0.13, dt=0.1, output_limit=MAX_SPEED, integral_limit=MAX_SPEED)
 degree_buffer = deque(maxlen=3)
+last_time = marker_lost_time = time.time()
 
-running = True
-while running:
+# --- Loop Utama ---
+while True:
     ret, frame = cap.read()
     if not ret:
         break
 
-    # Rubah frama kedalam bentuk grayscale
-    img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    start, goal, marksize = Pos(gray)
 
-    # Cari posisi robot
-    start, goal, marksize = Pos(img)
-
-    if start is None and goal is None:
-        if marker_lost_time is None:
-            marker_lost_time = time.time()
-        elif time.time() - marker_lost_time >= 2:
+    # --- Tangani kehilangan marker ---
+    if start is None or goal is None:
+        if time.time() - marker_lost_time >= MARKER_LOST_TIMEOUT:
             path = None
-    else:
-        # Marker muncul kembali, reset timer
-        marker_lost_time = None
+        cv2.imshow("Frame", gray)
+        if cv2.waitKey(1) & 0xFF == 27:
+            if ser: pwm(ser, 0, 0)
+            break
+        continue
+    marker_lost_time = time.time()
 
-    if (not path and start and goal):
+    # --- Jika path sedang tersedia ---
+    if path and start and goal:
+        target = tuple(path[0])
+        errDist, errDegree = Error(gray, start, target)
 
-        # Cari error ke posisi goal
-        errDist, errDegree = Error(img.copy(), start, goal)
+        # Jika hanya 1 titik path tersisa dan sudah dekat → hapus path
+        if len(path) == 1 and errDist < 3 * marksize:
+            pid.reset()
+            path = None
 
-        if errDist < ( 2 * marksize):
-            cv2.imshow("Frame", img)
+        # Jika belum sampai titik saat ini → navigasi
+        elif errDist < 2 * marksize:
+            pid.reset()
+            path.pop(0)
+
+        else:
+            # --- Navigasi PID ---
+            degree_buffer.append(errDegree)
+            avg_degree = sum(degree_buffer) / len(degree_buffer)
+
+            current_time = time.time()
+            pid.dt = current_time - last_time
+            last_time = current_time
+
+            correction = pid.calc(avg_degree)
+            left = max(MIN_PWM, min(MAX_SPEED, int(BASE_SPEED + correction + 5)))
+            right = max(MIN_PWM, min(MAX_SPEED, int(BASE_SPEED - correction)))
+            if ser: pwm(ser, left, right)
+
+            # Gambar path
+            for i in range(len(path) - 1):
+                p1, p2 = path[i], path[i + 1]
+                cv2.line(gray, p1, p2, 255, 2)
+                cv2.circle(gray, p1, 4, 255, -1)
+                cv2.putText(gray, str(p1), (p1[0] + 10, p1[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1)
+
+            # Tampilkan info
+            cv2.putText(gray, f"Dist   : {int(errDist)}", (10, 50), cv2.FONT_HERSHEY_COMPLEX, 1, 255, 2)
+            cv2.putText(gray, f"Degree : {int(avg_degree)}", (10, 100), cv2.FONT_HERSHEY_COMPLEX, 1, 255, 2)
+            cv2.putText(gray, f"Left Speed  : {left}", (10, 150), cv2.FONT_HERSHEY_COMPLEX, 1, 255, 2)
+            cv2.putText(gray, f"Right Speed : {right}", (10, 200), cv2.FONT_HERSHEY_COMPLEX, 1, 255, 2)
+
+        # Tampilkan frame
+        cv2.imshow("Frame", gray)
+        if cv2.waitKey(1) & 0xFF == 27:
+            if ser: pwm(ser, 0, 0)
+            break
+        continue
+
+    # --- Jika tidak ada path dan robot terlihat ---
+    elif start and goal:
+        # Jarak ke goal untuk menentukan perlu hitung path atau tidak
+        errDist, _ = Error(gray, start, goal)
+
+        if errDist < 2 * marksize:
+            # Cukup tampilkan frame, jangan hitung path baru
+            cv2.imshow("Frame", gray)
             if cv2.waitKey(1) & 0xFF == 27:
-                running = False
-                continue
+                if ser: pwm(ser, 0, 0)
+                break
+            continue
 
-        left_speed = 0
-        right_speed = 0
-
+        # Reset PWM dulu
         if ser: pwm(ser, 0, 0)
 
-        map = Prep(img.copy(), start, goal, markSize=marksize)
-
+        # Hitung path baru
+        map = Prep(gray.copy(), start, goal, markSize=marksize)
         pStart, pGoal = PrepCoord(start, goal)
-
-        (path, times), *_ = Astar_Optimize.methodBds(map, pStart, pGoal, 2, PPO=True)
+        (path, _), *_ = JPS_Optimize.methodBds(map, pStart, pGoal, 2, BRC=True, GLF=True, PPO=True)
 
         if path:
             pStart, pGoal, path = PrepCoord(pStart, pGoal, path)
             path.pop(0)
 
-    elif (start and goal): 
-        marker_lost_time = None
+        # Tampilkan frame
+        cv2.imshow("Frame", gray)
+        if cv2.waitKey(1) & 0xFF == 27:
+            if ser: pwm(ser, 0, 0)
+            break
+        continue
 
-        # Cari error ke posisi goal
-        target = tuple(path[0])
-
-        errDist, errDegree = Error(img, start, target)
-
-        # Buffer untuk degree
-        degree_buffer.append(errDegree)
-        avg_degree = sum(degree_buffer) / len(degree_buffer)
-
-        # Hitung dt secara real time
-        current_time = time.time()
-        dt = current_time - last_time
-        last_time = current_time
-        
-        # Update PID dengan dt yang sebenarnya
-        pid.dt = dt
-        correction = pid.calc(avg_degree)
-
-        # Clamp ke max speed dan min PWM
-        left_speed = int(base_speed + correction + 5)
-        right_speed = int(base_speed - correction)
-        left_speed = max(MIN_PWM, min(MAX_SPEED, left_speed))
-        right_speed = max(MIN_PWM, min(MAX_SPEED, right_speed))
-
-        if ser: pwm(ser, left_speed, right_speed)
-
-        # Gambar seluruh path dan beri teks nomor
-        for i in range(len(path) - 1):
-            p1 = path[i]
-            p2 = path[i + 1]
-            cv2.line(img, p1, p2, 255, 2)
-
-            # Tambahkan teks koordinat path di titik p1
-            cv2.circle(img, p1, 4, 255, -1)
-            cv2.putText(img, str(p1), (p1[0] + 10, p1[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.3, 255, 1, cv2.LINE_AA)
-
-        # Jika jarak robot ke tujuan sudah dekat, keluarkan titik tujuan
-        if len(path) == 1:
-            if errDist < (3 * marksize):
-                # if ser: pwm(ser, 0, 0)
-                # pid.reset()
-                path = None
-        elif errDist < (marksize):
-            # if ser: pwm(ser, 0, 0)
-            # pid.reset()
-            path.pop(0)
-    
-    # Tampilkan informasi
-    cv2.putText(img, f"Dist   : {int(errDist)}", (10, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255), 2)
-    cv2.putText(img, f"Degree : {int(avg_degree)}", (10, 100), cv2.FONT_HERSHEY_COMPLEX, 1, (255), 2)
-    cv2.putText(img, f"Left Speed  : {left_speed}", (10, 150), cv2.FONT_HERSHEY_COMPLEX, 1, (255), 2)
-    cv2.putText(img, f"Right Speed : {right_speed}", (10, 200), cv2.FONT_HERSHEY_COMPLEX, 1, (255), 2)
-
-    cv2.imshow("Frame", img)
+    # Default tampilkan frame saja
+    cv2.imshow("Frame", gray)
     if cv2.waitKey(1) & 0xFF == 27:
         if ser: pwm(ser, 0, 0)
-        running = False
+        break
 
+# --- Bersihkan ---
 cap.release()
 cv2.destroyAllWindows()

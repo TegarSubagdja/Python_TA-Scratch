@@ -1,6 +1,8 @@
 from Utils import *
 
-def Prep(img, start, goal, markSize, scale=5):
+scale=20
+
+def Prep(img, start, goal, markSize):
     # Step 1: Grayscale
     if len(img.shape) == 3:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -21,18 +23,20 @@ def Prep(img, start, goal, markSize, scale=5):
 
     # Step 5: Timpa robot dengan warna hitam
     if start is not None and goal is not None:
-        cv2.circle(binary_with_buffer, goal[0], int(3*markSize), 0, -1)
-        cv2.circle(binary_with_buffer, start[0], int(3*markSize), 0, -1)
+        cv2.circle(binary_with_buffer, goal[0], int(2*markSize), 0, -1)
+        cv2.circle(binary_with_buffer, start[0], int(2*markSize), 0, -1)
 
     _, resize = cv2.threshold(binary_with_buffer, 100, 255, cv2.THRESH_BINARY)
 
-    resize = cv2.resize(binary_with_buffer, (0,0), fx=0.2, fy=0.2)
+    x, y = (1/scale), (1/scale)
 
-    cv2.imwrite('Hasil Prep.jpg', binary_with_buffer)
+    resize = cv2.resize(binary_with_buffer, (0,0), fx=x, fy=y)
+
+    cv2.imwrite('Hasil Prep.jpg', resize)
 
     return resize
 
-def PrepCoord(start, goal, path=None, scale=5):
+def PrepCoord(start, goal, path=None):
 
     if path is None:
         # Hanya ubah start dan goal (misal kalikan scale)

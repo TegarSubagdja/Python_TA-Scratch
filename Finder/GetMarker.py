@@ -30,7 +30,7 @@ def Pos(img):
         aruco.drawDetectedMarkers(image=img, corners=corners)
 
         if not start or not goal:
-            return 0,0,0
+            return None, None, None
 
         startPts = [(int(x), int(y)) for x, y in start[1]]
         goalPts = [(int(x), int(y)) for x, y in goal[1]]
