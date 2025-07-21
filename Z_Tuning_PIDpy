@@ -1,3 +1,4 @@
+import cv2.ccm
 from Utils import *
 
 ser = None
@@ -20,13 +21,13 @@ aruco_params = aruco.DetectorParameters()
 detector = aruco.ArucoDetector(aruco_dict, aruco_params)
 
 # Paramerter Control
-MAX_SPEED = 40
+MAX_SPEED = 45
 MIN_PWM = 0
 base_speed = MAX_SPEED
 correction_limit = MAX_SPEED
-kp = 0.5
+kp = 0.47
 ki = 0.1
-kd = 0.13
+kd = 0.12
 dt = 0.1
 pid = PID(Kp=kp, Ki=ki, Kd=kd, dt=dt, output_limit=MAX_SPEED, integral_limit=40)
 
@@ -47,7 +48,9 @@ while True:
         print("Gagal membaca frame dari kamera.")
         break
 
-    tinggi, lebar, _ = frame.shape
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    tinggi, lebar= frame.shape
 
     # Gambar area batas dan titik pojok
     area_pts = [(300, 200), (lebar - 300, 200), (lebar - 300, tinggi - 200), (300, tinggi - 200)]
@@ -108,7 +111,7 @@ while True:
 
         if ser: pwm(ser, left_speed, right_speed)
 
-        if dist < 35:
+        if dist < 50:
             if ser: pwm(ser, 0, 0)
             pid.reset()
             targetId += 1
@@ -118,8 +121,8 @@ while True:
         # Visualisasi
 
         for i in range(4):
-            cv2.line(frame, area_pts[i], area_pts[(i + 1) % 4], (255, 0, 255), 4)
-            cv2.circle(frame, area_pts[i], 10, (255, 128, 255), -1)
+            cv2.line(frame, area_pts[i], area_pts[(i + 1) % 4], (0, 0, 0), 4)
+            cv2.circle(frame, area_pts[i], 10, (255, 255, 255), -1)
 
         cv2.arrowedLine(frame, bottom, top, (255, 255, 255), 2, tipLength=0.2)
         cv2.line(frame, center, goal, (0, 255, 255), 2)
