@@ -21,7 +21,7 @@ def runPengujian(size = [16, 32, 64, 128]):
         np.place(map, map == 2, 0)
         np.place(map, map == 3, 0)
 
-        kombinasi_flags = list(itertools.product([False, True], repeat=7))
+        kombinasi_flags = list(itertools.product([False, True], repeat=6))
         print(f"Total kombinasi: {len(kombinasi_flags)}\n")
         print(kombinasi_flags)
 
@@ -40,7 +40,7 @@ def runPengujian(size = [16, 32, 64, 128]):
             map = Z_GetMap.upscale(map, sz)
 
             for flags in kombinasi_flags:
-                JPS, BDS, GLF, BRC, TPF, PPO, EL = flags
+                JPS, BDS, GLF, BRC, TPF, PPO = flags
 
                 aktif_flags = []
                 if JPS: aktif_flags.append("JPS")
@@ -49,7 +49,6 @@ def runPengujian(size = [16, 32, 64, 128]):
                 if BRC: aktif_flags.append("BRC")
                 if TPF: aktif_flags.append("TPF")
                 if PPO: aktif_flags.append("PPO")
-                if EL and BDS: aktif_flags.append("EL")
                 method_name = "-".join(aktif_flags) if aktif_flags else "A*"
 
                 start = (0, 0)
@@ -69,7 +68,7 @@ def runPengujian(size = [16, 32, 64, 128]):
                     (path, times), openlist, closelist = Algoritm(
                         map.copy(), start, goal, hchoice=2,
                         JPS=JPS, BDS=BDS, GLF=GLF,
-                        BRC=BRC, TPF=TPF, PPO=PPO, EL=EL,
+                        BRC=BRC, TPF=TPF, PPO=PPO,
                         show=False, speed=200
                     )
 
@@ -140,6 +139,8 @@ if __name__ == "__main__":
 
     # sys.exit()
 
+    from Algoritma import JPS_Animate
+
     timesArr = []
 
     for i in range(5):
@@ -153,10 +154,10 @@ if __name__ == "__main__":
 
         # Load dan persiapan peta
         map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
-        map = Z_GetMap.upscale(map, 128)
+        map = Z_GetMap.upscale(map, 64)
         matrix = map.copy()
 
-        start = (0, 0)
+        start = (5, 5)
         goal = (map.shape[0]-1, map.shape[0]-1)
 
         np.place(matrix, matrix == 1, 255)
@@ -164,17 +165,16 @@ if __name__ == "__main__":
         np.place(map, map == 3, 0)
 
         # try:
-        (path, times), openlist, closelist = Algoritm(
+        (path, times), openlist, closelist = JPS_Animate.method(
             matrix, start, goal, 2,
-            JPS=True,
-            BDS=True,
-            EL=True,
+            # JPS=True,
+            # BDS=True,
             BRC=False,
             PPO=False,
             TPF=False,
             GLF=False,
-            show=False,
-            speed=1,
+            show=True,
+            speed=3,
         )
 
         timesArr.append(times)

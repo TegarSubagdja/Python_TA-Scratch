@@ -1,5 +1,7 @@
 from Utils import *
 
+surface, cell_size = None, None
+
 def heuristic(start, goal, hchoice):
     if hchoice == 1:
         xdist = math.fabs(goal[0] - start[0])
@@ -62,7 +64,7 @@ def nodeNeighbours(currentX, currentY, parent, matrix):
             (1, -1),
             (1, 1),
         ]:
-             if not blocked(currentX, currentY, moveX, moveY, matrix):
+            if not blocked(currentX, currentY, moveX, moveY, matrix):
                 neighbours.append((currentX + moveX, currentY + moveY))
 
         return neighbours
@@ -107,8 +109,8 @@ def nodeNeighbours(currentX, currentY, parent, matrix):
                     neighbours.append((currentX + moveX, currentY - 1))
     return neighbours
 
-
-def jump(currentX, currentY, moveX, moveY, matrix, goal):
+# Modified jump function to pass back potential jump points for visualization
+def jump(currentX, currentY, moveX, moveY, matrix, goal, jump_points_visual_list=None):
 
     nX = currentX + moveX
     nY = currentY + moveY
@@ -116,13 +118,19 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
         return None
 
     if (nX, nY) == goal:
+        if jump_points_visual_list is not None:
+            jump_points_visual_list.append((nX, nY))
         return (nX, nY)
     
     oX = nX
     oY = nY
 
-    if moveX != 0 and moveY != 0:
-        while True:
+    while True:
+        # Add the current (oX, oY) to the list for visualization
+        if jump_points_visual_list is not None:
+            jump_points_visual_list.append((oX, oY))
+
+        if moveX != 0 and moveY != 0:
             if (
                 not blocked(oX, oY, -moveX, moveY, matrix)
                 and blocked(oX, oY, -moveX, 0, matrix)
@@ -132,63 +140,43 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal):
                 return (oX, oY)
 
             if (
-                jump(oX, oY, moveX, 0, matrix, goal) != None
-                or jump(oX, oY, 0, moveY, matrix, goal) != None
+                jump(oX, oY, moveX, 0, matrix, goal, jump_points_visual_list) != None
+                or jump(oX, oY, 0, moveY, matrix, goal, jump_points_visual_list) != None
             ):
                 return (oX, oY)
 
-            oX += moveX
-            oY += moveY
-
-            if blocked(oX, oY, 0, 0, matrix):
-                return None
-
-            if dblock(oX, oY, moveX, moveY, matrix):
-                return None
-
-            if (oX, oY) == goal:
-                return (oX, oY)
-    else:
-        if moveX != 0:
-            while True:
+        else: # moveX == 0 or moveY == 0 (straight moves)
+            if moveX != 0: # Horizontal move
                 if (
-                    not blocked(oX, nY, moveX, 1, matrix)
-                    and blocked(oX, nY, 0, 1, matrix)
-                    or not blocked(oX, nY, moveX, -1, matrix)
-                    and blocked(oX, nY, 0, -1, matrix)
+                    not blocked(oX, oY, moveX, 1, matrix)
+                    and blocked(oX, oY, 0, 1, matrix)
+                    or not blocked(oX, oY, moveX, -1, matrix)
+                    and blocked(oX, oY, 0, -1, matrix)
                 ):
-                    return (oX, nY)
-
-                oX += moveX
-
-                if blocked(oX, nY, 0, 0, matrix):
-                    return None
-
-                if (oX, nY) == goal:
-                    return (oX, nY)
-
-        else:
-            while True:
+                    return (oX, oY)
+            else: # Vertical move
                 if (
-                    not blocked(nX, oY, 1, moveY, matrix)
-                    and blocked(nX, oY, 1, 0, matrix)
-                    or not blocked(nX, oY, -1, moveY, matrix)
-                    and blocked(nX, oY, -1, 0, matrix)
+                    not blocked(oX, oY, 1, moveY, matrix)
+                    and blocked(oX, oY, 1, 0, matrix)
+                    or not blocked(oX, oY, -1, moveY, matrix)
+                    and blocked(oX, oY, -1, 0, matrix)
                 ):
-                    return (nX, oY)
+                    return (oX, oY)
 
-                oY += moveY
+        oX += moveX
+        oY += moveY
 
-                if blocked(nX, oY, 0, 0, matrix):
-                    return None
+        if blocked(oX, oY, 0, 0, matrix):
+            return None
 
-                if (nX, oY) == goal:
-                    return (nX, oY)
+        if dblock(oX, oY, moveX, moveY, matrix):
+            return None
 
-    return jump(nX, nY, moveX, moveY, matrix, goal)
+        if (oX, oY) == goal:
+            return (oX, oY)
 
 
-def identifySuccessors(currentX, currentY, came_from, matrix, goal):
+def identifySuccessors(currentX, currentY, came_from, matrix, goal, jump_points_visual_list=None):
     successors = []
     neighbours = nodeNeighbours(currentX, currentY, came_from.get((currentX, currentY), 0), matrix)
 
@@ -196,11 +184,12 @@ def identifySuccessors(currentX, currentY, came_from, matrix, goal):
         moveX = cell[0] - currentX
         moveY = cell[1] - currentY
 
-        jumpPoint = jump(currentX, currentY, moveX, moveY, matrix, goal)
+        # Pass the visualization list to the jump function
+        jumpPoint = jump(currentX, currentY, moveX, moveY, matrix, goal, jump_points_visual_list)
 
         if jumpPoint != None:
             successors.append(jumpPoint)
-        
+            
     return successors
 
 
@@ -235,7 +224,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 data = Prunning(data, matrix)
             endtime = time.time()
             if show:
-
+                # Clear jump_points_to_display for final render
                 Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, data)
                 clock.tick(speed)  # Batasi ke 200 FPS
                 
@@ -249,7 +238,6 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                         elif event.type == pygame.KEYDOWN:
                             waiting = False
 
-                # Handle event disini
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
@@ -261,9 +249,11 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
             return (data, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
-
+        
+        # New list to store points for visualization during successor identification
+        current_jump_points_for_display = []
         successors = identifySuccessors(
-            current[0], current[1], came_from, matrix, goal
+            current[0], current[1], came_from, matrix, goal, current_jump_points_for_display
         )
 
         for successor in successors:
@@ -301,22 +291,47 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
 
             if show:
-
-                Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list)
-                clock.tick(speed)  # Batasi ke 200 FPS
-
-                # Handle event disini
+                # Temporary list to accumulate points for rendering
+                temp_points_to_render = [] 
+                
+                # Loop through each point in current_jump_points_for_display
+                for point_to_show in current_jump_points_for_display:
+                    # Add the current point to the temporary accumulation list
+                    temp_points_to_render.append(point_to_show)
+                    
+                    # Render with the accumulated points
+                    Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, None, temp_points_to_render)
+                    
+                    # Add a small delay for step-by-step visualization
+                    clock.tick(speed * 4) # Adjust speed as needed for step-by-step jump animation
+                    
+                    # Handle Pygame events during the delay
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            exit()
+                
+                # After the loop, current_jump_points_for_display already holds the full jump path.
+                # You might want a final render of the complete path for this jump before clearing.
+                # This is effectively already done by the last iteration of the loop,
+                # but an explicit call here can ensure it's shown for a moment longer if desired.
+                # Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, None, current_jump_points_for_display)
+                # clock.tick(speed) 
+                
+                # Clear the list for the next iteration (important for new jump paths)
+                current_jump_points_for_display.clear() 
+                
+                # Handle Pygame events after the full jump path (if not cleared)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
                         exit()
-                    elif event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            pygame.quit()
-                            exit()
-
-        # pygame.image.save(surface, "Loop Pertama JPS.jpg")
-        # sys.exit()
+                    elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                        exit()
 
     endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0
@@ -356,18 +371,22 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
     while open_f and open_b and not meet_point:
         
+        # New list to store points for visualization during successor identification for forward search
+        current_jump_points_for_display_f = []
+        # New list to store points for visualization during successor identification for backward search
+        current_jump_points_for_display_b = []
+
         # ============ Forward Expand ============
         if open_f:
             _, current_f = heapq.heappop(open_f)
             close_f.add(current_f)
 
-            successors = identifySuccessors(current_f[0], current_f[1], came_from_f, matrix, goal)
+            successors = identifySuccessors(current_f[0], current_f[1], came_from_f, matrix, goal, current_jump_points_for_display_f)
             
             for succ in successors:
                 if succ in close_f:
                     continue
 
-                # Single-line conditional calculations
                 v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, k) if TPF else 0
                 v2 = BR(succ, goal, matrix) or 1 if BRC else 1
                 v3 = GL(start, goal, succ) if GLF else 0
@@ -378,10 +397,8 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     came_from_f[succ] = current_f
                     g_f[succ] = tentative_g
 
-                    # Pre-compute heuristic values
                     h_to_goal = heuristic(succ, goal, hchoice)
                     
-                    # Optimized f-value calculation
                     if BRC:
                         f_f[succ] = tentative_g + (h_to_goal * (1 - math.log(v2))) + v1 + v3 
                     else:
@@ -389,7 +406,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
                     heapq.heappush(open_f, (f_f[succ], succ))
 
-                # Meeting point check
                 if succ in close_b:
                     meet_point = succ
                     break
@@ -399,13 +415,12 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
             _, current_b = heapq.heappop(open_b)
             close_b.add(current_b)
 
-            successors_b = identifySuccessors(current_b[0], current_b[1], came_from_b, matrix, start)
+            successors_b = identifySuccessors(current_b[0], current_b[1], came_from_b, matrix, start, current_jump_points_for_display_b)
             
             for succ in successors_b:
                 if succ in close_b:
                     continue
 
-                # Single-line conditional calculations
                 v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, k) if TPF else 0
                 v2 = BR(succ, start, matrix) or 1 if BRC else 1
                 v3 = GL(goal, start, succ) if GLF else 0
@@ -416,31 +431,31 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     came_from_b[succ] = current_b
                     g_b[succ] = tentative_g
 
-                    # Pre-compute heuristic values
                     h_to_start = heuristic(succ, start, hchoice)
                     
-                    # Optimized f-value calculation
                     if BRC:
-                        # Cache log calculation
-                        f_b[succ] = tentative_g + (h_to_start * (1 - math.log(v2))) + v1 + v3
+                        f_b[succ] = tentative_g + (h_to_start * (1 - math.log(v2))) + v1 + v3 
                     else:
                         f_b[succ] = tentative_g + h_to_start + v1 + v3 
 
                     heapq.heappush(open_b, (f_b[succ], succ))
 
-                # Meeting point check
                 if succ in close_f:
                     meet_point = succ
                     break
 
         if show:
-            # Combine sets sekali saja
             combined_open = open_f + open_b
-            combined_close = close_f | close_b  # Operator | lebih cepat dari union()
-            Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_close)
+            combined_close = close_f | close_b 
+            # Combine jump points from both forward and backward searches for display
+            combined_jump_points = current_jump_points_for_display_f + current_jump_points_for_display_b
+            Z_GetMap.Render(surface, matrix, cell_size, combined_open, combined_close, None, combined_jump_points)
+            
+            current_jump_points_for_display_f.clear()
+            current_jump_points_for_display_b.clear()
+
             clock.tick(speed)
 
-            # Event handling yang lebih efisien
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
@@ -451,7 +466,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
         return (0, round(endTime - startTime, 6)), 0, 0
 
     # ============ Path Reconstruction ============
-    # Forward path
     path_f = []
     node = meet_point
     while node in came_from_f:
@@ -460,14 +474,12 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     path_f.append(start)
     path_f.reverse()
 
-    # Backward path
     path_b = []
     node = meet_point
     while node in came_from_b:
         node = came_from_b[node]
         path_b.append(node)
 
-    # Combine path tanpa duplikasi
     full_path = path_f + path_b
 
     if PPO:
@@ -476,6 +488,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     endTime = time.time()
 
     if show:
+        # Final render with the full path, and no current jump points
         Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, full_path)
         clock.tick(speed)
         time.sleep(2)
@@ -489,18 +502,24 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
 def lenght(current, jumppoint, hchoice):
     moveX, moveY = direction(current[0], current[1], jumppoint[0], jumppoint[1])
-    moveX = math.fabs(moveX)
-    moveY = math.fabs(moveY)
+    # Correction: direction returns the actual step (-1, 0, or 1), not difference
+    # For length calculation, we need the absolute difference in coordinates
     lX = math.fabs(current[0] - jumppoint[0])
     lY = math.fabs(current[1] - jumppoint[1])
-    if hchoice == 1:
-        if moveX != 0 and moveY != 0:
-            lenght = lX * 14
-            return lenght
-        else:
-            lenght = (moveX * lX + moveY * lY) * 10
-            return lenght
-    if hchoice == 2:
+
+    if hchoice == 1: # Manhattan or Octile based
+        if lX != 0 and lY != 0: # Diagonal jump
+            # Each diagonal step costs 14, each straight step costs 10.
+            # A jump point covers multiple steps, so calculate true distance.
+            min_dim = min(lX, lY)
+            max_dim = max(lX, lY)
+            # Octile distance formula for the length of the jump
+            length = min_dim * 14 + (max_dim - min_dim) * 10
+            return length
+        else: # Straight jump (horizontal or vertical)
+            length = (lX + lY) * 10 # Only one of lX or lY will be non-zero
+            return length
+    if hchoice == 2: # Euclidean
         return math.sqrt(
             (current[0] - jumppoint[0]) ** 2 + (current[1] - jumppoint[1]) ** 2
         )
