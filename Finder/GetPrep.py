@@ -39,15 +39,15 @@ def PrepCoord(start, goal, path=None):
     if path is None:
         # Ubah skala start dan goal ke ukuran kecil
         x, y = start[0]
-        pStart = (y // scale, x // scale)
+        sStart = (y // scale, x // scale)
         x, y = goal[0]
-        pGoal = (y // scale, x // scale)
-        return pStart, pGoal
+        sGoal = (y // scale, x // scale)
+        return sStart, sGoal
     else:
         # Ubah Skala start, goal, dan path  ke ukuran semula
         x, y = path[0]
-        pStart = (y * scale, x * scale)
+        sStart = (y * scale, x * scale)
         x, y = path[-1]
-        pGoal = (y * scale, x * scale)
-        newPath = [(y * scale, x * scale) for (x, y) in path]
-        return pStart, pGoal, newPath
+        sGoal = (y * scale, x * scale)
+        sPath = [(y * scale, x * scale) for (x, y) in path]
+        return sStart, sGoal, sPath
