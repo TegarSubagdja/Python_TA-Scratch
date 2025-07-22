@@ -4,7 +4,7 @@ import time
 import serial
 from collections import deque
 
-# --- Konfigurasi ---
+# Konfigurasi
 PORT = "COM9"
 CAM_ID = 1
 FRAME_SIZE = (1280, 720)
@@ -13,31 +13,32 @@ MAX_SPEED = 40
 MIN_PWM = 0
 MARKER_LOST_TIMEOUT = 2
 
-# --- Inisialisasi Serial ---
+# Inisialisasi Serial
 try:
     ser = serial.Serial(PORT, 9600, timeout=1)
     print(f"Tersambung ke {PORT}")
 except Exception as e:
+    ser = None
     print(f"Gagal membuka port {PORT}: {e}")
-    exit()
+    # exit()
 
-# --- Inisialisasi Kamera ---
+# Inisialisasi Kamera
 cap = cv2.VideoCapture(CAM_ID, cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_SIZE[0])
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_SIZE[1])
 
-# --- Inisialisasi Aruco Marker ---
+# Inisialisasi Aruco Marker
 detector_params = aruco.DetectorParameters()
 detector_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
 detector = aruco.ArucoDetector(detector_dict, detector_params)
 
-# --- Inisialisasi Variabel ---
+# Inisialisasi Variabel
 path = None
 pid = PID(Kp=0.5, Ki=0.1, Kd=0.13, dt=0.1, output_limit=MAX_SPEED, integral_limit=MAX_SPEED)
 degree_buffer = deque(maxlen=3)
 last_time = marker_lost_time = time.time()
 
-# --- Loop Utama ---
+# Loop Utama
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -46,7 +47,7 @@ while True:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     start, goal, marksize = Pos(gray, detector)
 
-    # --- Tangani kehilangan marker ---
+    # Tangani kehilangan marker
     if start is None or goal is None:
         if time.time() - marker_lost_time >= MARKER_LOST_TIMEOUT:
             path = None
@@ -57,7 +58,7 @@ while True:
         continue
     marker_lost_time = time.time()
 
-    # --- Jika path sedang tersedia ---
+    # Jika path, robot dan tujuan tersedia
     if path and start and goal:
         target = tuple(path[0])
         errDist, errDegree = Error(gray, start, target)
@@ -73,7 +74,7 @@ while True:
             path.pop(0)
 
         else:
-            # --- Navigasi PID ---
+            # Navigasi PID
             degree_buffer.append(errDegree)
             avg_degree = sum(degree_buffer) / len(degree_buffer)
 
@@ -106,12 +107,12 @@ while True:
             break
         continue
 
-    # --- Jika tidak ada path dan robot terlihat ---
+    # Jika tidak ada path dan robot terlihat
     elif start and goal:
         # Jarak ke goal untuk menentukan perlu hitung path atau tidak
         errDist, _ = Error(gray, start, goal)
 
-        if errDist < 2 * marksize:
+        if errDist < 3 * marksize:
             # Cukup tampilkan frame, jangan hitung path baru
             cv2.imshow("Frame", gray)
             if cv2.waitKey(1) & 0xFF == 27:
@@ -144,6 +145,6 @@ while True:
         if ser: pwm(ser, 0, 0)
         break
 
-# --- Bersihkan ---
+# Bersihkan
 cap.release()
 cv2.destroyAllWindows()
