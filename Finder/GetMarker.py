@@ -1,12 +1,8 @@
 from Utils import *
 
 
-def Pos(img):
-    
-    # Inisialisasi ArUco
-    detector_params = aruco.DetectorParameters()
-    detector_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
-    detector = aruco.ArucoDetector(detector_dict, detector_params)
+def Pos(img, detector):
+
     corners, ids, _ = detector.detectMarkers(img)
 
     # Variabel untuk meyimpan start dan goal

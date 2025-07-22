@@ -26,6 +26,11 @@ cap = cv2.VideoCapture(CAM_ID, cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_SIZE[0])
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_SIZE[1])
 
+# --- Inisialisasi Aruco Marker ---
+detector_params = aruco.DetectorParameters()
+detector_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
+detector = aruco.ArucoDetector(detector_dict, detector_params)
+
 # --- Inisialisasi Variabel ---
 path = None
 pid = PID(Kp=0.5, Ki=0.1, Kd=0.13, dt=0.1, output_limit=MAX_SPEED, integral_limit=MAX_SPEED)
@@ -39,7 +44,7 @@ while True:
         break
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    start, goal, marksize = Pos(gray)
+    start, goal, marksize = Pos(gray, detector)
 
     # --- Tangani kehilangan marker ---
     if start is None or goal is None:
