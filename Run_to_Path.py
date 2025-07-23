@@ -44,7 +44,10 @@ while True:
     if not ret:
         break
 
+    # Ubah frame ke grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # Cari titik start (robot) dan goal
     start, goal, marksize = Pos(gray, detector)
 
     # Tangani kehilangan marker

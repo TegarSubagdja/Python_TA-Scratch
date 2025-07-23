@@ -406,7 +406,7 @@ if __name__ == "__main__":
 
     timesArr = []
 
-    for i in range(10):
+    for i in range(1):
 
         mapChoice = 2
 
@@ -417,7 +417,7 @@ if __name__ == "__main__":
 
         # Load dan persiapan peta
         map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
-        map = Z_GetMap.upscale(map, 64)
+        # map = Z_GetMap.upscale(map, 64)
         matrix = map.copy()
 
         start = (0, 0)

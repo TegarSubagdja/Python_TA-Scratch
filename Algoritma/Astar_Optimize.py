@@ -57,7 +57,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                 current = came_from[current]
             path.append(start)
             path = path[::-1]
-            if PPO:
+            if PPO: 
                 path = Prunning(path, map)
             endtime = time.time()
             if show:
@@ -118,7 +118,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
             ):  # and tentative_g_score >= gscore.get(neighbour,0):
                 continue
         
-            # Single-line conditional calculations
+            # Perhitungan Koefisien Tambahann Pengoptimasi
             v1 = TP(came_from.get(current, current), current, neighbour, k) if TPF else 0
             v2 = BR(neighbour, goal, map) or 1 if BRC else 1
             v3 = GL(start, goal, neighbour) if GLF else 0
@@ -177,7 +177,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
     g_f = {start: 0}
     f_f = {start: heuristic(start, goal, hchoice)}
 
-    #Backward
+    # Backward
     came_from_b = {}
     open_b = []
     close_b = set()
@@ -194,7 +194,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
 
     while open_f and open_b and not meet_point:
 
-        # --- Forward Search ---
+        # Forward Search
         if open_f:
             _, current_f = heapq.heappop(open_f)
             close_f.add(current_f)
@@ -238,7 +238,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     meet_point = neighbour
                     break
 
-        # --- Backward Search ---
+        # Backward Search
         if open_b and not meet_point:
             _, current_b = heapq.heappop(open_b)
             close_b.add(current_b)
@@ -282,7 +282,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     meet_point = neighbour
                     break
 
-            # --- Visualisasi ---
+            # Visualisasi
             if show:
                 path_preview = [meet_point] if meet_point else []
                 Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path_preview)
@@ -296,7 +296,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
         endTime = time.time()
         return (0, round(endTime - startTime, 6)), 0, 0
 
-    # --- Rekonstruksi Jalur ---
+    # Rekonstruksi Jalur
     # Forward path
     path_fwd = []
     node = meet_point
