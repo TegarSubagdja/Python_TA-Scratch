@@ -11,7 +11,6 @@ def heuristic(start, goal, hchoice):
     if hchoice == 2:
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
-
 def blocked(currentX, currentY, moveX, moveY, matrix):
     if currentX + moveX < 0 or currentX + moveX >= matrix.shape[0]:
         return True
@@ -31,13 +30,11 @@ def blocked(currentX, currentY, moveX, moveY, matrix):
                 return True
     return False
 
-
 def dblock(currentX, currentY, moveX, moveY, matrix):
     if matrix[currentX - moveX][currentY] == 255 and matrix[currentX][currentY - moveY] == 255:
         return True
     else:
         return False
-
 
 def direction(currentX, currentY, parentX, parentY):
     moveX = int(math.copysign(1, currentX - parentX))
@@ -47,7 +44,6 @@ def direction(currentX, currentY, parentX, parentY):
     if currentY - parentY == 0:
         moveY = 0
     return (moveX, moveY)
-
 
 def nodeNeighbours(currentX, currentY, parent, matrix):
     neighbours = []
@@ -106,7 +102,6 @@ def nodeNeighbours(currentX, currentY, parent, matrix):
                 if blocked(currentX, currentY, 0, -1, matrix):
                     neighbours.append((currentX + moveX, currentY - 1))
     return neighbours
-
 
 def jump(currentX, currentY, moveX, moveY, matrix, goal):
 
@@ -321,7 +316,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
     endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0
 
-def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=60, k=0.5):
+def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=False, ELL=True, show=False, speed=60, k=0.5):
     
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
@@ -378,14 +373,16 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     came_from_f[succ] = current_f
                     g_f[succ] = tentative_g
 
-                    # Pre-compute heuristic values
-                    h_to_goal = heuristic(succ, goal, hchoice)
+                    if ELL:
+                        h_f = heuristic(succ, current_b, hchoice)
+                    else:
+                        h_f = heuristic(succ, goal, hchoice)
                     
                     # Optimized f-value calculation
                     if BRC:
-                        f_f[succ] = tentative_g + (h_to_goal * (1 - math.log(v2))) + v1 + v3 
+                        f_f[succ] = tentative_g + (h_f * (1 - math.log(v2))) + v1 + v3 
                     else:
-                        f_f[succ] = tentative_g + h_to_goal + v1 + v3 
+                        f_f[succ] = tentative_g + h_f + v1 + v3 
 
                     heapq.heappush(open_f, (f_f[succ], succ))
 
@@ -416,15 +413,17 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     came_from_b[succ] = current_b
                     g_b[succ] = tentative_g
 
-                    # Pre-compute heuristic values
-                    h_to_start = heuristic(succ, start, hchoice)
+                    if ELL:
+                        h_b = heuristic(succ, current_f, hchoice)
+                    else:
+                        h_b = heuristic(succ, start, hchoice)
                     
                     # Optimized f-value calculation
                     if BRC:
                         # Cache log calculation
-                        f_b[succ] = tentative_g + (h_to_start * (1 - math.log(v2))) + v1 + v3
+                        f_b[succ] = tentative_g + (h_b * (1 - math.log(v2))) + v1 + v3
                     else:
-                        f_b[succ] = tentative_g + h_to_start + v1 + v3 
+                        f_b[succ] = tentative_g + h_b + v1 + v3 
 
                     heapq.heappush(open_b, (f_b[succ], succ))
 
@@ -478,7 +477,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     if show:
         Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, full_path)
         clock.tick(speed)
-        time.sleep(3)
+        time.sleep(2)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):

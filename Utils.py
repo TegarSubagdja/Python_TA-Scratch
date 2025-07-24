@@ -34,7 +34,7 @@ import Z_GetMap as Visualize
 import Z_GetMap
 from Method.BarrierRasterCoefficient import barrierRaster as BR
 from Method.Guideline import guidline as GL
-from Algoritma import Astar_Optimize, JPS_Optimize
+from Algoritma import Astar_Optimize, JPS_Optimize, Astar_Optimize_ELL, JPS_Optimize_ELL
 from Control.Serial import pwm
 from GetAlgorithm import method as Algoritm
 
@@ -45,5 +45,5 @@ __all__ = [
     'BR', 'GL', 'TP',
     'Prunning', 'guidline', 'jarakGaris', 'Visualize', 'Z_GetMap',
     'PID', 'serial', 'pwm',
-    'Astar_Optimize', 'JPS_Optimize'
+    'Astar_Optimize', 'JPS_Optimize', 'Astar_Optimize_ELL', 'JPS_Optimize_ELL'
 ]

@@ -115,7 +115,7 @@ while True:
         # Jarak ke goal untuk menentukan perlu hitung path atau tidak
         errDist, _ = Error(gray, start, goal)
 
-        if errDist < 3 * marksize:
+        if errDist < 2 * marksize:
             # Cukup tampilkan frame, jangan hitung path baru
             cv2.imshow("Frame", gray)
             if cv2.waitKey(1) & 0xFF == 27:
