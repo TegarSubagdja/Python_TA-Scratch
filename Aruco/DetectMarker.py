@@ -2,7 +2,7 @@ import cv2
 import cv2.aruco as aruco
 import numpy as np
 
-def detect_aruco_realtime(camera_index=1, aruco_dict_type=aruco.DICT_4X4_50):
+def detect_aruco_realtime(camera_index=0, aruco_dict_type=aruco.DICT_4X4_50):
     """
     Deteksi ArUco marker secara realtime menggunakan webcam.
 
@@ -89,7 +89,7 @@ import cv2.aruco as aruco
 import numpy as np
 import time
 
-def detect_aruco_realtime_filer(camera_index=1, aruco_dict_type=aruco.DICT_4X4_50, min_valid_frames=3, timeout=2):
+def detect_aruco_realtime_filer(camera_index=0, aruco_dict_type=aruco.DICT_4X4_50, min_valid_frames=3, timeout=2):
     """
     Deteksi ArUco marker secara realtime menggunakan webcam dengan validasi multi-frame.
 
@@ -181,6 +181,6 @@ def detect_aruco_realtime_filer(camera_index=1, aruco_dict_type=aruco.DICT_4X4_5
 
 
 if __name__ == "__main__":
-    # detect_aruco_realtime()
+    detect_aruco_realtime()
     # detect_aruco_from_image("Image/1.jpg")  # Ganti dengan path gambar kamu
-    detect_aruco_realtime_filer(camera_index=1, min_valid_frames=3)
+    # detect_aruco_realtime_filer(camera_index=0, min_valid_frames=3)

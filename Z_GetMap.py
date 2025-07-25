@@ -78,6 +78,11 @@ def show(grid, window_size=512, name=None, path=None, openlist=None, closelist=N
                     pygame.draw.rect(screen, hex_to_rgb(colors[6]),
                                     (x * cell_size, y * cell_size, cell_size, cell_size))
 
+            # Gambar garis grid terakhir agar tidak tertimpa
+            for y in range(rows):
+                for x in range(cols):
+                    pygame.draw.rect(screen, (200, 200, 200), (x * cell_size, y * cell_size, cell_size, cell_size), 1)
+
             if path:
                 draw_path(path, screen)
 
@@ -165,7 +170,6 @@ def Render(surface, grid, cell_size, open_list=False, close_list=False, path=Non
                 color = hex_to_rgb(colors.get(value, "#FFFFFF"))
 
             pygame.draw.rect(surface, color, (x * cell_size, y * cell_size, cell_size, cell_size))
-            pygame.draw.rect(surface, (200, 200, 200), (x * cell_size, y * cell_size, cell_size, cell_size), 1)
 
     # Open List
     if open_list:
@@ -208,6 +212,11 @@ def Render(surface, grid, cell_size, open_list=False, close_list=False, path=Non
             y, x = point
             pygame.draw.rect(surface, gray,
                              (x * cell_size, y * cell_size, cell_size, cell_size))
+
+    # Gambar garis grid terakhir agar tidak tertimpa
+    for y in range(rows):
+        for x in range(cols):
+            pygame.draw.rect(surface, (200, 200, 200), (x * cell_size, y * cell_size, cell_size, cell_size), 1)
 
     pygame.image.save(surface, 'Map/Image/Map.jpg')
     pygame.display.flip()

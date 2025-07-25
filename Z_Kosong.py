@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-
 def heuristic(start, goal, hchoice):
     if hchoice == 1:
         xdist = math.fabs(goal[0] - start[0])
@@ -15,25 +14,217 @@ def heuristic(start, goal, hchoice):
     if hchoice == 2:
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
-start = (0,0)
-goal = (10, 10)
-hchoice = 2
 
-close_list = set()
+def blocked(currentX, currentY, moveX, moveY, matrix):
+    if currentX + moveX < 0 or currentX + moveX >= matrix.shape[0]:
+        return True
+    if currentY + moveY < 0 or currentY + moveY >= matrix.shape[1]:
+        return True
+    if moveX != 0 and moveY != 0:
+        if matrix[currentX + moveX][currentY] == 255 and matrix[currentX][currentY + moveY] == 255:
+            return True
+        if matrix[currentX + moveX][currentY + moveY] == 255:
+            return True
+    else:
+        if moveX != 0:
+            if matrix[currentX + moveX][currentY] == 255:
+                return True
+        else:
+            if matrix[currentX][currentY + moveY] == 255:
+                return True
+    return False
+
+
+def dblock(currentX, currentY, moveX, moveY, matrix):
+    if matrix[currentX - moveX][currentY] == 255 and matrix[currentX][currentY - moveY] == 255:
+        return True
+    else:
+        return False
+
+
+def direction(currentX, currentY, parentX, parentY):
+    moveX = int(math.copysign(1, currentX - parentX))
+    moveY = int(math.copysign(1, currentY - parentY))
+    if currentX - parentX == 0:
+        moveX = 0
+    if currentY - parentY == 0:
+        moveY = 0
+    return (moveX, moveY)
+
+
+def nodeNeighbours(currentX, currentY, parent, matrix):
+    neighbours = []
+    if type(parent) != tuple:
+        for moveX, moveY in [
+            (-1, 0),
+            (0, -1),
+            (1, 0),
+            (0, 1),
+            (-1, -1),
+            (-1, 1),
+            (1, -1),
+            (1, 1),
+        ]:
+             if not blocked(currentX, currentY, moveX, moveY, matrix):
+                neighbours.append((currentX + moveX, currentY + moveY))
+
+        return neighbours
+    moveX, moveY = direction(currentX, currentY, parent[0], parent[1])
+
+    if moveX != 0 and moveY != 0:
+        if not blocked(currentX, currentY, 0, moveY, matrix):
+            neighbours.append((currentX, currentY + moveY))
+        if not blocked(currentX, currentY, moveX, 0, matrix):
+            neighbours.append((currentX + moveX, currentY))
+        if (
+            not blocked(currentX, currentY, 0, moveY, matrix)
+            or not blocked(currentX, currentY, moveX, 0, matrix)
+        ) and not blocked(currentX, currentY, moveX, moveY, matrix):
+            neighbours.append((currentX + moveX, currentY + moveY))
+        if blocked(currentX, currentY, -moveX, 0, matrix) and not blocked(
+            currentX, currentY, 0, moveY, matrix
+        ):
+            neighbours.append((currentX - moveX, currentY + moveY))
+        if blocked(currentX, currentY, 0, -moveY, matrix) and not blocked(
+            currentX, currentY, moveX, 0, matrix
+        ):
+            neighbours.append((currentX + moveX, currentY - moveY))
+
+    else:
+        if moveX == 0:
+            if not blocked(currentX, currentY, moveX, 0, matrix):
+                if not blocked(currentX, currentY, 0, moveY, matrix):
+                    neighbours.append((currentX, currentY + moveY))
+                if blocked(currentX, currentY, 1, 0, matrix):
+                    neighbours.append((currentX + 1, currentY + moveY))
+                if blocked(currentX, currentY, -1, 0, matrix):
+                    neighbours.append((currentX - 1, currentY + moveY))
+
+        else:
+            if not blocked(currentX, currentY, moveX, 0, matrix):
+                if not blocked(currentX, currentY, moveX, 0, matrix):
+                    neighbours.append((currentX + moveX, currentY))
+                if blocked(currentX, currentY, 0, 1, matrix):
+                    neighbours.append((currentX + moveX, currentY + 1))
+                if blocked(currentX, currentY, 0, -1, matrix):
+                    neighbours.append((currentX + moveX, currentY - 1))
+    return neighbours
+
+
+def jump(currentX, currentY, moveX, moveY, matrix, goal):
+
+    nX = currentX + moveX
+    nY = currentY + moveY
+    if blocked(nX, nY, 0, 0, matrix):
+        return None
+
+    if (nX, nY) == goal:
+        return (nX, nY)
+    
+    oX = nX
+    oY = nY
+
+    if moveX != 0 and moveY != 0:
+        while True:
+            if (
+                not blocked(oX, oY, -moveX, moveY, matrix)
+                and blocked(oX, oY, -moveX, 0, matrix)
+                or not blocked(oX, oY, moveX, -moveY, matrix)
+                and blocked(oX, oY, 0, -moveY, matrix)
+            ):
+                return (oX, oY)
+
+            if (
+                jump(oX, oY, moveX, 0, matrix, goal) != None
+                or jump(oX, oY, 0, moveY, matrix, goal) != None
+            ):
+                return (oX, oY)
+
+            oX += moveX
+            oY += moveY
+
+            if blocked(oX, oY, 0, 0, matrix):
+                return None
+
+            if dblock(oX, oY, moveX, moveY, matrix):
+                return None
+
+            if (oX, oY) == goal:
+                return (oX, oY)
+    else:
+        if moveX != 0:
+            while True:
+                if (
+                    not blocked(oX, nY, moveX, 1, matrix)
+                    and blocked(oX, nY, 0, 1, matrix)
+                    or not blocked(oX, nY, moveX, -1, matrix)
+                    and blocked(oX, nY, 0, -1, matrix)
+                ):
+                    return (oX, nY)
+
+                oX += moveX
+
+                if blocked(oX, nY, 0, 0, matrix):
+                    return None
+
+                if (oX, nY) == goal:
+                    return (oX, nY)
+
+        else:
+            while True:
+                if (
+                    not blocked(nX, oY, 1, moveY, matrix)
+                    and blocked(nX, oY, 1, 0, matrix)
+                    or not blocked(nX, oY, -1, moveY, matrix)
+                    and blocked(nX, oY, -1, 0, matrix)
+                ):
+                    return (nX, oY)
+
+                oY += moveY
+
+                if blocked(nX, oY, 0, 0, matrix):
+                    return None
+
+                if (nX, oY) == goal:
+                    return (nX, oY)
+
+    return jump(nX, nY, moveX, moveY, matrix, goal)
+
+
+def identifySuccessors(currentX, currentY, came_from, matrix, goal):
+    successors = []
+    neighbours = nodeNeighbours(currentX, currentY, came_from.get((currentX, currentY), 0), matrix)
+
+    for cell in neighbours:
+        moveX = cell[0] - currentX
+        moveY = cell[1] - currentY
+
+        jumpPoint = jump(currentX, currentY, moveX, moveY, matrix, goal)
+
+        if jumpPoint != None:
+            successors.append(jumpPoint)
+        
+    return successors
+
+matrix = np.array([
+    [0,255,0,0,0,0,255],
+    [0,255,0,0,255,0,255],
+    [0,255,0,0,255,0,255],
+    [0,255,0,0,0,0,255],
+    [0,255,0,0,255,0,255],
+    [0,255,0,0,255,0,255],
+    [0,255,0,0,255,0,255],
+])
+
+df = pd.DataFrame(matrix)
+
+df.iloc[2, 3] = 5
+
+print(df)
 came_from = {}
-gn = {start: 0}
-fn = {start: heuristic(start, goal, hchoice)}
+came_from[(2,3)] = (1,2)
+currentX, currentY = (2,3)
 
-open_list = [(25.3172790631008, (7, 13)), (25.584300887831354, (10, 14)), (25.366697952852476, (6, 10)), (25.83719413699133, (10, 5)), (25.730446831456966, (10, 12)), (25.735496371655184, (0, 6)), (25.729473667624422, (12, 6)), (25.856183502066138, (5, 0)), (26.258324758227822, (7, 4)), (26.142135623730955, (13, 13)), (25.841397426134485, (5, 11)), (25.91992561366158, (11, 6)), (25.899494936611667, (15, 14))]
-close_list = {(4, 9), (5, 4), (4, 6), (5, 1), (0, 2), (8, 9), (10, 6), (8, 6), (2, 2), (10, 9), (1, 6), (9, 11), (2, 5), (10, 12), (11, 14), (11, 11), (2, 8), (13, 14), (7, 7), (6, 11), (7, 10), (4, 2), (3, 9), (5, 6), (3, 6), (5, 3), (5, 9), (8, 11), (0, 1), (2, 4), (1, 2), (10, 11), (11, 10), (2, 7), (10, 8), (7, 9), (7, 6), (7, 12), (6, 10), (3, 2), (12, 14), (5, 2), (5, 5), (14, 14), (0, 0), (9, 9), (9, 6), (11, 9), (10, 7), (10, 13), (11, 6), (2, 3), (2, 9), (2, 6), (6, 6), (7, 5), (7, 11), (6, 9), (7, 8)}
-# gn = {(0, 0): 0, (0, 1): 1, (0, 2): 2, (1, 2): 2.414213562373095, (2, 2): 3.414213562373095, (2, 3): 3.82842712474619, (2, 4): 4.82842712474619, (3, 2): 4.414213562373095, (2, 5): 5.82842712474619, (4, 2): 5.414213562373095, (2, 6): 6.82842712474619, (3, 6): 7.242640687119285, (1, 6): 7.242640687119285, (4, 6): 8.242640687119284, (2, 7): 7.82842712474619, (5, 2): 6.414213562373095, (5, 3): 6.82842712474619, (5, 1): 6.82842712474619, (5, 4): 7.82842712474619, (5, 6): 9.242640687119284, (5, 5): 8.82842712474619, (6, 6): 10.242640687119284, (7, 6): 11.242640687119284, (7, 7): 11.65685424949238, (7, 5): 11.65685424949238, (7, 8): 12.65685424949238, (8, 6): 12.242640687119284, (2, 8): 8.82842712474619, (7, 9): 13.65685424949238, (8, 9): 14.071067811865476, (6, 9): 13.242640687119286, (9, 9): 15.071067811865476, (7, 10): 14.65685424949238, (10, 9): 16.071067811865476, (10, 8): 15.65685424949238, (2, 9): 9.82842712474619, (3, 9): 10.242640687119286, (9, 6): 13.242640687119284, (6, 10): 13.656854249492381, (4, 9): 11.242640687119286, (5, 9): 12.242640687119286, (11, 9): 17.071067811865476, (11, 10): 17.48528137423857, (0, 6): 8.242640687119284, (11, 11): 18.48528137423857, (10, 11): 18.071067811865476, (6, 11): 14.656854249492381, (7, 11): 15.071067811865477, (5, 11): 15.071067811865477, (7, 12): 16.071067811865476, (8, 11): 16.071067811865476, (5, 0): 7.82842712474619, (10, 6): 14.242640687119284, (10, 7): 14.65685424949238, (10, 5): 14.65685424949238, (11, 6): 15.242640687119284, (9, 11): 17.071067811865476, (10, 12): 18.48528137423857, (10, 13): 19.48528137423857, (7, 4): 12.65685424949238, (7, 13): 17.071067811865476, (10, 14): 20.48528137423857, (11, 14): 20.899494936611667, (12, 14): 21.899494936611667, (13, 14): 22.899494936611667, (13, 13): 23.313708498984763, (12, 6): 16.242640687119284, (14, 14): 23.899494936611667, (15, 14): 24.899494936611667, (15, 15): 25.313708498984763}
-fn = {(0, 0): 21.213203435596427, (0, 1): 21.518284528683193, (0, 2): 21.849433241279208, (1, 2): 21.519186736915895, (2, 2): 21.79898987322333, (2, 3): 21.520233137700323, (2, 4): 21.85781349067259, (3, 2): 22.106019575327227, (2, 5): 22.229646591602915, (4, 2): 22.4435999282995, (2, 6): 22.639815425588086, (3, 6): 22.242640687119284, (1, 6): 23.885957664212523, (4, 6): 22.45531109067118, (2, 7): 23.092764647219937, (5, 2): 22.815433029229823, (5, 3): 22.4489264765595, (5, 1): 24.033077658831445, (5, 4): 22.694495872064696, (5, 6): 22.696264734192994, (5, 5): 22.970562748477143, (6, 6): 22.97056274847714, (7, 6): 23.28423526591158, (7, 7): 22.970562748477143, (7, 5): 24.463102724358077, (7, 8): 23.28700006222703, (8, 6): 23.644394938110665, (2, 8): 23.59325018497959, (7, 9): 23.65685424949238, (8, 9): 23.290612269158363, (6, 9): 24.059294513511254, (9, 9): 23.556349186104043, (7, 10): 24.090835381548985, (10, 9): 23.88131748777213, (10, 8): 24.259179516535006, (2, 9): 24.146248188022543, (3, 9): 23.659048552118023, (9, 6): 24.059294513511254, (6, 10): 23.952484390479384, (4, 9): 23.77260477326095, (5, 9): 23.90454447680989, (11, 9): 24.282170362793455, (11, 10): 23.88840561167142, (0, 6): 25.735496371655184, (11, 11): 24.14213562373095, (10, 11): 24.474192049298324, (6, 11): 24.505712051288484, (7, 11): 24.015339721864635, (5, 11): 25.841397426134485, (7, 12): 24.615071557183008, (8, 11): 24.133325560164025, (5, 0): 25.856183502066138, (10, 6): 24.538270828106285, (10, 7): 24.090835381548985, (10, 5): 25.83719413699133, (11, 6): 25.091498488915388, (9, 11): 24.282170362793455, (10, 12): 24.316233269083874, (10, 13): 24.870446181373076, (7, 4): 26.258324758227822, (7, 13): 25.3172790631008, (10, 14): 25.584300887831354, (11, 14): 25.02260056222933, (12, 14): 25.061772596780045, (13, 14): 25.135562914111457, (13, 13): 26.142135623730955, (12, 6): 25.729473667624422, (14, 14): 25.313708498984763, (15, 14): 25.899494936611667, (15, 15): 25.313708498984763}
+neighbours = nodeNeighbours(currentX, currentY, came_from.get((currentX, currentY), 0), matrix)
 
-tentative_gn = 168
-neighbour = (0,1)
-
-print(gn)
-print(gn.get(neighbour, 0) )
-
-if neighbour not in [i[1] for i in open_list]:
-    print(neighbour)
+print(neighbours)

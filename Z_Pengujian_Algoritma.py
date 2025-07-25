@@ -271,7 +271,7 @@ def runPengujianAvgLength(size = [16, 32, 64, 128]):
         pivot_belok = pivot_metric(data, "Jumlah Belokan")
 
         # Simpan ke Excel multi-sheet
-        with pd.ExcelWriter(f"Excel/TanpaELL/Hasil_Pengujian_{nameMap}_{size[-1]}_avg_length.xlsx") as writer:
+        with pd.ExcelWriter(f"Excel/Validasi/Hasil_Pengujian_{nameMap}_{size[-1]}_avg_length.xlsx") as writer:
             pivot_waktu.to_excel(writer, sheet_name="Waktu Pencarian", index=False)
             pivot_panjang.to_excel(writer, sheet_name="Panjang Jalur", index=False)
             pivot_length_real.to_excel(writer, sheet_name="Panjang Jalur Real", index=False)
@@ -550,7 +550,7 @@ if __name__ == "__main__":
 
     for i in range(1):
 
-        mapChoice = 2
+        mapChoice = 1
 
         if mapChoice < 1:
             nameMap = "Map"
@@ -559,7 +559,7 @@ if __name__ == "__main__":
 
         # Load dan persiapan peta
         map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
-        map = Z_GetMap.upscale(map, 128)
+        map = Z_GetMap.upscale(map, 16)
         matrix = map.copy()
 
         start = (0, 0)
@@ -570,7 +570,7 @@ if __name__ == "__main__":
         np.place(map, map == 3, 0)
 
         # try:
-        (path, times), openlist, closelist = JPS_Optimize.methodBds(
+        (path, times), openlist, closelist = Astar_Optimize.method(
             matrix, start, goal, 2,
             # JPS=False,
             # BDS=True,
@@ -601,8 +601,8 @@ if __name__ == "__main__":
 
     print(f"Rate : {np.mean(timesArr)}")
 
-        # Munculkan dan simpan map
-        # Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
-        # Z_GetMap.show(map, window_size=512, name=nameMap)
+    # Munculkan dan simpan map
+    Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
+    # Z_GetMap.show(map, window_size=512, name=nameMap)
 
 
