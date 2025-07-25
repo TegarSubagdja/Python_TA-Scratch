@@ -550,7 +550,7 @@ if __name__ == "__main__":
 
     for i in range(1):
 
-        mapChoice = 1
+        mapChoice = 4
 
         if mapChoice < 1:
             nameMap = "Map"
@@ -570,7 +570,7 @@ if __name__ == "__main__":
         np.place(map, map == 3, 0)
 
         # try:
-        (path, times), openlist, closelist = Astar_Optimize.method(
+        (path, times), openlist, closelist = JPS_Optimize.methodBds(
             matrix, start, goal, 2,
             # JPS=False,
             # BDS=True,
@@ -579,7 +579,7 @@ if __name__ == "__main__":
             TPF=False,
             GLF=True,
             show=True,
-            speed=10,
+            speed=1,
         )
 
         timesArr.append(times)

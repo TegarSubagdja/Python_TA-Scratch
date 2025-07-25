@@ -107,7 +107,6 @@ def nodeNeighbours(cX, cY, p, matrix):
                     neighbours.append((cX + dX, cY - 1))
     return neighbours
 
-
 def jump(cX, cY, dX, dY, matrix, goal):
 
     nX = cX + dX
@@ -193,10 +192,10 @@ def identifySuccessors(cX, cY, came_from, matrix, goal):
     neighbours = nodeNeighbours(cX, cY, came_from.get((cX, cY), 0), matrix)
 
     for cell in neighbours:
-        moveX = cell[0] - cX
-        moveY = cell[1] - cY
+        dX = cell[0] - cX
+        dY = cell[1] - cY
 
-        jumpPoint = jump(cX, cY, moveX, moveY, matrix, goal)
+        jumpPoint = jump(cX, cY, dX, dY, matrix, goal)
 
         if jumpPoint != None:
             successors.append(jumpPoint)
@@ -378,7 +377,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     came_from_f[succ] = current_f
                     gn_f[succ] = tentative_g
 
-                    # Pre-compute heuristic values
                     hn_f = heuristic(succ, goal, hchoice)
                     
                     # Optimized f-value calculation
@@ -416,7 +414,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                     came_from_b[succ] = current_b
                     gn_b[succ] = tentative_g
 
-                    # Pre-compute heuristic values
                     hn_b = heuristic(succ, start, hchoice)
                     
                     # Optimized f-value calculation
