@@ -550,7 +550,7 @@ if __name__ == "__main__":
 
     for i in range(1):
 
-        mapChoice = 4
+        mapChoice = 1
 
         if mapChoice < 1:
             nameMap = "Map"
@@ -559,7 +559,7 @@ if __name__ == "__main__":
 
         # Load dan persiapan peta
         map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
-        map = Z_GetMap.upscale(map, 16)
+        map = Z_GetMap.upscale(map, 128)
         matrix = map.copy()
 
         start = (0, 0)
@@ -570,15 +570,15 @@ if __name__ == "__main__":
         np.place(map, map == 3, 0)
 
         # try:
-        (path, times), openlist, closelist = JPS_Optimize.methodBds(
+        (path, times), openlist, closelist = Algoritm(
             matrix, start, goal, 2,
-            # JPS=False,
-            # BDS=True,
-            BRC=True,
-            PPO=True,
+            JPS=False,
+            BDS=True,
+            BRC=False,
+            PPO=False,
             TPF=False,
-            GLF=True,
-            show=True,
+            GLF=False,
+            show=False,
             speed=1,
         )
 
@@ -602,7 +602,7 @@ if __name__ == "__main__":
     print(f"Rate : {np.mean(timesArr)}")
 
     # Munculkan dan simpan map
-    Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
+    # Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
     # Z_GetMap.show(map, window_size=512, name=nameMap)
 
 
