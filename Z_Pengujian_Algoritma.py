@@ -550,7 +550,7 @@ if __name__ == "__main__":
 
     for i in range(1):
 
-        mapChoice = 1
+        mapChoice = 5
 
         if mapChoice < 1:
             nameMap = "Map"
@@ -570,15 +570,15 @@ if __name__ == "__main__":
         np.place(map, map == 3, 0)
 
         # try:
-        (path, times), openlist, closelist = Algoritm(
+        (path, times), openlist, closelist = JPS_Animate.methodBds(
             matrix, start, goal, 2,
-            JPS=False,
-            BDS=True,
-            BRC=False,
-            PPO=False,
+            # JPS=True,
+            # BDS=True,
+            BRC=True,
+            PPO=True,
             TPF=False,
-            GLF=False,
-            show=False,
+            GLF=True,
+            show=True,
             speed=1,
         )
 
@@ -589,6 +589,7 @@ if __name__ == "__main__":
         print(f"  Map : {nameMap}")
         # print(f"  Size : {sz}")
         # print(f"  Metod Name : {method_name}")
+        print(f"  Path adalah : {path}")
         print(f"  Waktu Pencarian : {times}")
         print(f"  Panjang Jalur : {path_length(path)}")
         print(f"  Jumlah Open Set : {len(openlist)}")
@@ -602,7 +603,7 @@ if __name__ == "__main__":
     print(f"Rate : {np.mean(timesArr)}")
 
     # Munculkan dan simpan map
-    # Z_GetMap.show(map, window_size=512, name=nameMap, path=path, openlist=openlist, closelist=closelist)
+    Z_GetMap.show(map, window_size=1024, name=nameMap, path=path, openlist=openlist, closelist=closelist)
     # Z_GetMap.show(map, window_size=512, name=nameMap)
 
 
