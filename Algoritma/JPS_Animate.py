@@ -210,12 +210,16 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
     
     heapq.heappush(open_list, (fn[start], start))
 
+    prev_openlist = open_list
+
     starttime = time.time()
 
     while open_list:
 
         current = heapq.heappop(open_list)[1]
         if current == goal:
+            print(f"Goal ditemukan")
+            print(f"Rekonstruksi Jalur")
             data = []
             while current in came_from:
                 data.append(current)
@@ -257,6 +261,12 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
             current[0], current[1], came_from, matrix, goal, current_jump_points_for_display
         )
 
+        i+=1
+        print(f"\nIterasi ke-{i}")
+        print(f"Lanjutkan titik dengan biaya terendah : {current}")
+        print(f"Biaya titik saat ini f{current} : {fn[current]:.3f}")
+        print(f"Hitung tetangga valid :")
+
         for successor in successors:
             jumpPoint = successor
 
@@ -290,6 +300,8 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                         hchoice
                     ) + v1 + v3
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
+
+                print(f"f{jumpPoint} = {gn[jumpPoint]:.3f} + {heuristic(jumpPoint, goal, hchoice):.3f} = {fn[jumpPoint]:.3f}")
 
             if show:
                 # Temporary list to accumulate points for rendering
@@ -334,12 +346,13 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                         pygame.quit()
                         exit()
 
-        i+=1
-        print(f"Iterasi ke-{i}")
-        print(f"titik saat ini : {current}")
-        print(f"open list adalah : {open_list}")
+        print(f"open list adalah :")
+        for biaya, titik in prev_openlist:
+            print(f"f{titik} : {biaya:.3f}, asal {came_from[titik]}")
         print(f"close list adalah : {close_list}")
-        print(f"fn : {fn[current]}")
+        prev_openlist = open_list
+        # for close in close_list:
+        #     print(f"{close}")
 
     endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0

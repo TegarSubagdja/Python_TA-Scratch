@@ -50,7 +50,7 @@ if __name__ == "__main__":
         for i in range(1):
 
             # try:
-            (path, times), openlist, closelist = Astar_Animate.methodBds(
+            (path, times), openlist, closelist = JPS_Animate.method(
                 matrix, start, goal, 2,
                 # JPS=True,
                 # BDS=True,
