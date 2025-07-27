@@ -1,5 +1,4 @@
 from Utils import *
-from Algoritma import Astar_Komentar
 from Method.PathPolylineOptimization import Prunning
 
 # Variabel untuk ketebalan garis
@@ -11,7 +10,7 @@ CIRCLE_RADIUS = 6  # Ukuran radius bulatan (dalam pixel)
 CIRCLE_COLOR = "#590a6f"  # Warna bulatan, misalnya tomat
 
 # Konfigurasi grid
-GRID_SIZE = 5
+GRID_SIZE = 6
 WIDTH = 500 #GRID_SIZE * CELL_SIZE
 HEIGHT = 500 #GRID_SIZE * CELL_SIZE
 CELL_SIZE = WIDTH//GRID_SIZE

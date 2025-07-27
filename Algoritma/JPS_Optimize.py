@@ -313,7 +313,14 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                         if event.key == pygame.K_ESCAPE:
                             pygame.quit()
                             exit()
-
+                i+=1
+        
+        print(f"Iterasi ke-{i}")
+        print(f"titik saat ini : {current}")
+        print(f"open list adalah : {open_list}")
+        print(f"close list adalah : {close_list}")
+        print(f"fn : {fn[current]}")
+        
         # pygame.image.save(surface, "Loop Pertama JPS.jpg")
         # sys.exit()
 

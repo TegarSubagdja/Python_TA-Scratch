@@ -40,7 +40,7 @@ def show(grid, window_size=512, name=None, path=None, openlist=None, closelist=N
             x2, y2 = path[i + 1][::-1]
             start_pos = (x1 * cell_size + cell_size / 2, y1 * cell_size + cell_size / 2)
             end_pos = (x2 * cell_size + cell_size / 2, y2 * cell_size + cell_size / 2)
-            pygame.draw.line(surface, hex_to_rgb(colors[9]), start_pos, end_pos, thickness)
+            pygame.draw.line(surface, hex_to_rgb(colors[9]), start_pos, end_pos, int(cell_size // 5))
 
         for pt in path:
             x, y = pt[::-1]  # dibalik jika path berupa (row, col)
@@ -66,17 +66,20 @@ def show(grid, window_size=512, name=None, path=None, openlist=None, closelist=N
             # Open List
             if openlist:
                 for item in openlist:
-                    node = item[1] if isinstance(item, tuple) and len(item) > 1 else item
-                    y, x = node
-                    pygame.draw.rect(screen, hex_to_rgb(colors[5]),
-                                    (x * cell_size, y * cell_size, cell_size, cell_size))
+                    node = item[1]
+                    if grid[node[0]][node[1]] != 2 and grid[node[0]][node[1]] != 3:
+                        node = item[1] if isinstance(item, tuple) and len(item) > 1 else item
+                        y, x = node
+                        pygame.draw.rect(screen, hex_to_rgb(colors[5]),
+                                        (x * cell_size, y * cell_size, cell_size, cell_size))
 
             # Closed List
             if closelist:
                 for node in closelist:
-                    y, x = node
-                    pygame.draw.rect(screen, hex_to_rgb(colors[6]),
-                                    (x * cell_size, y * cell_size, cell_size, cell_size))
+                    if grid[node[0]][node[1]] != 2 and grid[node[0]][node[1]] != 3:
+                        y, x = node
+                        pygame.draw.rect(screen, hex_to_rgb(colors[6]),
+                                        (x * cell_size, y * cell_size, cell_size, cell_size))
 
             # Gambar garis grid terakhir agar tidak tertimpa
             for y in range(rows):
@@ -150,7 +153,7 @@ def draw_grid(grid, surface, cell_size):
 # Visualisasi animasi grid + open, close, path
 def Init_Visual(grid):
     pygame.init()
-    cell_size = 1024 / grid.shape[0]
+    cell_size = 512 / grid.shape[0]
     rows, cols = grid.shape
     surface = pygame.display.set_mode((cols * cell_size, rows * cell_size))
     return surface, cell_size

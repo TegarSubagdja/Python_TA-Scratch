@@ -205,6 +205,8 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
     fn = {start: heuristic(start, goal, hchoice)}
 
     open_list = []
+
+    i = 0
     
     heapq.heappush(open_list, (fn[start], start))
 
@@ -250,7 +252,6 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
 
         close_list.add(current)
         
-        # New list to store points for visualization during successor identification
         current_jump_points_for_display = []
         successors = identifySuccessors(
             current[0], current[1], came_from, matrix, goal, current_jump_points_for_display
@@ -332,6 +333,13 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                     elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         pygame.quit()
                         exit()
+
+        i+=1
+        print(f"Iterasi ke-{i}")
+        print(f"titik saat ini : {current}")
+        print(f"open list adalah : {open_list}")
+        print(f"close list adalah : {close_list}")
+        print(f"fn : {fn[current]}")
 
     endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0

@@ -43,12 +43,17 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
 
     open_list = []
 
+    i = 0
+    prev_openlist = None
+
     heapq.heappush(open_list, (fn[start], start))
+    prev_openlist = open_list
 
     starttime = time.time()
 
     while open_list:
 
+        prev_openlist = open_list
         current = heapq.heappop(open_list)[1]
         if current == goal:
             path = []
@@ -86,6 +91,12 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
             return (path, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
+
+        i+=1
+        print(f"\nIterasi ke-{i}")
+        print(f"Pergi ke titik biaya terendah : {current}")
+        print(f"fn titik saat ini : {fn[current]}")
+        print(f"Hitung tetangga valid:")
         for dX, dY in [
             (0, 1),
             (0, -1),
@@ -140,8 +151,10 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                         hchoice
                     ) + v1 + v3 # Pengkalian 2 harus dihilangkan
 
+                print(f"{neighbour} fn = {gn[neighbour]} + {heuristic(neighbour, goal, hchoice)} = {fn[neighbour]}")
+
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
-                    # Visualisasi setiap langkah
+
             if show:
                 Z_GetMap.Render(surface, map, cell_size, open_list, close_list)
                 clock.tick(speed)  # Batasi ke 200 FPS
@@ -155,6 +168,13 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                         if event.key == pygame.K_ESCAPE:
                             pygame.quit()
                             exit()
+
+        print(f"open list adalah :")
+        for biaya, titik in prev_openlist:
+            print(f"Titik : {titik}, biaya : {biaya}, asal {came_from[titik]}")
+        print(f"close list adalah : {close_list}")
+        # for close in close_list:
+        #     print(f"{close}")
                 
     endtime = time.time()
     return (0, round(endtime - starttime, 6)), 0, 0
@@ -186,8 +206,15 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
 
     current_f, current_b = start, goal
 
+    i = 0
+    prev_openlist_f = None
+    prev_openlist_b = None
+
     heapq.heappush(open_f, (f_f[start], start))
     heapq.heappush(open_b, (f_b[goal], goal))
+
+    prev_openlist_f = open_f
+    prev_openlist_b = open_b
 
     startTime = time.time()
     meet_point = None
@@ -198,6 +225,12 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
         if open_f:
             _, current_f = heapq.heappop(open_f)
             close_f.add(current_f)
+
+            i+=1
+            print(f"\nIterasi ke-{i}")
+            print(f"Pergi ke titik biaya terendah : {current_f}")
+            print(f"fn titik saat ini : {f_f[current_f]}")
+            print(f"Hitung tetangga valid:")
 
             for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
                 neighbour = current_f[0] + dX, current_f[1] + dY
@@ -232,16 +265,30 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     else:
                         f_f[neighbour] = tentative_gn + h_to_goal + v1 + v3
                     heapq.heappush(open_f, (f_f[neighbour], neighbour))
+
+                    print(f"{neighbour} fn = {g_f[neighbour]} + {heuristic(neighbour, goal, hchoice)} = {f_f[neighbour]}")
                     
                 # Meeting point check
                 if neighbour in close_b:
                     meet_point = neighbour
                     break
 
+            print(f"open list adalah :")
+            for biaya, titik in prev_openlist_f:
+                print(f"Titik : {titik}, biaya : {biaya}, asal {came_from_f[titik]}")
+            print(f"close list adalah : {close_f}")
+            prev_openlist_f = open_f
+            # for close in close_list:
+            #     print(f"{close}")
+
         # --- Backward Search ---
         if open_b and not meet_point:
             _, current_b = heapq.heappop(open_b)
             close_b.add(current_b)
+            
+            print(f"\nPergi ke titik biaya terendah : {current_b}")
+            print(f"fn titik saat ini : {f_b[current_b]}")
+            print(f"Hitung tetangga valid:")
 
             for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
                 neighbour = current_b[0] + dX, current_b[1] + dY
@@ -278,9 +325,19 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
 
                     heapq.heappush(open_b, (f_b[neighbour], neighbour))
 
+                    print(f"{neighbour} fn = {g_b[neighbour]} + {heuristic(neighbour, start, hchoice)} = {f_b[neighbour]}")
+
                 if neighbour in close_f:
                     meet_point = neighbour
                     break
+
+            print(f"open list adalah :")
+            for biaya, titik in prev_openlist_b:
+                print(f"Titik : {titik}, biaya : {biaya}, asal {came_from_b[titik]}")
+            print(f"close list adalah : {close_f}")
+            prev_openlist_b = open_b
+            # for close in close_list:
+            #     print(f"{close}")
 
             # --- Visualisasi ---
             if show:

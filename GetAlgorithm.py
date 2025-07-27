@@ -1,17 +1,17 @@
 from Utils import *
 
-def method(map, start, goal, hchoice=2, JPS=False, BDS=False, GLF=False, BRC=False , TPF=False, PPO=False, ELL=False, show=False, speed=300):
+def method(map, start, goal, hchoice=2, JPS=False, BDS=False, GLF=False, BRC=False , TPF=False, PPO=False, show=False, speed=300):
 
-    aktif_flags = []
-    if JPS: aktif_flags.append("JPS")
-    if BDS: aktif_flags.append("BDS")
-    if GLF: aktif_flags.append("GL")
-    if BRC: aktif_flags.append("BRC")
-    if TPF: aktif_flags.append("TPF")
-    if PPO: aktif_flags.append("PPO")
-    if BDS and ELL: aktif_flags.append("ELL")
-    method_name = "-".join(aktif_flags) if aktif_flags else "A*"
-    print(method_name)
+    # aktif_flags = []
+    # if JPS: aktif_flags.append("JPS")
+    # if BDS: aktif_flags.append("BDS")
+    # if GLF: aktif_flags.append("GL")
+    # if BRC: aktif_flags.append("BRC")
+    # if TPF: aktif_flags.append("TPF")
+    # if PPO: aktif_flags.append("PPO")
+    # if BDS and ELL: aktif_flags.append("ELL")
+    # method_name = "-".join(aktif_flags) if aktif_flags else "A*"
+    # print(method_name)
 
     if JPS:
         if BDS:
