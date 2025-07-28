@@ -228,6 +228,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
             data = data[::-1]
             if PPO:
                 data = Prunning(data, matrix)
+            print(f"Jalur : {data}")
             endtime = time.time()
             if show:
                 # Clear jump_points_to_display for final render
@@ -265,7 +266,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
         print(f"\nIterasi ke-{i}")
         print(f"Lanjutkan titik dengan biaya terendah : {current}")
         print(f"Biaya titik saat ini f{current} : {fn[current]:.3f}")
-        print(f"Hitung tetangga valid :")
+        print(f"Cari Titik Lompatan :")
 
         for successor in successors:
             jumpPoint = successor

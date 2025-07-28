@@ -47,6 +47,9 @@ def show(grid, window_size=512, name=None, path=None, openlist=None, closelist=N
             center = (int(x * cell_size + cell_size / 2), int(y * cell_size + cell_size / 2))
             pygame.draw.circle(surface, colors[10], center, int(cell_size // 4))
 
+        pygame.draw.circle(surface, colors[2], (path[0][1] * cell_size + cell_size / 2, path[0][0] * cell_size + cell_size / 2), int(cell_size // 3))
+        pygame.draw.circle(surface, colors[8], (path[-1][1] * cell_size + cell_size / 2, path[-1][0] * cell_size + cell_size / 2), int(cell_size // 3))
+
     running = True
     while running:
         for event in pygame.event.get():

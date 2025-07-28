@@ -359,6 +359,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
         return (0, round(endTime - startTime, 6)), 0, 0
 
     # --- Rekonstruksi Jalur ---
+    print(f"Rekonstruksi Jalur")
     # Forward path
     path_fwd = []
     node = meet_point
@@ -380,6 +381,8 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
 
     if PPO:
         path = Prunning(path, map)
+
+    print(f"Jalur : {path}")
 
     endTime = time.time()
 

@@ -11,7 +11,7 @@ def guidline(awal, akhir, posisi):
     numerator = abs(dy * x0 - dx * y0 + x2 * y1 - y2 * x1)
     denominator = math.hypot(dx, dy)
 
-    return numerator / denominator if denominator != 0 else 0  # Hindari div by zero
+    return numerator / denominator if denominator != 0 else 0  
 
 def jarak_titik_ke_segmenn(awal, akhir, posisi):
     x1, y1 = awal

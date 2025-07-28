@@ -89,23 +89,16 @@ def bresenham_line(awal, akhir):
     points.append((x2, y2))  # Tambahkan titik akhir
     return points
 
-def lompatanAman(awal, akhir, map):
-    """Check if any node in the path is an obstacle (1)."""
+def isSafe(awal, akhir, map):
     nodes = supercover_line(awal, akhir)
-    if(any(map[x][y] == 255 for x, y in nodes)):
-        return False
-    else:
-        return True
-
-def is_one_point_move(awal, akhir):
-    x1, y1 = awal
-    x2, y2 = akhir
-    if (math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) <= 1.5):
-        return True
-    else:
-        return False
+    print(f"Cari titik yang dilewati garis: {nodes}")
+    for x, y in nodes:
+        if map[x][y] == 255:
+            print(f"Memotong rintangan di titik: ({x}, {y})")
+            return False
+    return True
     
-def is_45_degree(awal, akhir):
+def isDiagonal(awal, akhir):
     x1, y1 = awal
     x2, y2 = akhir
     
@@ -122,14 +115,16 @@ def Prunning(path, map):
     path_prunning = [path[start]]
     while True:
         while goal <= len(path)-1:
-            if not (lompatanAman(path[start], path[goal], map)):
-                if (is_45_degree(path[start], path[goal])):
+            if not (isSafe(path[start], path[goal], map)):
+                if (isDiagonal(path[start], path[goal])):
+                    print(f"Lanjut ke titik selanjutnya")
                     goal += 1
                     break
                 elif goal == len(path):
                     path_prunning.append(path[goal])
                     break
                 else:
+                    print(f"Set titik sebelumnya sebagai set point")
                     path_prunning.append(path[goal-1])
                     start = goal - 1
                     break

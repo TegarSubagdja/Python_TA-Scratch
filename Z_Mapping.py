@@ -10,7 +10,7 @@ CIRCLE_RADIUS = 6  # Ukuran radius bulatan (dalam pixel)
 CIRCLE_COLOR = "#590a6f"  # Warna bulatan, misalnya tomat
 
 # Konfigurasi grid
-GRID_SIZE = 6
+GRID_SIZE = 5
 WIDTH = 500 #GRID_SIZE * CELL_SIZE
 HEIGHT = 500 #GRID_SIZE * CELL_SIZE
 CELL_SIZE = WIDTH//GRID_SIZE
@@ -49,6 +49,15 @@ last_cell = None  # Menyimpan sel terakhir yang diproses saat drag
 
 # Variabel untuk metode yang digunakan
 method = 1
+
+def load_grid_from_json(path="Map/JSON/Map.json"):
+    try:
+        with open(path, 'r') as f:
+            grid_list = json.load(f)
+            return np.array(grid_list)
+    except Exception as e:
+        print(f"❌ Gagal membuka grid: {e}")
+        return None
 
 # Fungsi untuk mengonversi kode HEX menjadi tuple RGB
 def hex_to_rgb(hex_code):
@@ -351,8 +360,24 @@ while running:
                     method = 3
                 elif event.key == pygame.K_4:
                     method = 4
-                elif event.key == pygame.K_j:  # Ctrl + J untuk save ke JSON
-                    save_grid_to_json()
+                elif event.key == pygame.K_j:
+                    mods = pygame.key.get_mods()
+                    if mods & pygame.KMOD_CTRL and mods & pygame.KMOD_SHIFT:
+                        # Ctrl + Shift + J → Load JSON
+                        path = filedialog.askopenfilename(
+                            title="Pilih file JSON",
+                            filetypes=[("JSON files", "*.json")],
+                            initialdir="Map/JSON"
+                        )
+                        if path:
+                            new_grid = load_grid_from_json(path)
+                            if new_grid is not None:
+                                map_grid = new_grid
+                                print(f"✅ Grid berhasil dimuat dari {path}")
+                    elif mods & pygame.KMOD_CTRL:
+                        # Ctrl + J → Save JSON
+                        save_grid_to_json()
+
             elif event.key == pygame.K_ESCAPE:  
                 running = False
     # Gambar ulang layar
