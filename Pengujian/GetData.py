@@ -60,6 +60,9 @@ def runPengujianAvgLength(size = [16, 32, 64, 128]):
             for flags in kombinasi_flags:
                 JPS, BDS, GLF, BRC, TPF, PPO = flags
 
+                if TPF and JPS:
+                    continue
+
                 aktif_flags = []
                 if JPS: aktif_flags.append("JPS")
                 if BDS: aktif_flags.append("BDS")

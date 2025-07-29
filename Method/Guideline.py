@@ -65,3 +65,9 @@ def jarakGaris(awal, akhir, posisi):
     proj_y = y1 + t * dy
 
     return proj_x, proj_y  # Kembalikan float, int kalau perlu rounding nanti
+
+start = (0,0)
+goal = (4,4)
+node = (0,4)
+
+print(guidline(start, goal, node))

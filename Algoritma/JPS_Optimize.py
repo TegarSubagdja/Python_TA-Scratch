@@ -366,6 +366,11 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                 if succ in close_f:
                     continue
 
+                # Meeting point check
+                if succ in close_b:
+                    meet_point = succ
+                    break
+
                 # Single-line conditional calculations
                 v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, k) if TPF else 0
                 v2 = BR(succ, goal, matrix) or 1 if BRC else 1
@@ -387,11 +392,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
                     heapq.heappush(open_f, (fn_f[succ], succ))
 
-                # Meeting point check
-                if succ in close_b:
-                    meet_point = succ
-                    break
-
         # ============ Backward Expand ============
         if open_b and not meet_point:
             _, current_b = heapq.heappop(open_b)
@@ -402,6 +402,11 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
             for succ in successors_b:
                 if succ in close_b:
                     continue
+
+                # Meeting point check
+                if succ in close_f:
+                    meet_point = succ
+                    break
 
                 # Single-line conditional calculations
                 v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, k) if TPF else 0
@@ -424,11 +429,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
                         fn_b[succ] = tentative_g + hn_b + v1 + v3 
 
                     heapq.heappush(open_b, (fn_b[succ], succ))
-
-                # Meeting point check
-                if succ in close_f:
-                    meet_point = succ
-                    break
 
         if show:
             # Combine sets sekali saja

@@ -91,10 +91,10 @@ def bresenham_line(awal, akhir):
 
 def isSafe(awal, akhir, map):
     nodes = supercover_line(awal, akhir)
-    print(f"Cari titik yang dilewati garis: {nodes}")
+    # print(f"Cari titik yang dilewati garis: {nodes}")
     for x, y in nodes:
         if map[x][y] == 255:
-            print(f"Memotong rintangan di titik: ({x}, {y})")
+            # print(f"Memotong rintangan di titik: ({x}, {y})")
             return False
     return True
     
@@ -117,14 +117,14 @@ def Prunning(path, map):
         while goal <= len(path)-1:
             if not (isSafe(path[start], path[goal], map)):
                 if (isDiagonal(path[start], path[goal])):
-                    print(f"Lanjut ke titik selanjutnya")
+                    # print(f"Lanjut ke titik selanjutnya")
                     goal += 1
                     break
                 elif goal == len(path):
                     path_prunning.append(path[goal])
                     break
                 else:
-                    print(f"Set titik sebelumnya sebagai set point")
+                    # print(f"Set titik sebelumnya sebagai set point")
                     path_prunning.append(path[goal-1])
                     start = goal - 1
                     break

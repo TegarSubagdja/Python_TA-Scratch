@@ -15,50 +15,41 @@ if __name__ == "__main__":
 
     for i in range(1):
 
-        mapChoice = 6
+        mapChoice = 4
 
         if mapChoice < 1:
             nameMap = "Map"
         else:
             nameMap = f"Map_{mapChoice}"
-
-        # Load dan persiapan peta
         map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
-        # map = Z_GetMap.upscale(map, 32)
+        map = Z_GetMap.upscale(map, 64)
         matrix = map.copy()
-
-        # start = (0, 0)
-        # goal = (map.shape[1]-1, map.shape[0]-1)
-
-        start = np.where(map == 2)
-        goal = np.where(map == 3)
-        start = (int(start[0][0]), int(start[1][0]))
-        goal = (int(goal[0][0]), int(goal[1][0]))
-
+        start = (0, 0)
+        goal = (map.shape[1]-1, map.shape[0]-1)
+        # start = np.where(map == 2)
+        # goal = np.where(map == 3)
+        # start = (int(start[0][0]), int(start[1][0]))
+        # goal = (int(goal[0][0]), int(goal[1][0]))
         np.place(matrix, matrix == 1, 255)
         np.place(map, map == 2, 0)
         np.place(map, map == 3, 0)
-
         tempTimes = []
         tempPaths = []
         tempOpens = []
         tempCloses = []
         tempTurns = []
         tempLengths = []
-
         for i in range(1):
-
-            # try:
-            (path, times), openlist, closelist = Astar_Animate.method(
+            (path, times), openlist, closelist = Algoritm(
                 matrix, start, goal, 2,
-                # JPS=True,
+                JPS=True,
                 # BDS=True,
-                # BRC=True,
+                BRC=True,
                 PPO=True,
                 # TPF=True,
                 # GLF=True,
-                # show=True,
-                speed=10,
+                show=True,
+                speed=100,
             )
 
             timesArr.append(times)
