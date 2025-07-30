@@ -22,14 +22,17 @@ if __name__ == "__main__":
         else:
             nameMap = f"Map_{mapChoice}"
         map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
-        map = Z_GetMap.upscale(map, 64)
+        # map = Z_GetMap.upscale(map, 64)
+
         matrix = map.copy()
         start = (0, 0)
         goal = (map.shape[1]-1, map.shape[0]-1)
+
         # start = np.where(map == 2)
         # goal = np.where(map == 3)
         # start = (int(start[0][0]), int(start[1][0]))
         # goal = (int(goal[0][0]), int(goal[1][0]))
+
         np.place(matrix, matrix == 1, 255)
         np.place(map, map == 2, 0)
         np.place(map, map == 3, 0)
@@ -44,12 +47,12 @@ if __name__ == "__main__":
                 matrix, start, goal, 2,
                 JPS=True,
                 # BDS=True,
-                BRC=True,
+                # BRC=True,
                 PPO=True,
                 # TPF=True,
                 # GLF=True,
-                show=True,
-                speed=100,
+                show=False,
+                speed=10,
             )
 
             timesArr.append(times)
@@ -62,16 +65,17 @@ if __name__ == "__main__":
 
             belokan = len(Turn(path)) if path else None
 
-        # print(f"  Map : {nameMap}")
-        # # print(f"  Size : {sz}")
-        # # print(f"  Metod Name : {method_name}")
-        # print(f"  Path adalah : {path}")
-        # print(f"  Waktu Pencarian : {times}")
-        # print(f"  Panjang Jalur : {path_length(path)}")
-        # print(f"  Jumlah Open Set : {len(openlist)}")
-        # print(f"  Jumlah Close Set : {len(closelist)}")
-        # print(f"  Jumlah Open + Close di i {i} : {len(openlist) + len(closelist)}")
-        # print(f"  Jumlah Belokan : {belokan}")
+        print(f"  Map : {nameMap}")
+        print(matrix)
+        # print(f"  Size : {sz}")
+        # print(f"  Metod Name : {method_name}")
+        print(f"  Path adalah : {path}")
+        print(f"  Waktu Pencarian : {times}")
+        print(f"  Panjang Jalur : {path_length(path)}")
+        print(f"  Jumlah Open Set : {len(openlist)}")
+        print(f"  Jumlah Close Set : {len(closelist)}")
+        print(f"  Jumlah Open + Close di i {i} : {len(openlist) + len(closelist)}")
+        print(f"  Jumlah Belokan : {belokan}")
 
         # except Exception as e:
         #     print(f"[!] Error di iterasi : {e}")

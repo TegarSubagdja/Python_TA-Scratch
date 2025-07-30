@@ -16,7 +16,7 @@ colors = {
 }
 
 # Tampilkan grid ke layar
-def show(grid, window_size=512, name=None, path=None, openlist=None, closelist=None):
+def show(grid, window_size=512, name="None", path=None, openlist=None, closelist=None):
     rows, cols = grid.shape
     cell_w = window_size / cols
     cell_h = window_size / rows

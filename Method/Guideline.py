@@ -66,8 +66,8 @@ def jarakGaris(awal, akhir, posisi):
 
     return proj_x, proj_y  # Kembalikan float, int kalau perlu rounding nanti
 
-start = (0,0)
-goal = (4,4)
-node = (0,4)
+# start = (0,0)
+# goal = (4,4)
+# node = (0,4)
 
-print(guidline(start, goal, node))
+# print(guidline(start, goal, node))

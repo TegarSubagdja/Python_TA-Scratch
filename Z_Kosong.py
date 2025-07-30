@@ -108,9 +108,33 @@ from Utils import *
 
 #     print(hasil)
 
+import pandas as pd
 
+# Ukuran kolom yang akan dijumlahkan
+ukuran_kolom = ['16', '32', '64', '128']
 
-for i in range(10):
-    if i == 5:
-        continue
-    print(i)
+# Loop untuk 5 file map
+for i in range(1, 6):
+    map_name = 'Map' if i == 1 else f'Map_{i-1}'
+    file_path = f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx'
+
+    # Baca sheet 'Jumlah Open' dan 'Jumlah Close'
+    df_open = pd.read_excel(file_path, sheet_name='Jumlah Open')
+    df_close = pd.read_excel(file_path, sheet_name='Jumlah Close')
+
+    # Pastikan kedua DataFrame memiliki baris dan kolom yang cocok
+    assert df_open.shape == df_close.shape, "Ukuran sheet tidak cocok"
+    assert all(df_open['Kombinasi'] == df_close['Kombinasi']), "Kombinasi tidak cocok"
+
+    # Salin kolom Kombinasi
+    df_result = df_open[['Kombinasi']].copy()
+
+    # Jumlahkan kolom ukuran
+    for col in ukuran_kolom:
+        df_result[col] = df_open[col] + df_close[col]
+
+    # Tulis sheet baru ke file yang sama
+    with pd.ExcelWriter(file_path, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
+        df_result.to_excel(writer, sheet_name='Jumlah Simpul', index=False)
+
+    print(f"Selesai memproses: {file_path}")
