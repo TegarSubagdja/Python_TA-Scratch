@@ -1,100 +1,172 @@
 import pandas as pd
 
-# List penampung semua hasil
-semua_hasil = []
-
 sheets = ['Waktu Pencarian', 'Panjang Jalur', 'Panjang Jalur Real',
-          'Jumlah Open', 'Jumlah Close', 'Jumlah Belok']
+          'Jumlah Open', 'Jumlah Close', 'Jumlah Belok', 'Jumlah Simpul']
 
-pilih = sheets[5]
+# Ukuran kolom yang akan dijumlahkan
+ukuran_kolom = ['16', '32', '64', '128']
 
-# for i in range(1, 6):
+# Loop untuk 5 file map
+for i in range(1, 6):
+    map_name = 'Map' if i == 1 else f'Map_{i-1}'
+    file_path = f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx'
 
-#     map_name = 'Map' if i <= 1 else f'Map_{i-1}'
+    # Baca sheet 'Jumlah Open' dan 'Jumlah Close'
+    df_open = pd.read_excel(file_path, sheet_name='Jumlah Open')
+    df_close = pd.read_excel(file_path, sheet_name='Jumlah Close')
 
-#     # Baca file
-#     df = pd.read_excel(f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx', sheet_name=pilih)
+    # Pastikan kedua DataFrame memiliki baris dan kolom yang cocok
+    assert df_open.shape == df_close.shape, "Ukuran sheet tidak cocok"
+    assert all(df_open['Kombinasi'] == df_close['Kombinasi']), "Kombinasi tidak cocok"
 
-#     # Filter kombinasi yang diinginkan
-#     baris = df[df['Kombinasi'].isin(['A*', 'JPS-BDS-GL-BRC-PPO'])]
+    # Salin kolom Kombinasi
+    df_result = df_open[['Kombinasi']].copy()
 
-#     # Kolom ukuran
-#     ukuran_kolom = ['16', '32', '64', '128']
+    # Jumlahkan kolom ukuran
+    for col in ukuran_kolom:
+        df_result[col] = df_open[col] + df_close[col]
 
-#     # Ubah dari wide ke long
-#     hasil = baris.melt(id_vars='Kombinasi', value_vars=ukuran_kolom,
-#                        var_name='Ukuran', value_name='Nilai')
+    # Tulis sheet baru ke file yang sama
+    with pd.ExcelWriter(file_path, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
+        df_result.to_excel(writer, sheet_name='Jumlah Simpul', index=False)
 
-#     # Tambahkan informasi Map ke kolom baru
-#     hasil['Map'] = map_name
+    print(f"Selesai memproses: {file_path}")
 
-#     # Konversi ukuran ke int untuk urutan numerik
-#     hasil['Ukuran'] = hasil['Ukuran'].astype(int)
+for sheet in sheets:
+    semua_hasil = []
+    for i in range(1, 6):
 
-#     # Urutkan
-#     hasil = hasil.sort_values(by=['Kombinasi', 'Ukuran']).reset_index(drop=True)
+        map_name = 'Map' if i <= 1 else f'Map_{i-1}'
 
-#     # Tambahkan ke list
-#     semua_hasil.append(hasil)
+        # Baca file
+        df = pd.read_excel(f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx', sheet_name=sheet)
 
-# # Gabungkan semua hasil
-# gabungan = pd.concat(semua_hasil, ignore_index=True)
-# gabungan.to_excel(f'hasil_gabungan_vertikal_{pilih}.xlsx', index=False)
-# print("Data berhasil disimpan ke 'hasil_gabungan_vertikal.xlsx'")
+        # Filter kombinasi yang diinginkan
+        baris = df[df['Kombinasi'].isin(['A*', 'JPS-BDS-GL-BRC-PPO'])]
+
+        # Kolom ukuran
+        ukuran_kolom = ['16', '32', '64', '128']
+
+        # Ubah dari wide ke long
+        hasil = baris.melt(id_vars='Kombinasi', value_vars=ukuran_kolom,
+                        var_name='Ukuran', value_name='Nilai')
+
+        # Tambahkan informasi Map ke kolom baru
+        hasil['Map'] = map_name
+
+        # Konversi ukuran ke int untuk urutan numerik
+        hasil['Ukuran'] = hasil['Ukuran'].astype(int)
+
+        # Urutkan
+        hasil = hasil.sort_values(by=['Map', 'Ukuran']).reset_index(drop=True)
+
+        # Tambahkan ke list
+        semua_hasil.append(hasil)
+
+    # Gabungkan semua hasil
+    gabungan = pd.concat(semua_hasil, ignore_index=True)
+    gabungan.to_excel(f'Excel/Vertical/hasil_gabungan_vertikal_{sheet}.xlsx', index=False)
+    print("Data berhasil disimpan ke 'hasil_gabungan_vertikal.xlsx'")
 
 
 import pandas as pd
 
-# List semua hasil dari setiap map
-semua_gabungan = []
+sheets = ['Waktu Pencarian', 'Panjang Jalur', 'Panjang Jalur Real',
+          'Jumlah Open', 'Jumlah Close', 'Jumlah Belok', 'Jumlah Simpul']
 
-# Loop untuk 5 map
-for i in range(1, 6):
-    map_name = 'Map' if i == 1 else f'Map_{i-1}'
+for sheet in sheets:
+    semua_hasil = []
 
-    file_path = f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx'
-    sheet_open = 'Jumlah Open'
-    sheet_close = 'Jumlah Close'
-    ukuran_kolom = ['16', '32', '64', '128']
+    for i in range(1, 6):
+        map_name = 'Map' if i <= 1 else f'Map_{i-1}'
+        df = pd.read_excel(f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx', sheet_name=sheet)
+        baris = df[df['Kombinasi'].isin(['A*', 'JPS-BDS-GL-BRC-PPO'])]
 
-    try:
-        # Baca sheet
-        df_open = pd.read_excel(file_path, sheet_name=sheet_open)
-        df_close = pd.read_excel(file_path, sheet_name=sheet_close)
-    except Exception as e:
-        print(f"❌ Gagal membaca file {file_path}: {e}")
-        continue
+        ukuran_kolom = ['16', '32', '64', '128']
+        hasil = baris.melt(id_vars='Kombinasi', value_vars=ukuran_kolom,
+                           var_name='Ukuran', value_name='Nilai')
 
-    # Long format
-    open_long = df_open.melt(id_vars='Kombinasi', 
-                             value_vars=ukuran_kolom,
-                             var_name='Ukuran', value_name='OpenList')
+        hasil['Map'] = map_name
+        hasil['Ukuran'] = hasil['Ukuran'].astype(int)
+        hasil = hasil.sort_values(by=['Kombinasi', 'Ukuran']).reset_index(drop=True)
 
-    close_long = df_close.melt(id_vars='Kombinasi', 
-                               value_vars=ukuran_kolom,
-                               var_name='Ukuran', value_name='CloseList')
+        semua_hasil.append(hasil)
 
-    # Gabung
-    gabung = pd.merge(open_long, close_long, on=['Kombinasi', 'Ukuran'])
+    # Gabungkan semua hasil
+    gabungan = pd.concat(semua_hasil, ignore_index=True)
 
-    # Hitung total
-    gabung['TotalList'] = gabung['OpenList'] + gabung['CloseList']
+    # Pisahkan data A* dan Optimized
+    data_astar = gabungan[gabungan['Kombinasi'] == 'A*'].copy().reset_index(drop=True)
+    data_opt = gabungan[gabungan['Kombinasi'] == 'JPS-BDS-GL-BRC-PPO'].copy().reset_index(drop=True)
 
-    # Filter kombinasi
-    gabung = gabung[gabung['Kombinasi'].isin(['A*', 'JPS-BDS-GL-BRC-PPO'])]
+    # Hitung persentase perubahan
+    df_perbandingan = data_astar.copy()
+    df_perbandingan['Optimized'] = data_opt['Nilai']
+    df_perbandingan['Persentase Perubahan (%)'] = (((data_astar['Nilai'] - data_opt['Nilai']) / data_astar['Nilai']))
 
-    # Konversi dan urutkan
-    gabung['Ukuran'] = gabung['Ukuran'].astype(int)
-    gabung['Map'] = map_name
-    gabung = gabung.sort_values(by=['Ukuran', 'Kombinasi']).reset_index(drop=True)
+    # Tambahkan label peningkatan atau penurunan
+    df_perbandingan['Peningkatan'] = df_perbandingan['Persentase Perubahan (%)'].apply(
+        lambda x: 'Naik' if x > 0 else 'Turun' if x < 0 else 'Tetap'
+    )
 
-    # Tambahkan ke list semua hasil
-    semua_gabungan.append(gabung)
+    # Simpan ke Excel
+    df_perbandingan.to_excel(f'Excel/Vertical/perbandingan_{sheet}.xlsx', index=False)
+    print(f"Data perbandingan berhasil disimpan ke 'perbandingan_{sheet}.xlsx'")
 
-# Gabungkan semua map
-hasil_akhir = pd.concat(semua_gabungan, ignore_index=True)
 
-# Simpan ke file Excel
-hasil_akhir.to_excel('hasil_open_close_total.xlsx', index=False)
 
-print("✅ Data dari semua Map berhasil disimpan ke 'hasil_open_close_total.xlsx'")
+# import pandas as pd
+
+# # List semua hasil dari setiap map
+# semua_gabungan = []
+
+# # Loop untuk 5 map
+# for i in range(1, 6):
+#     map_name = 'Map' if i == 1 else f'Map_{i-1}'
+
+#     file_path = f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx'
+#     sheet_open = 'Jumlah Open'
+#     sheet_close = 'Jumlah Close'
+#     ukuran_kolom = ['16', '32', '64', '128']
+
+#     try:
+#         # Baca sheet
+#         df_open = pd.read_excel(file_path, sheet_name=sheet_open)
+#         df_close = pd.read_excel(file_path, sheet_name=sheet_close)
+#     except Exception as e:
+#         print(f"❌ Gagal membaca file {file_path}: {e}")
+#         continue
+
+#     # Long format
+#     open_long = df_open.melt(id_vars='Kombinasi', 
+#                              value_vars=ukuran_kolom,
+#                              var_name='Ukuran', value_name='OpenList')
+
+#     close_long = df_close.melt(id_vars='Kombinasi', 
+#                                value_vars=ukuran_kolom,
+#                                var_name='Ukuran', value_name='CloseList')
+
+#     # Gabung
+#     gabung = pd.merge(open_long, close_long, on=['Kombinasi', 'Ukuran'])
+
+#     # Hitung total
+#     gabung['TotalList'] = gabung['OpenList'] + gabung['CloseList']
+
+#     # Filter kombinasi
+#     gabung = gabung[gabung['Kombinasi'].isin(['A*', 'JPS-BDS-GL-BRC-PPO'])]
+
+#     # Konversi dan urutkan
+#     gabung['Ukuran'] = gabung['Ukuran'].astype(int)
+#     gabung['Map'] = map_name
+#     gabung = gabung.sort_values(by=['Ukuran', 'Kombinasi']).reset_index(drop=True)
+
+#     # Tambahkan ke list semua hasil
+#     semua_gabungan.append(gabung)
+
+# # Gabungkan semua map
+# hasil_akhir = pd.concat(semua_gabungan, ignore_index=True)
+
+# # Simpan ke file Excel
+# hasil_akhir.to_excel('Excel/Vertical/hasil_open_close_total.xlsx', index=False)
+
+# print("✅ Data dari semua Map berhasil disimpan ke 'hasil_open_close_total.xlsx'")

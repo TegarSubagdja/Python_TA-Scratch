@@ -238,6 +238,13 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
             for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
                 neighbour = current_f[0] + dX, current_f[1] + dY
 
+                # Meeting point check
+                if neighbour in close_b:
+                    came_from_f[neighbour] = current_f
+                    meet_point = neighbour
+                    print(f"Bertemu di titik ini : {neighbour}")
+                    break
+
                 if neighbour in close_f:
                     continue
 
@@ -270,12 +277,6 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     heapq.heappush(open_f, (f_f[neighbour], neighbour))
 
                     print(f"f{neighbour} = {g_f[neighbour]:.3f} + {heuristic(neighbour, goal, hchoice):.3f} = {f_f[neighbour]:.3f}")
-                    
-                # Meeting point check
-                if neighbour in close_b:
-                    meet_point = neighbour
-                    print(f"Bertemu di titik ini : {neighbour}")
-                    break
 
             print(f"open list adalah :")
             for biaya, titik in prev_openlist_f:
@@ -296,6 +297,12 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
 
             for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
                 neighbour = current_b[0] + dX, current_b[1] + dY
+
+                if neighbour in close_f:
+                    came_from_b[neighbour] = current_b
+                    meet_point = neighbour
+                    print(f"Bertemu di titik ini : {neighbour}")
+                    break
 
                 if neighbour in close_b:
                     continue
@@ -330,11 +337,6 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     heapq.heappush(open_b, (f_b[neighbour], neighbour))
 
                     print(f"f{neighbour} = {g_b[neighbour]:.3f} + {heuristic(neighbour, start, hchoice):.3f} = {f_b[neighbour]:.3f}")
-
-                if neighbour in close_f:
-                    meet_point = neighbour
-                    print(f"Bertemu di titik ini : {neighbour}")
-                    break
 
             print(f"open list adalah :")
             for biaya, titik in prev_openlist_b:

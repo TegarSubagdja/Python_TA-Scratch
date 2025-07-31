@@ -1,7 +1,3 @@
-import numpy as np
-import pandas as pd
-import math
-
 def supercover_line(awal, akhir):
     x1, y1 = awal
     x2, y2 = akhir
@@ -55,94 +51,6 @@ def supercover_line(awal, akhir):
 
     return points
 
-def bresenham_line(awal, akhir):
-    x1, y1 = awal
-    x2, y2 = akhir
-
-    points = []
-    dx = abs(x2 - x1)
-    dy = abs(y2 - y1)
-    x, y = x1, y1
-
-    sx = 1 if x2 > x1 else -1
-    sy = 1 if y2 > y1 else -1
-
-    if dx > dy:
-        err = dx // 2
-        while x != x2:
-            points.append((x, y))
-            err -= dy
-            if err < 0:
-                y += sy
-                err += dx
-            x += sx
-    else:
-        err = dy // 2
-        while y != y2:
-            points.append((x, y))
-            err -= dx
-            if err < 0:
-                x += sx
-                err += dy
-            y += sy
-
-    points.append((x2, y2))  # Tambahkan titik akhir
-    return points
-
-
-def lompatanAman(awal, akhir, map):
-    """Check if any node in the path is an obstacle (1)."""
-    nodes = supercover_line(awal, akhir)
-    if(any(map[x][y] == 255 for x, y in nodes)):
-        return False
-    else:
-        return True
-
-def is_one_point_move(awal, akhir):
-    x1, y1 = awal
-    x2, y2 = akhir
-    if (math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) <= 1.5):
-        return True
-    else:
-        return False
-    
-def is_45_degree(awal, akhir):
-    x1, y1 = awal
-    x2, y2 = akhir
-    
-    if x2 - x1 == 0:  # Menghindari pembagian dengan nol (garis vertikal)
-        return False
-    slope = (y2 - y1) / (x2 - x1)
-    return slope == 1 or slope == -1
-
-# def Prunning(path, map):
-#     start = 0
-#     goal = 1
-#     start_t = start
-#     goal_t = goal
-#     path_prunning = [path[start]]
-#     while True:
-#         while goal <= len(path)-1:
-#             if not (lompatanAman(path[start], path[goal], map)):
-#                 # if (is_45_degree(path[start], path[goal])):
-#                 #     goal += 1
-#                 #     break
-#                 # elif goal == len(path):
-#                 #     path_prunning.append(path[goal])
-#                 #     break
-#                 # else:
-#                     path_prunning.append(path[goal-1])
-#                     start = goal - 1
-#                     break
-#             else:
-#                 goal += 1
-#         if (start_t == start and goal_t == goal):
-#             break
-#         start_t = start
-#         goal_t = goal
-#     path_prunning.append(path[len(path)-1])
-#     return path_prunning
-
 def bresenham(x0, y0, x1, y1):
     """Mengembalikan list titik antara (x0,y0) ke (x1,y1) dengan Bresenham"""
     points = []
@@ -172,25 +80,35 @@ def bresenham(x0, y0, x1, y1):
     points.append((x1, y1))
     return points
 
-def Prunning(P, grid):
-    """Optimasi jalur dengan memotong node yang tidak perlu"""
+def Prunning(P, map):
+
+    # print(f"Path Asli : {P}")
+
     O_path = [P[0]]  # Tambahkan titik awal
-    titik_depan = P[0]
+    # print(f"Tambahkan titik pertama ke path optimal : {O_path}")
+    front = P[1]
+    # print(f"Tentukan nilai titik lompatan awal : {front}")
 
     for i in range(1, len(P)):
-        titik_target = P[i]
-        garis = bresenham(titik_depan[0], titik_depan[1], titik_target[0], titik_target[1])
-        print(garis)
-        
+        jumpPoint = P[i]
+        # print(f"\nTitik Lompatan : {jumpPoint}")
+        # print(f"Titik yang dilewati  : ")
+        line = bresenham(front[0], front[1], jumpPoint[0], jumpPoint[1])
+        # [print((x, y), "Aman" if map[x][y]== 0 else "Rintangan") for x, y in line]
         # Cek apakah ada rintangan (255)
-        ada_rintangan = any(
-            grid[y][x] == 255 for (y, x) in garis
+        block = any(
+            map[x][y] == 255 for (x, y) in line
         )
-        
-        if ada_rintangan:
+        if block:
             # Tambahkan titik sebelumnya ke hasil
+            # print(f"Lompatan memotong rintangan!")
+            # print(f"Tambahkan titik sebelumnya ke path optimal")
             O_path.append(P[i-1])
-            titik_depan = P[i-1]  # Perbarui titik_depan
-
+            # print(f"Path optimal saat ini : {O_path}")
+            front = P[i-1]  # Perbarui titik_depan
+        # else:
+            # print(f"Status : Aman")
+    # print(f"Titik {jumpPoint} adalah titik akhir")
+    # print(f"Selesai")
     O_path.append(P[-1])  # Tambahkan titik akhir
     return O_path
