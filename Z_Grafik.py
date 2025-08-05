@@ -15,12 +15,16 @@ def grafik(sheet, label, algorithms):
             map = f"Map_{map}"
         df = pd.read_excel(f'Excel/Validasi/Hasil_Pengujian_{map}_128_avg_length.xlsx', sheet_name=sheet)
         # Bersihkan spasi di kolom Kombinasi
-        df['Kombinasi'] = df['Kombinasi'].str.strip()
+        # df['Kombinasi'] = df['Kombinasi'].str.strip()
+        # Setelah membaca dan membersihkan dataframe
+        df['Kombinasi'] = df['Kombinasi'].str.strip().replace({
+            'JPS-GL-BRC-PPO': 'A*-Opt'  # Ubah label panjang jadi lebih ringkas
+        })
         baris = df[df['Kombinasi'].isin(algorithms)]
         data[f"Map {list[i-1]}"] = baris.set_index('Kombinasi')
 
     # Buat layout subplot 3x2
-    fig, axs = plt.subplots(3, 2, figsize=(10, 12))
+    fig, axs = plt.subplots(2, 3, figsize=(10, 12))
     plt.subplots_adjust(hspace=0.4, wspace=0.3)
     axs = axs.flatten()
 
@@ -34,13 +38,13 @@ def grafik(sheet, label, algorithms):
         'TPF': '#912B0F',  
         'BDS': '#FFBD47',  
         'JPS': '#CC9900',  
-        'JPS-BDS': '#8B4513',  # Tambahkan warna untuk JPS-BDS
-        'PPO': '#B22600'   
+        # 'A*-Opt': '#8B4513',  # Tambahkan warna untuk JPS-BDS
+        'A*-Opt': '#B22600'   
     }
 
     markers = {
-        'A*': 'o', 'GL': 'o', 'BRC': 'o', 'TPF': 'o',
-        'BDS': '*', 'JPS': '*', 'JPS-BDS': '*', 'PPO': 'o'  # Tambahkan marker untuk JPS-BDS
+        'A*': '^', 'GL': 'o', 'BRC': 'o', 'TPF': 'o',
+        'BDS': '*', 'JPS': '*', 'A*-Opt': '*', 'PPO': 'o'  # Tambahkan marker untuk JPS-BDS
     }
 
     for i, (key, values) in enumerate(data.items()):
@@ -83,25 +87,25 @@ def grafik(sheet, label, algorithms):
     plt.show()
 
     # Area Bar Chart
-    fig, axs = plt.subplots(3, 2, figsize=(10, 12))
+    fig, axs = plt.subplots(2, 3, figsize=(10, 12))
     plt.subplots_adjust(hspace=0.4, wspace=0.3)
     axs = axs.flatten()
 
     # PERBAIKAN: Tambahkan JPS-BDS ke hatch_patterns
     hatch_patterns = {
         'A*': '', 'GL': '', 'BRC': '', 'TPF': '',
-        'BDS': '', 'JPS': '', 'JPS-BDS': '///', 'PPO': ''  # Tambahkan pattern untuk JPS-BDS
+        'BDS': '', 'JPS': '', 'A*-Opt': '///', 'PPO': ''  # Tambahkan pattern untuk JPS-BDS
     }
 
     for i, (key, values) in enumerate(data.items()):
         # Persiapan data untuk bar chart
         x = np.arange(len(map_sizes))
-        width = 0.12
+        width = 0.2
         
         # Plot bar untuk setiap algorithm
         for j, algo in enumerate(algorithms):
             if algo in values.index:
-                offset = (j - len(algorithms)/2) * width + width/2
+                offset = (j - len(algorithms)/2) * (width + width/3)
                 bars = axs[i].bar(x + offset, values.loc[algo, map_sizes], 
                                 width, label=algo, color=colors.get(algo, "#B22600"), 
                                 alpha=0.8, edgecolor='black', linewidth=0.5,
@@ -151,7 +155,7 @@ def grafik(sheet, label, algorithms):
     plt.show()
 
 # Test dengan algoritma yang sama
-algorithms = ['JPS','BDS','JPS-BDS']
+algorithms = ['A*','A*-Opt']
 label="Jumlah"
-sheet="Waktu Pencarian"
+sheet="Jumlah Simpul"
 grafik(sheet, label, algorithms)

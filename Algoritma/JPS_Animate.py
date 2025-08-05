@@ -263,6 +263,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
         )
 
         i+=1
+
         print(f"\nIterasi ke-{i}")
         print(f"Lanjutkan titik dengan biaya terendah : {current}")
         print(f"Biaya titik saat ini f{current} : {fn[current]:.3f}")
@@ -277,7 +278,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 continue
 
             v1 = TP(came_from.get(jumpPoint, jumpPoint), current, jumpPoint, k) if TPF else 0
-            v2 = BR(jumpPoint, goal, matrix) or 1 if BRC else 1
+            v2 = BR(current, goal, matrix) or 1 if BRC else 1
             v3 = GL(start, goal, jumpPoint) if GLF else 0
 
             tentative_gn = gn[current] + lenght(
@@ -302,7 +303,10 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                     ) + v1 + v3
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
 
-                print(f"f{jumpPoint} = {gn[jumpPoint]:.3f} + {heuristic(jumpPoint, goal, hchoice):.3f} = {fn[jumpPoint]:.3f}")
+                print(f"f{jumpPoint} = {gn[jumpPoint]:.3f} + {(heuristic(
+                        jumpPoint, 
+                        goal, 
+                        hchoice) * (1-math.log(v2))):.3f} + BR{v2} = {fn[jumpPoint]:.3f}")
 
             if show:
                 # Temporary list to accumulate points for rendering
@@ -523,24 +527,6 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     return (full_path, round(endTime - startTime, 6)), (open_f + open_b), (close_f | close_b)
 
 def lenght(current, jumppoint, hchoice):
-    moveX, moveY = direction(current[0], current[1], jumppoint[0], jumppoint[1])
-    # Correction: direction returns the actual step (-1, 0, or 1), not difference
-    # For length calculation, we need the absolute difference in coordinates
-    lX = math.fabs(current[0] - jumppoint[0])
-    lY = math.fabs(current[1] - jumppoint[1])
-
-    if hchoice == 1: # Manhattan or Octile based
-        if lX != 0 and lY != 0: # Diagonal jump
-            # Each diagonal step costs 14, each straight step costs 10.
-            # A jump point covers multiple steps, so calculate true distance.
-            min_dim = min(lX, lY)
-            max_dim = max(lX, lY)
-            # Octile distance formula for the length of the jump
-            length = min_dim * 14 + (max_dim - min_dim) * 10
-            return length
-        else: # Straight jump (horizontal or vertical)
-            length = (lX + lY) * 10 # Only one of lX or lY will be non-zero
-            return length
     if hchoice == 2: # Euclidean
         return math.sqrt(
             (current[0] - jumppoint[0]) ** 2 + (current[1] - jumppoint[1]) ** 2

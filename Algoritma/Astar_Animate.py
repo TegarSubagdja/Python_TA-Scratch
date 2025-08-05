@@ -153,7 +153,10 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                         hchoice
                     ) + v1 + v3 
 
-                print(f"f{neighbour} = {gn[neighbour]:.3f} + {heuristic(neighbour, goal, hchoice):.3f} = {fn[neighbour]:.3f}")
+                print(f"f{neighbour} = {gn[neighbour]:.3f} + {heuristic(neighbour, goal, hchoice):.3f} nilai BRC={(heuristic(
+                        neighbour, 
+                        goal, 
+                        hchoice) * (1-math.log(v2)))} = {fn[neighbour]:.3f}")
 
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
 
@@ -389,7 +392,8 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
     endTime = time.time()
 
     if show:
-        Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path)
+        # Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path)
+        Z_GetMap.show(map, window_size=512, path=path, openlist=open_f + open_b, closelist=close_f.union(close_b))
         clock.tick(speed)
 
         # Tunggu sampai tombol ditekan

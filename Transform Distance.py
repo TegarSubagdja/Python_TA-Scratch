@@ -9,7 +9,7 @@ matrix = np.array([
     [0,0,0,0,0,0,1,0],
     [0,0,0,1,0,0,0,0],
     [0,0,0,0,0,0,0,0],
-    [0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0]
 ], dtype=np.uint8)
@@ -39,7 +39,7 @@ def draw_frame(show_buffer=False):
 
             # Gambar buffer zone (warna biru muda transparan)
             if show_buffer and buffer_matrix[y][x] == 1:
-                pygame.draw.rect(screen, (128, 128, 128), rect)  # light blue
+                pygame.draw.rect(screen, (255, 165, 0), rect)  # light blue
 
             # Gambar obstacle hitam
             if matrix[y][x] == 1:

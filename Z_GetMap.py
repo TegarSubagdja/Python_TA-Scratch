@@ -15,6 +15,11 @@ colors = {
     10: "#590a6f",
 }
 
+def draw_text(text, surface, x, y, font_size=14, color=(0, 0, 0)):
+    font = pygame.font.SysFont(None, font_size)
+    img = font.render(text, True, color)
+    surface.blit(img, (x + 2, y + 2))  # Sedikit offset biar tidak mepet
+
 # Tampilkan grid ke layar
 def show(grid, window_size=512, name="None", path=None, openlist=None, closelist=None):
     rows, cols = grid.shape
@@ -76,6 +81,17 @@ def show(grid, window_size=512, name="None", path=None, openlist=None, closelist
                         pygame.draw.rect(screen, hex_to_rgb(colors[5]),
                                         (x * cell_size, y * cell_size, cell_size, cell_size))
 
+                # # Open List
+                # openlist = sorted(openlist, key=lambda node: (node[0], node[1]))
+                # offset = len(closelist)
+                # for idx, item in enumerate(openlist, 1):
+                #     node = item[1] if isinstance(item, tuple) and len(item) > 1 else item
+                #     if grid[node[0]][node[1]] not in (2, 3):
+                #         y, x = node
+                #         pygame.draw.rect(screen, hex_to_rgb(colors[5]),
+                #                         (x * cell_size, y * cell_size, cell_size, cell_size))
+                #         draw_text(str(idx + offset), screen, x * cell_size, y * cell_size)
+
             # Closed List
             if closelist:
                 for node in closelist:
@@ -83,6 +99,16 @@ def show(grid, window_size=512, name="None", path=None, openlist=None, closelist
                         y, x = node
                         pygame.draw.rect(screen, hex_to_rgb(colors[6]),
                                         (x * cell_size, y * cell_size, cell_size, cell_size))
+                        
+
+                # # Closed List
+                # closelist = sorted(closelist, key=lambda node: (node[0], node[1]))
+                # for idx, node in enumerate(closelist, 1):
+                #     if grid[node[0]][node[1]] not in (2, 3):
+                #         y, x = node
+                #         pygame.draw.rect(screen, hex_to_rgb(colors[6]),
+                #                         (x * cell_size, y * cell_size, cell_size, cell_size))
+                #         draw_text(str(idx), screen, x * cell_size, y * cell_size)
 
             # Gambar garis grid terakhir agar tidak tertimpa
             for y in range(rows):

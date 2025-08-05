@@ -274,12 +274,12 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 continue
 
             v1 = TP(came_from.get(jumpPoint, jumpPoint), current, jumpPoint, k) if TPF else 0
-            v2 = BR(jumpPoint, goal, matrix) or 1 if BRC else 1
+            v2 = BR(current, goal, matrix) or 1 if BRC else 1
             v3 = GL(start, goal, jumpPoint) if GLF else 0
 
             tentative_gn = gn[current] + lenght(
                 current, jumpPoint, hchoice
-            )
+            ) 
 
             if tentative_gn < gn.get(
                 jumpPoint, 0
@@ -368,7 +368,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
                 # Single-line conditional calculations
                 v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, k) if TPF else 0
-                v2 = BR(succ, goal, matrix) or 1 if BRC else 1
+                v2 = BR(current_f, goal, matrix) or 1 if BRC else 1
                 v3 = GL(start, goal, succ) if GLF else 0
 
                 tentative_g = gn_f[current_f] + lenght(current_f, succ, hchoice)
@@ -405,7 +405,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
                 # Single-line conditional calculations
                 v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, k) if TPF else 0
-                v2 = BR(succ, start, matrix) or 1 if BRC else 1
+                v2 = BR(current_b, start, matrix) or 1 if BRC else 1
                 v3 = GL(goal, start, succ) if GLF else 0
 
                 tentative_g = gn_b[current_b] + lenght(current_b, succ, hchoice)
@@ -475,28 +475,30 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     if show:
         Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, path)
         clock.tick(speed)
-        time.sleep(3)
 
+        # Tunggu sampai tombol ditekan
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN:
+                    waiting = False
+
+        # Handle event disini
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+            if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    exit()
 
     return (path, round(endTime - startTime, 6)), (open_f + open_b), (close_f | close_b)
 
 def lenght(current, jumppoint, hchoice):
-    moveX, moveY = direction(current[0], current[1], jumppoint[0], jumppoint[1])
-    moveX = math.fabs(moveX)
-    moveY = math.fabs(moveY)
-    lX = math.fabs(current[0] - jumppoint[0])
-    lY = math.fabs(current[1] - jumppoint[1])
-    if hchoice == 1:
-        if moveX != 0 and moveY != 0:
-            lenght = lX * 14
-            return lenght
-        else:
-            lenght = (moveX * lX + moveY * lY) * 10
-            return lenght
     if hchoice == 2:
         return math.sqrt(
             (current[0] - jumppoint[0]) ** 2 + (current[1] - jumppoint[1]) ** 2

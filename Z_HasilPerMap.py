@@ -42,7 +42,7 @@ for sheet in sheets:
         df = pd.read_excel(f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx', sheet_name=sheet)
 
         # Filter kombinasi yang diinginkan
-        baris = df[df['Kombinasi'].isin(['A*', 'JPS-BDS-GL-BRC-PPO'])]
+        baris = df[df['Kombinasi'].isin(['A*', 'JPS-GL-BRC-PPO'])]
 
         # Kolom ukuran
         ukuran_kolom = ['16', '32', '64', '128']
@@ -69,6 +69,46 @@ for sheet in sheets:
     print("Data berhasil disimpan ke 'hasil_gabungan_vertikal.xlsx'")
 
 
+# Inisialisasi dictionary untuk menyimpan hasil per sheet
+data_by_sheet = {}
+
+# Loop untuk membaca dan proses tiap sheet
+for sheet in sheets:
+    semua_hasil = []
+    for i in range(1, 6):
+        map_name = 'Map' if i == 1 else f'Map_{i-1}'
+
+        df = pd.read_excel(f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx', sheet_name=sheet)
+
+        # Filter hanya kombinasi yang diinginkan
+        baris = df[df['Kombinasi'].isin(['A*', 'JPS-GL-BRC-PPO'])]
+
+        # Kolom ukuran
+        ukuran_kolom = ['16', '32', '64', '128']
+
+        # Ubah format ke long
+        hasil = baris.melt(id_vars='Kombinasi', value_vars=ukuran_kolom,
+                           var_name='Ukuran', value_name=sheet)
+
+        hasil['Map'] = map_name
+        hasil['Ukuran'] = hasil['Ukuran'].astype(int)
+
+        semua_hasil.append(hasil)
+
+    # Gabung semua hasil untuk satu sheet
+    data_by_sheet[sheet] = pd.concat(semua_hasil, ignore_index=True)
+
+# Gabungkan semua data berdasarkan Kombinasi, Map, Ukuran
+from functools import reduce
+
+# Ambil semua dataframe dalam list
+merged_data = reduce(lambda left, right: pd.merge(left, right, on=['Kombinasi', 'Map', 'Ukuran']), data_by_sheet.values())
+
+# Simpan ke Excel
+merged_data.to_excel('Excel/Vertical/hasil_gabungan_semua_sheet.xlsx', index=False)
+print("Data berhasil disimpan ke 'hasil_gabungan_semua_sheet.xlsx'")
+
+
 import pandas as pd
 
 sheets = ['Waktu Pencarian', 'Panjang Jalur', 'Panjang Jalur Real',
@@ -80,7 +120,7 @@ for sheet in sheets:
     for i in range(1, 6):
         map_name = 'Map' if i <= 1 else f'Map_{i-1}'
         df = pd.read_excel(f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx', sheet_name=sheet)
-        baris = df[df['Kombinasi'].isin(['A*', 'JPS-BDS-GL-BRC-PPO'])]
+        baris = df[df['Kombinasi'].isin(['A*', 'JPS-GL-BRC-PPO'])]
 
         ukuran_kolom = ['16', '32', '64', '128']
         hasil = baris.melt(id_vars='Kombinasi', value_vars=ukuran_kolom,
@@ -97,7 +137,7 @@ for sheet in sheets:
 
     # Pisahkan data A* dan Optimized
     data_astar = gabungan[gabungan['Kombinasi'] == 'A*'].copy().reset_index(drop=True)
-    data_opt = gabungan[gabungan['Kombinasi'] == 'JPS-BDS-GL-BRC-PPO'].copy().reset_index(drop=True)
+    data_opt = gabungan[gabungan['Kombinasi'] == 'JPS-GL-BRC-PPO'].copy().reset_index(drop=True)
 
     # Hitung persentase perubahan
     df_perbandingan = data_astar.copy()

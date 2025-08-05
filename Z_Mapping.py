@@ -1,19 +1,19 @@
 from Utils import *
 from Method.PathPolylineOptimization import Prunning
 
-# Variabel untuk ketebalan garis
-LINE_WIDTH = 4  # Menentukan ketebalan garis, bisa diubah sesuai kebutuhan
-LINE_COLOR = "#590a6f"
-
 # Variabel untuk pengaturan warna dan ukuran bulatan
 CIRCLE_RADIUS = 6  # Ukuran radius bulatan (dalam pixel)
 CIRCLE_COLOR = "#590a6f"  # Warna bulatan, misalnya tomat
 
 # Konfigurasi grid
 GRID_SIZE = 16
-WIDTH = 500 #GRID_SIZE * CELL_SIZE
-HEIGHT = 500 #GRID_SIZE * CELL_SIZE
+WIDTH = 512 #GRID_SIZE * CELL_SIZE
+HEIGHT = 512 #GRID_SIZE * CELL_SIZE
 CELL_SIZE = WIDTH//GRID_SIZE
+
+# Variabel untuk ketebalan garis
+LINE_WIDTH = CELL_SIZE // 12  # Menentukan ketebalan garis, bisa diubah sesuai kebutuhan
+LINE_COLOR = "#590a6f"
 
 # Inisialisasi Pygame
 pygame.init()
@@ -30,7 +30,7 @@ colors = {
     4: "#3f6184",  # Garis
     5: "#FFFF00",  # Open List (kuning)
     6: "#FFA500",  # Close List (oranye)
-    7: "#778899",  # Warna abu-abu
+    7: "#DEDEDE",  # Warna abu-abu
     8: "#e8175d",  # Warna pink
 }
 
@@ -49,6 +49,63 @@ last_cell = None  # Menyimpan sel terakhir yang diproses saat drag
 
 # Variabel untuk metode yang digunakan
 method = 1
+
+def draw_dashed_line(surf, color, start_pos, end_pos, width=1, dash_length=10, space_length=5):
+    # Hitung vektor arah dan panjang garis
+    x1, y1 = start_pos
+    x2, y2 = end_pos
+    dx = x2 - x1
+    dy = y2 - y1
+    distance = math.hypot(dx, dy)
+
+    if distance == 0:
+        return
+
+    # Normalisasi vektor
+    dx /= distance
+    dy /= distance
+
+    # Gambar segmen putus-putus
+    current_length = 0
+    while current_length < distance:
+        start_x = x1 + dx * current_length
+        start_y = y1 + dy * current_length
+        end_x = x1 + dx * min(current_length + dash_length, distance)
+        end_y = y1 + dy * min(current_length + dash_length, distance)
+        pygame.draw.line(surf, color, (start_x, start_y), (end_x, end_y), width)
+        current_length += dash_length + space_length
+
+
+def draw_arrowhead(start, end, color, radius=20, angle_degrees=30):
+    # Menghitung arah garis
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    angle = math.atan2(dy, dx)
+
+    # Menghitung dua titik sudut segitiga panah
+    angle1 = angle + math.radians(angle_degrees)
+    angle2 = angle - math.radians(angle_degrees)
+
+    x1 = end[0] - radius * math.cos(angle1)
+    y1 = end[1] - radius * math.sin(angle1)
+    x2 = end[0] - radius * math.cos(angle2)
+    y2 = end[1] - radius * math.sin(angle2)
+
+    # Menggambar kepala panah (segitiga)
+    pygame.draw.polygon(screen, color, [(end[0], end[1]), (x1, y1), (x2, y2)])
+
+def shorten_line(start, end, cut_length=10):
+    # Memendekkan garis agar tidak masuk ke kepala panah
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    length = math.hypot(dx, dy)
+
+    if length == 0:
+        return start, end
+
+    ratio = (length - cut_length) / length
+    new_end = (start[0] + dx * ratio, start[1] + dy * ratio)
+    return start, new_end
 
 def load_grid_from_json(path="Map/JSON/Map.json"):
     try:
@@ -124,21 +181,56 @@ def display_mode(text):
     mode_text = font.render(f"Mode: {text}", True, (0, 0, 0))
     screen.blit(mode_text, (10, HEIGHT - 30))
 
-# Fungsi untuk menggambar garis-garis
-def draw_lines():
-    """Menggambar semua garis yang tersimpan di daftar lines."""
-    for line in lines:
-        pygame.draw.line(screen, (255, 0, 255), line[0], line[1], LINE_WIDTH)  # Width dapat disesuaikan
+def draw_arrowhead(start, end, color, size=10, angle_degrees=30):
+    # Hitung arah garis
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    angle = math.atan2(dy, dx)
 
-        # Titik awal dan akhir garis (tambah bulatan kecil)
-        start_x, start_y = line[0]
-        end_x, end_y = line[1]
-        
-        # Menambahkan bulatan di titik awal
-        pygame.draw.circle(screen, hex_to_rgb(LINE_COLOR), (start_x, start_y), CIRCLE_RADIUS)  # Radius sesuai variabel
-        
-        # Menambahkan bulatan di titik akhir
-        pygame.draw.circle(screen, hex_to_rgb(LINE_COLOR), (end_x, end_y), CIRCLE_RADIUS)  # Radius sesuai variabel
+    # Hitung dua titik sisi segitiga
+    angle1 = angle + math.radians(angle_degrees)
+    angle2 = angle - math.radians(angle_degrees)
+
+    x1 = end[0] - size * math.cos(angle1)
+    y1 = end[1] - size * math.sin(angle1)
+    x2 = end[0] - size * math.cos(angle2)
+    y2 = end[1] - size * math.sin(angle2)
+
+    # Gambar segitiga panah
+    pygame.draw.polygon(screen, color, [(end[0], end[1]), (x1, y1), (x2, y2)])
+
+def shorten_line(start, end, cut_length=10):
+    # Memendekkan garis agar tidak masuk ke kepala panah
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    length = math.hypot(dx, dy)
+
+    if length == 0:
+        return start, end
+
+    ratio = (length - cut_length) / length
+    new_end = (start[0] + dx * ratio, start[1] + dy * ratio)
+    return start, new_end
+
+def draw_lines():
+    for line in lines:
+        start = line[0]
+        end = line[1]
+        color = hex_to_rgb(LINE_COLOR)
+
+        # Potong garis agar tidak menabrak kepala panah
+        new_start, new_end = shorten_line(start, end, cut_length=12)
+
+        # Gambar garis utama
+        pygame.draw.line(screen, colors[1], new_start, new_end, LINE_WIDTH)
+        # draw_dashed_line(screen, color, new_start, new_end, width=LINE_WIDTH, dash_length=10, space_length=5)
+
+        # Gambar kepala panah (di titik akhir asli)
+        draw_arrowhead(start, end, colors[1], size=CELL_SIZE//3)
+
+        # Tambah bulatan hanya di titik awal
+        pygame.draw.circle(screen, hex_to_rgb(colors[1]), start, CELL_SIZE//10)
+
 
 # Fungsi untuk menyimpan gambar dengan nama yang dipilih pengguna
 def save_image(replace=False, default_filename='grid_image.png'):

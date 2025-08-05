@@ -83,10 +83,9 @@ def bresenham(x0, y0, x1, y1):
 def Prunning(P, map):
 
     # print(f"Path Asli : {P}")
-
     O_path = [P[0]]  # Tambahkan titik awal
     # print(f"Tambahkan titik pertama ke path optimal : {O_path}")
-    front = P[1]
+    front = P[0]
     # print(f"Tentukan nilai titik lompatan awal : {front}")
 
     for i in range(1, len(P)):

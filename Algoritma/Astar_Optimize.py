@@ -120,7 +120,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
         
             # Perhitungan Koefisien Tambahann Pengoptimasi
             v1 = TP(came_from.get(current, current), current, neighbour, k) if TPF else 0
-            v2 = BR(neighbour, goal, map) or 1 if BRC else 1
+            v2 = BR(current, goal, map) or 1 if BRC else 1
             v3 = GL(start, goal, neighbour) if GLF else 0
 
             if tentative_gn < gn.get(
@@ -218,7 +218,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     continue
 
                 v1 = TP(came_from_f.get(current_f, current_f), current_f, neighbour, k) if TPF else 0
-                v2 = BR(neighbour, goal, map) or 1 if BRC else 1
+                v2 = BR(current_f, goal, map) or 1 if BRC else 1
                 v3 = GL(start, goal, neighbour) if GLF else 0
 
                 if tentative_gn < g_f.get(neighbour, float('inf')):
@@ -258,7 +258,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     cost = math.sqrt(2) if dX != 0 and dY != 0 else 1
 
                 v1 = TP(came_from_b.get(current_b, current_b), current_b, neighbour, k) if TPF else 0
-                v2 = BR(neighbour, start, map) or 1 if BRC else 1
+                v2 = BR(current_b, start, map) or 1 if BRC else 1
                 v3 = GL(goal, start, neighbour) if GLF else 0
 
                 tentative_gn = g_b[current_b] + cost
@@ -272,9 +272,9 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     h_to_start = heuristic(neighbour, start, hchoice)
 
                     if BRC:
-                        f_b[neighbour] = tentative_gn + (h_to_start * (1 - math.log(v2))) + v1 + v3 
+                        f_b[neighbour] = tentative_gn + (h_to_start * (1 - math.log(v2))) + v1 + v3
                     else:
-                        f_b[neighbour] = tentative_gn + h_to_start + v1 + v3 
+                        f_b[neighbour] = tentative_gn + h_to_start + v1 + v3
 
                     heapq.heappush(open_b, (f_b[neighbour], neighbour))
 
