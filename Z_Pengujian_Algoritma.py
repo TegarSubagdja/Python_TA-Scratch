@@ -15,33 +15,27 @@ if __name__ == "__main__":
 
     # for i in range(1):
 
-    mapChoice = 11
+    mapChoice = 14
 
     if mapChoice < 1:
         nameMap = "Map"
     else:
         nameMap = f"Map_{mapChoice}"
     map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
-    # map = Z_GetMap.upscale(map, 64)
 
-    # Ubah peta ke tipe uint8 (misalnya setelah pemrosesan JSON)
-    map = map.astype(np.uint8)
-
-    # Pastikan semua nilai > 0 jadi 255 (misal obstacle)
-    # binary = np.where(map > 0, 255, 0).astype(np.uint8)
-    # Hitung distance transform
-    dist = cv2.distanceTransform(1 - map, cv2.DIST_L2, 5)
-    buffered_obstacle = np.uint8(dist < 1.5) * 255
-    print(buffered_obstacle)
+    # map = cv2.imread('Map/Foto/WIN_20250806_03_22_35_Pro.jpg')
+    # map = cv2.cvtColor(map, cv2.COLOR_BGR2GRAY)
+    # start = ((70*20, 20*20), 0)
+    # goal = ((30*20, 20*20), 0)
+    # map = Prep(map, start, goal, 10, scale=20)
+    # start, goal = PrepCoord(start, goal)
 
     matrix = map.copy()
+    # map = Z_GetMap.upscale(map, 64)
     start = (0, 0)
-    goal = (map.shape[1]-2, map.shape[0]-1)
+    goal = (map.shape[1]-1, map.shape[0]-1)
 
-    # start = np.where(map == 2)
-    # goal = np.where(map == 3)
-    # start = (int(start[0][0]), int(start[1][0]))
-    # goal = (int(goal[0][0]), int(goal[1][0]))
+    map = map.astype(np.uint8)
 
     np.place(matrix, matrix == 1, 255)
     np.place(map, map == 2, 0)
@@ -53,14 +47,16 @@ if __name__ == "__main__":
     tempTurns = []
     tempLengths = []
     for i in range(1):
-        (path, times), openlist, closelist = JPS_Animate.method(
+        (path, times), openlist, closelist = Algoritm(
             matrix, start, goal, 2,
             # JPS=True,
             # BRC=True,
             PPO=True,
             # GLF=True,
+            # TPF=True,
+            # BDS=True,
             show=True,
-        speed=10,
+        speed=100,
         )
 
         if path:
@@ -93,6 +89,8 @@ if __name__ == "__main__":
 
     # Munculkan dan simpan map
     if path:
+        np.place(map, map == 255, 1)
         Z_GetMap.show(map, window_size=720, name=nameMap, path=path, openlist=openlist, closelist=closelist)
     else:
-        Z_GetMap.show(map, window_size=512, name=nameMap)
+        np.place(map, map == 255, 1)
+        Z_GetMap.show(map, window_size=720, name=nameMap)

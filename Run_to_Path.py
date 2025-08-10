@@ -11,7 +11,7 @@ FRAME_SIZE = (1280, 720)
 BASE_SPEED = 40
 MAX_SPEED = 40
 MIN_PWM = 0
-MARKER_LOST_TIMEOUT = 2
+MARKER_LOST_TIMEOUT = 1
 
 # Inisialisasi Serial
 try:
@@ -34,7 +34,7 @@ detector = aruco.ArucoDetector(detector_dict, detector_params)
 
 # Inisialisasi Variabel
 path = None
-pid = PID(Kp=0.5, Ki=0.1, Kd=0.13, dt=0.1, output_limit=MAX_SPEED, integral_limit=MAX_SPEED)
+pid = PID(Kp=0.5, Ki=0.1, Kd=0.13, dt=0.1, output_limit=MAX_SPEED, integral_limit=MAX_SPEED//2)
 degree_buffer = deque(maxlen=3)
 last_time = marker_lost_time = time.time()
 
@@ -53,12 +53,14 @@ while True:
     # Tangani kehilangan marker
     if start is None or goal is None:
         if time.time() - marker_lost_time >= MARKER_LOST_TIMEOUT:
+            if ser: pwm(ser, 0, 0)
             path = None
         cv2.imshow("Frame", gray)
         if cv2.waitKey(1) & 0xFF == 27:
             if ser: pwm(ser, 0, 0)
             break
         continue
+
     marker_lost_time = time.time()
 
     # Jika path, robot dan tujuan tersedia
@@ -72,7 +74,7 @@ while True:
             path = None
 
         # Jika belum sampai titik saat ini → navigasi
-        elif errDist < 2 * marksize:
+        elif errDist < 1.5 * marksize:
             pid.reset()
             path.pop(0)
 

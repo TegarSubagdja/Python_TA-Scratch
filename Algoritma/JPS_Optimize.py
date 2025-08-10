@@ -1,13 +1,6 @@
 from Utils import *
 
 def heuristic(start, goal, hchoice):
-    if hchoice == 1:
-        xdist = math.fabs(goal[0] - start[0])
-        ydist = math.fabs(goal[1] - start[1])
-        if xdist > ydist:
-            return 14 * ydist + 10 * (xdist - ydist)
-        else:
-            return 14 * xdist + 10 * (ydist - xdist)
     if hchoice == 2:
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 

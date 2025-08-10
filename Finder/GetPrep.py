@@ -1,8 +1,7 @@
 from Utils import *
 
-scale=20
 
-def Prep(img, start, goal, markSize):
+def Prep(img, start, goal, markSize, scale=20):
     # Grayscale
     if len(img.shape) == 3:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -15,7 +14,7 @@ def Prep(img, start, goal, markSize):
 
     # Distance Transform
     dist = cv2.distanceTransform(255 - binary, cv2.DIST_L2, 5)
-    buffer_radius = int(3 * markSize)
+    buffer_radius = int(2 * markSize)
     buffered_obstacle = np.uint8(dist < buffer_radius) * 255
 
     # Tambahkan buffer ke binary → hasil baru
@@ -34,7 +33,7 @@ def Prep(img, start, goal, markSize):
 
     return resize
 
-def PrepCoord(start, goal, path=None):
+def PrepCoord(start, goal, path=None, scale=20):
 
     if path is None:
         # Ubah skala start dan goal ke ukuran kecil

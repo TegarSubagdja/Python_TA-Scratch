@@ -127,7 +127,7 @@ def handle_manual_astar_click(clicked, grid, state):
     return state
 
 # ======= Visualisasi Pygame =======
-GRID_SIZE = 16
+GRID_SIZE = 5
 WIDTH = 512
 HEIGHT = 512
 CELL_SIZE = WIDTH // GRID_SIZE
