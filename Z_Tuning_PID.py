@@ -1,4 +1,4 @@
-import cv2.ccm
+import random
 from Utils import *
 
 ser = None
@@ -24,12 +24,12 @@ detector = aruco.ArucoDetector(aruco_dict, aruco_params)
 MAX_SPEED = 45
 MIN_PWM = 0
 base_speed = MAX_SPEED
-correction_limit = MAX_SPEED
-kp = 0.47
+# correction_limit = MAX_SPEED
+kp = 0.7
 ki = 0.1
-kd = 0.12
+kd = 0.15
 dt = 0.1
-pid = PID(Kp=kp, Ki=ki, Kd=kd, dt=dt, output_limit=MAX_SPEED, integral_limit=40)
+pid = PID(Kp=kp, Ki=ki, Kd=kd, dt=dt, output_limit=MAX_SPEED, integral_limit=MAX_SPEED)
 
 # Buffer untuk error yang stabil
 degree_buffer = deque(maxlen=3)
@@ -42,6 +42,8 @@ targetId= 0
 def midpoint(p1, p2):
     return (int((p1[0] + p2[0]) / 2), int((p1[1] + p2[1]) / 2))
 
+goal = (100,100)
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -53,8 +55,12 @@ while True:
     tinggi, lebar= frame.shape
 
     # Gambar area batas dan titik pojok
-    area_pts = [(300, 200), (lebar - 300, 200), (lebar - 300, tinggi - 200), (300, tinggi - 200)]
-
+    area_pts = [
+        (100, 100),              # kiri atas
+        (lebar-100, 100),           # kanan atas
+        (lebar-100, tinggi-100),         # kanan bawah
+        (100, tinggi-100)             # kiri bawah
+    ]
     # Deteksi marker
     corners, ids, _ = detector.detectMarkers(frame)
 
@@ -68,7 +74,7 @@ while True:
 
     if start:
         center, pts = start
-        goal = area_pts[targetId]
+        # goal = area_pts[2]
 
         # Hitung jarak ke goal
         dx =  goal[1] - center[1] 
@@ -101,7 +107,7 @@ while True:
         pid.Ki = ki
         pid.Kd = kd
         pid.dt = dt
-        correction = pid.calc(avg_degree)
+        correction = pid.calc(error_deg)
 
         # Clamp ke max speed dan min PWM
         left_speed = int(base_speed - correction)
@@ -113,7 +119,12 @@ while True:
 
         if dist < 50:
             if ser: pwm(ser, 0, 0)
+            # sys.exit()
             pid.reset()
+            goal = (
+            random.randint(1, lebar // 100) * 100,
+            random.randint(1, tinggi // 100) * 100
+            )
             targetId += 1
             if targetId >= 4:
                 targetId = 0
@@ -144,7 +155,6 @@ while True:
 
     # Tampilkan hasil
     cv2.imshow("Webcam", frame)
-    time.sleep(0.1)
 
     key = cv2.waitKey(1)
 

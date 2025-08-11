@@ -8,8 +8,8 @@ from collections import deque
 PORT = "COM9"
 CAM_ID = 1
 FRAME_SIZE = (1280, 720)
-BASE_SPEED = 40
-MAX_SPEED = 40
+BASE_SPEED = 45
+MAX_SPEED = BASE_SPEED
 MIN_PWM = 0
 MARKER_LOST_TIMEOUT = 1
 
@@ -34,7 +34,7 @@ detector = aruco.ArucoDetector(detector_dict, detector_params)
 
 # Inisialisasi Variabel
 path = None
-pid = PID(Kp=0.5, Ki=0.1, Kd=0.13, dt=0.1, output_limit=MAX_SPEED, integral_limit=MAX_SPEED//2)
+pid = PID(Kp=0.7, Ki=0.1, Kd=0.14, dt=0.1, output_limit=MAX_SPEED, integral_limit=MAX_SPEED)
 degree_buffer = deque(maxlen=3)
 last_time = marker_lost_time = time.time()
 
@@ -74,8 +74,9 @@ while True:
             path = None
 
         # Jika belum sampai titik saat ini → navigasi
-        elif errDist < 1.5 * marksize:
-            pid.reset()
+        elif errDist < 1*marksize:
+            # if ser: pwm(ser, 0, 0)
+            # pid.reset()
             path.pop(0)
 
         else:
@@ -84,11 +85,12 @@ while True:
             avg_degree = sum(degree_buffer) / len(degree_buffer)
 
             current_time = time.time()
-            pid.dt = current_time - last_time
+            dt = current_time - last_time
+            pid.dt = dt
             last_time = current_time
 
             correction = pid.calc(avg_degree)
-            left = max(MIN_PWM, min(MAX_SPEED, int(BASE_SPEED + correction + 5)))
+            left = max(MIN_PWM, min(MAX_SPEED, int(BASE_SPEED + correction)))
             right = max(MIN_PWM, min(MAX_SPEED, int(BASE_SPEED - correction)))
             if ser: pwm(ser, left, right)
 
@@ -104,6 +106,8 @@ while True:
             cv2.putText(gray, f"Degree : {int(avg_degree)}", (10, 100), cv2.FONT_HERSHEY_COMPLEX, 1, 255, 2)
             cv2.putText(gray, f"Left Speed  : {left}", (10, 150), cv2.FONT_HERSHEY_COMPLEX, 1, 255, 2)
             cv2.putText(gray, f"Right Speed : {right}", (10, 200), cv2.FONT_HERSHEY_COMPLEX, 1, 255, 2)
+            cv2.putText(gray, f"dt : {dt}", (10, 250), cv2.FONT_HERSHEY_COMPLEX, 1, 255, 2)
+            cv2.putText(gray, f"correction : {correction}", (10, 300), cv2.FONT_HERSHEY_COMPLEX, 1, 255, 2)
 
         # Tampilkan frame
         cv2.imshow("Frame", gray)
@@ -129,12 +133,11 @@ while True:
         if ser: pwm(ser, 0, 0)
 
         # Hitung path baru
-        map = Prep(gray.copy(), start, goal, markSize=marksize)
+        map = Prep(gray.copy(), start, goal, markSize=marksize, scale=20, buffer=3)
         pStart, pGoal = PrepCoord(start, goal)
-        (path, _), *_ = JPS_Optimize.methodBds(map, pStart, pGoal, 2, BRC=True, GLF=True, PPO=True)
-
+        (path, _), *_ = JPS_Optimize.methodBds(map, pStart, pGoal, 2, BRC=True, GLF=True, PPO=True, show=False)
         if path:
-            pStart, pGoal, path = PrepCoord(pStart, pGoal, path)
+            pStart, pGoal, path = PrepCoord(pStart, pGoal, path, scale=20)
             path.pop(0)
 
         # Tampilkan frame

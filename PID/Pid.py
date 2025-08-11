@@ -15,7 +15,7 @@ class PID:
    
         self.integral += error * self.dt
 
-        # Clamp integral to prevent windup
+        # Clamp (Anti Windup)
         self.integral = max(-self.integral_limit, min(self.integral, self.integral_limit))
 
         derivative = (error - self.last_error) / self.dt if self.dt > 0 else 0.0

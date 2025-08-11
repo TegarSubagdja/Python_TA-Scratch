@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     # for i in range(1):
 
-    mapChoice = 14
+    mapChoice = 0
 
     if mapChoice < 1:
         nameMap = "Map"
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # start, goal = PrepCoord(start, goal)
 
     matrix = map.copy()
-    # map = Z_GetMap.upscale(map, 64)
+    map = Z_GetMap.upscale(map, 128)
     start = (0, 0)
     goal = (map.shape[1]-1, map.shape[0]-1)
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
             # GLF=True,
             # TPF=True,
             # BDS=True,
-            show=True,
+            # show=True,
         speed=100,
         )
 
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     print(f"Rate : {np.mean(tempTimes)}")
 
     # Munculkan dan simpan map
-    if path:
+    if not path:
         np.place(map, map == 255, 1)
         Z_GetMap.show(map, window_size=720, name=nameMap, path=path, openlist=openlist, closelist=closelist)
     else:
