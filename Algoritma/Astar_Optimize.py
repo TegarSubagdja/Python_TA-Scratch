@@ -40,6 +40,8 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
 
     starttime = time.time()
 
+    v2 = BR(start, goal, map) or 1 if BRC else 1
+
     while open_list:
 
         current = heapq.heappop(open_list)[1]
@@ -184,6 +186,8 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
 
     startTime = time.time()
     meet_point = None
+
+    v2 = BR(start, goal, map) or 1 if BRC else 1
 
     while open_f and open_b and not meet_point:
 

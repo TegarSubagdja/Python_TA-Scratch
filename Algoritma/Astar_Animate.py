@@ -56,15 +56,15 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
         prev_openlist = open_list
         current = heapq.heappop(open_list)[1]
         if current == goal:
-            print(f"Goal ditemukan")
-            print(f"Rekonstruksi Jalur")
+            print(f"Pada iterasi ini goal ditemukan melalui titik {came_from[current]}, langkah selanjutnya adalah mengurut mundur titik saat ini (goal) hingga ke titik awal (start), maka:")
             path = []
             while current in came_from:
+                print(f"Titik {current}, berasal dari titik {came_from[current]}")
                 path.append(current)
                 current = came_from[current]
             path.append(start)
             path = path[::-1]
-            print(f"Jalur Akhir : {path}")
+            print(f"Sehingga jalur akhir yang dihasilkan adalah : {path}")
             if PPO:
                 path = Prunning(path, map)
             endtime = time.time()
@@ -96,10 +96,44 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
         close_list.add(current)
 
         i+=1
-        print(f"\nIterasi ke-{i}")
-        print(f"Lanjutkan titik dengan biaya terendah : {current}")
-        print(f"Biaya titik saat ini f{current} : {fn[current]:.3f}")
-        print(f"Hitung tetangga valid :")
+        print(f"\nLangkah ke-{i}")
+        print(f"Pada tahap ini, titik dengan biaya total terendah pada open list adalah {current} dengan nilai fungsi biaya f({current}) = {fn[current]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
+        tetengga_valid = 0
+        for dX, dY in [
+            (0, 1),
+            (0, -1),
+            (1, 0),
+            (-1, 0),
+            (1, 1),
+            (1, -1),
+            (-1, 1),
+            (-1, -1),
+        ]:
+            if blocked(current[0], current[1], dX, dY, map):
+                continue
+
+            if dX != 0 and dY != 0:
+                tentative_gn = gn[current] + math.sqrt(2)
+            else:
+                tentative_gn = gn[current] + 1
+
+            neighbour = current[0] + dX, current[1] + dY
+
+            if (
+                neighbour in close_list
+            ):  # and tentative_g_score >= gscore.get(neighbour,0):
+                continue
+
+            if tentative_gn < gn.get(
+                neighbour, 0
+            ) or neighbour not in [i[1] for i in open_list]:
+                tetengga_valid += 1
+        
+        if tetengga_valid > 0:
+            print(f"Dari titik {current}, dihitung biaya ke tetangga yang valid (tidak terhalang atau keluar dari peta) sebagai berikut:")
+        else:
+            print(f"Dari titik {current}, tidak ada tetangga yang belum di eksplorasi atau menghasilkan tetangga dengan nilai g yang lebih kecil, sehingga open list dan close list tetap")
+
         for dX, dY in [
             (0, 1),
             (0, -1),
@@ -133,8 +167,11 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                 continue
         
             v1 = TP(came_from.get(current, current), current, neighbour, k) if TPF else 0
-            v2 = BR(neighbour, goal, map) or 1 if BRC else 1
+            v2 = BR(current, goal, map) or 1 if BRC else 1
             v3 = GL(start, goal, neighbour) if GLF else 0
+
+            if tentative_gn < gn.get(neighbour, 0):
+                print(f"\nTitik {neighbour} sebelumnya sudah terdapat pada open list. Namun, jalur baru melalui titik {current} menghasilkan nilai g yang lebih kecil dibandingkan jalur sebelumnya melalui {came_from[neighbour]}. Oleh karena itu, asal titik diperbarui dari {came_from[neighbour]} menjadi {current}, dengan nilai biaya f.")
 
             if tentative_gn < gn.get(
                 neighbour, 0
@@ -152,11 +189,14 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                         goal, 
                         hchoice
                     ) + v1 + v3 
+                
+                if not (tentative_gn < gn.get(neighbour, 0)):
+                    print(f"Titik {neighbour} memiliki nilai f{neighbour} = g{neighbour} + h{neighbour} = {tentative_gn:.3f} + {heuristic(neighbour, goal, hchoice):.3f} = {fn[neighbour]:.3f}")
 
-                print(f"f{neighbour} = {gn[neighbour]:.3f} + {heuristic(neighbour, goal, hchoice):.3f} nilai BRC={(heuristic(
-                        neighbour, 
-                        goal, 
-                        hchoice) * (1-math.log(v2)))} = {fn[neighbour]:.3f}")
+                # print(f"f{neighbour} = {gn[neighbour]:.3f} + {heuristic(neighbour, goal, hchoice):.3f} nilai BRC={(heuristic(
+                #         neighbour, 
+                #         goal, 
+                #         hchoice) * (1-math.log(v2)))} = {fn[neighbour]:.3f}")
 
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
 
@@ -174,10 +214,10 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                             pygame.quit()
                             exit()
 
-        print(f"open list adalah :")
+        print(f"Setelah perhitungan, open list diperbarui menjadi:")
         for biaya, titik in prev_openlist:
-            print(f"f{titik} : {biaya:.3f}, asal {came_from[titik]}")
-        print(f"close list adalah : {close_list}")
+            print(f"{titik} dengan f : {biaya:.3f}, asal {came_from[titik]}")
+        print(f"Sehingga close list berisi simpul yang telah dikunjungi, yaitu : {close_list}")
         # for close in close_list:
         #     print(f"{close}")
                 
@@ -232,11 +272,44 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
             close_f.add(current_f)
 
             i+=1
-            print(f"\nIterasi ke-{i}")
-            print(f"Forward")
-            print(f"Lanjutkan titik dengan biaya terendah : {current_f}")
-            print(f"Biaya titik saat ini f{current_f} : {f_f[current_f]:.3f}")
-            print(f"Hitung tetangga valid :")
+            print(f"\nLangkah ke-{i}")
+            print(f"Pada arah maju, titik dengan biaya total terendah pada open list (maju) adalah {current_f} dengan nilai fungsi biaya f({current_f}) = {f_f[current_f]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
+
+            tetengga_valid = 0
+            for dX, dY in [
+                (0, 1),
+                (0, -1),
+                (1, 0),
+                (-1, 0),
+                (1, 1),
+                (1, -1),
+                (-1, 1),
+                (-1, -1),
+            ]:
+                if blocked(current_f[0], current_f[1], dX, dY, map):
+                    continue
+
+                if dX != 0 and dY != 0:
+                    tentative_gn = g_f[current_f] + math.sqrt(2)
+                else:
+                    tentative_gn = g_f[current_f] + 1
+
+                neighbour = current_f[0] + dX, current_f[1] + dY
+
+                if (
+                    neighbour in close_f
+                ):  # and tentative_g_score >= gscore.get(neighbour,0):
+                    continue
+
+                if tentative_gn < g_f.get(
+                    neighbour, 0
+                ) or neighbour not in [i[1] for i in open_f]:
+                    tetengga_valid += 1
+            
+            if tetengga_valid > 0:
+                print(f"Dari titik {current_f}, dihitung biaya ke tetangga yang valid (tidak terhalang atau keluar dari peta) sebagai berikut:")
+            else:
+                print(f"Dari titik {current_f}, tidak ada tetangga yang belum di eksplorasi atau menghasilkan tetangga dengan nilai g yang lebih kecil, sehingga open list dan close list tetap")
 
             for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
                 neighbour = current_f[0] + dX, current_f[1] + dY
@@ -246,6 +319,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     came_from_f[neighbour] = current_f
                     meet_point = neighbour
                     print(f"Bertemu di titik ini : {neighbour}")
+                    print(f"Pada iterasi ini titik pertemuan ditemukan di titik {neighbour}, langkah selanjutnya adalah mengurut mundur titik saat ini ke arah stard dan arah goal:")
                     break
 
                 if neighbour in close_f:
@@ -267,7 +341,10 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                 v2 = BR(neighbour, goal, map) or 1 if BRC else 1
                 v3 = GL(start, goal, neighbour) if GLF else 0
 
-                if tentative_gn < g_f.get(neighbour, float('inf')):
+                if tentative_gn < g_f.get(neighbour, 0):
+                    print(f"\nTitik {neighbour} sebelumnya sudah terdapat pada open list. Namun, jalur baru melalui titik {current_f} menghasilkan nilai g yang lebih kecil dibandingkan jalur sebelumnya melalui {came_from_f[neighbour]}. Oleh karena itu, asal titik diperbarui dari {came_from_f[neighbour]} menjadi {current_f}, dengan nilai biaya f.")
+
+                if tentative_gn < g_f.get(neighbour, float('inf')) or neighbour not in [i[1] for i in open_f]:
                     came_from_f[neighbour] = current_f
                     g_f[neighbour] = tentative_gn
 
@@ -279,24 +356,55 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                         f_f[neighbour] = tentative_gn + h_to_goal + v1 + v3
                     heapq.heappush(open_f, (f_f[neighbour], neighbour))
 
-                    print(f"f{neighbour} = {g_f[neighbour]:.3f} + {heuristic(neighbour, goal, hchoice):.3f} = {f_f[neighbour]:.3f}")
+                    if not (tentative_gn < g_f.get(neighbour, 0)):
+                        print(f"Titik {neighbour} memiliki nilai f{neighbour} = g{neighbour} + h{neighbour} = {tentative_gn:.3f} + {heuristic(neighbour, goal, hchoice):.3f} = {f_f[neighbour]:.3f}")
 
-            print(f"open list adalah :")
+            print(f"Setelah perhitungan, open list untuk arah maju diperbarui menjadi:")
             for biaya, titik in prev_openlist_f:
-                print(f"f{titik} : {biaya:.3f}, asal {came_from_f[titik]}")
-            print(f"close list adalah : {close_f}")
-            prev_openlist_f = open_f
-            # for close in close_list:
-            #     print(f"{close}")
+                print(f"{titik} dengan f : {biaya:.3f}, asal {came_from_f[titik]}")
+            print(f"Sehingga close list untuk arah majur adalah: {close_f}")
 
         # --- Backward Search ---
         if open_b and not meet_point:
             _, current_b = heapq.heappop(open_b)
             close_b.add(current_b)
-            print(f"Backward")
-            print(f"Lanjutkan titik dengan biaya terendah : {current_b}")
-            print(f"Biaya titik saat ini f{current_b} : {f_b[current_b]:.3f}")
-            print(f"Hitung tetangga valid :")
+            print(f"Pada arah mundur, titik dengan biaya total terendah pada open list (mundur) adalah {current_f} dengan nilai fungsi biaya f({current_f}) = {f_f[current_f]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
+
+            tetengga_valid = 0
+            for dX, dY in [
+                (0, 1),
+                (0, -1),
+                (1, 0),
+                (-1, 0),
+                (1, 1),
+                (1, -1),
+                (-1, 1),
+                (-1, -1),
+            ]:
+                if blocked(current_b[0], current_b[1], dX, dY, map):
+                    continue
+
+                if dX != 0 and dY != 0:
+                    tentative_gn = g_b[current_b] + math.sqrt(2)
+                else:
+                    tentative_gn = g_b[current_b] + 1
+
+                neighbour = current_b[0] + dX, current_b[1] + dY
+
+                if (
+                    neighbour in close_b
+                ):  # and tentative_g_score >= gscore.get(neighbour,0):
+                    continue
+
+                if tentative_gn < g_b.get(
+                    neighbour, 0
+                ) or neighbour not in [i[1] for i in open_f]:
+                    tetengga_valid += 1
+            
+            if tetengga_valid > 0:
+                print(f"Dari titik {current_b}, dihitung biaya ke tetangga yang valid (tidak terhalang atau keluar dari peta) sebagai berikut:")
+            else:
+                print(f"Dari titik {current_b}, tidak ada tetangga yang belum di eksplorasi atau menghasilkan tetangga dengan nilai g yang lebih kecil, sehingga open list dan close list tetap")
 
             for dX, dY in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
                 neighbour = current_b[0] + dX, current_b[1] + dY
@@ -304,7 +412,8 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                 if neighbour in close_f:
                     came_from_b[neighbour] = current_b
                     meet_point = neighbour
-                    print(f"Bertemu di titik ini : {neighbour}")
+                    print(f"Titik {neighbour} merupakan titik pertemuan kedua arah.")
+                    print(f"Pada iterasi ini titik pertemuan ditemukan di titik {neighbour}, langkah selanjutnya adalah mengurut mundur titik saat ini ke arah stard dan arah goal:")
                     break
 
                 if neighbour in close_b:
@@ -322,11 +431,15 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                 v2 = BR(neighbour, start, map) or 1 if BRC else 1
                 v3 = GL(goal, start, neighbour) if GLF else 0
 
+                if tentative_gn < g_b.get(neighbour, 0):
+                    print(f"\nTitik {neighbour} sebelumnya sudah terdapat pada open list. Namun, jalur baru melalui titik {current_b} menghasilkan nilai g yang lebih kecil dibandingkan jalur sebelumnya melalui {came_from_b[neighbour]}. Oleh karena itu, asal titik diperbarui dari {came_from_b[neighbour]} menjadi {current_b}, dengan nilai biaya f.")
+
                 tentative_gn = g_b[current_b] + cost
+
                 if neighbour in close_b:
                     continue
 
-                if tentative_gn < g_b.get(neighbour, float('inf')):
+                if tentative_gn < g_b.get(neighbour, float('inf')) or neighbour not in [i[1] for i in open_b]:
                     came_from_b[neighbour] = current_b
                     g_b[neighbour] = tentative_gn
 
@@ -339,15 +452,13 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
 
                     heapq.heappush(open_b, (f_b[neighbour], neighbour))
 
-                    print(f"f{neighbour} = {g_b[neighbour]:.3f} + {heuristic(neighbour, start, hchoice):.3f} = {f_b[neighbour]:.3f}")
+                    if not (tentative_gn < g_b.get(neighbour, 0)):
+                        print(f"Titik {neighbour} memiliki nilai f{neighbour} = g{neighbour} + h{neighbour} = {tentative_gn:.3f} + {heuristic(neighbour, goal, hchoice):.3f} = {f_b[neighbour]:.3f}")
 
-            print(f"open list adalah :")
+            print(f"Setelah perhitungan, open list diperbarui menjadi:")
             for biaya, titik in prev_openlist_b:
-                print(f"f{titik} : {biaya:.3f}, asal {came_from_b[titik]}")
-            print(f"close list adalah : {close_b}")
-            prev_openlist_b = open_b
-            # for close in close_list:
-            #     print(f"{close}")
+                print(f"{titik} dengan f : {biaya:.3f}, asal {came_from_b[titik]}")
+            print(f"Sehingga close list berisi simpul yang telah dikunjungi, yaitu : {close_b}")
 
             # --- Visualisasi ---
             if show:
@@ -364,20 +475,23 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
         return (0, round(endTime - startTime, 6)), 0, 0
 
     # --- Rekonstruksi Jalur ---
-    print(f"Rekonstruksi Jalur")
     # Forward path
+    print(f"Mengurut mundur jalur dari arah maju:")
     path_fwd = []
     node = meet_point
     while node in came_from_f:
+        print(f"Titik {node}, berasal dari {came_from_f[node]}")
         path_fwd.append(node)
         node = came_from_f[node]
     path_fwd.append(start)
     path_fwd.reverse()
 
     # Backward path
+    print(f"Mengurut mundur jalur dari arah maju:")
     path_bwd = []
     node = meet_point
     while node in came_from_b:
+        print(f"Titik {node}, berasal dari {came_from_b[node]}")
         node = came_from_b[node]
         path_bwd.append(node)
     
@@ -387,7 +501,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
     if PPO:
         path = Prunning(path, map)
 
-    print(f"Jalur : {path}")
+    print(f"Jalur akhir yang dihasilkan adalah : {path}")
 
     endTime = time.time()
 

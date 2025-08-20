@@ -82,32 +82,32 @@ def bresenham(x0, y0, x1, y1):
 
 def Prunning(P, map):
 
-    # print(f"Path Asli : {P}")
+    print(f"Path Asli : {P}")
     O_path = [P[0]]  # Tambahkan titik awal
-    # print(f"Tambahkan titik pertama ke path optimal : {O_path}")
+    print(f"Tambahkan titik pertama ke path optimal : {O_path}")
     front = P[0]
-    # print(f"Tentukan nilai titik lompatan awal : {front}")
+    print(f"Tentukan nilai titik lompatan awal : {front}")
 
     for i in range(1, len(P)):
         jumpPoint = P[i]
-        # print(f"\nTitik Lompatan : {jumpPoint}")
-        # print(f"Titik yang dilewati  : ")
+        print(f"\nTitik Lompatan : {jumpPoint}")
+        print(f"Titik yang dilewati  : ")
         line = bresenham(front[0], front[1], jumpPoint[0], jumpPoint[1])
-        # [print((x, y), "Aman" if map[x][y]== 0 else "Rintangan") for x, y in line]
+        [print((x, y), "Aman" if map[x][y]== 0 else "Rintangan") for x, y in line]
         # Cek apakah ada rintangan (255)
         block = any(
             map[x][y] == 255 for (x, y) in line
         )
         if block:
             # Tambahkan titik sebelumnya ke hasil
-            # print(f"Lompatan memotong rintangan!")
-            # print(f"Tambahkan titik sebelumnya ke path optimal")
+            print(f"Lompatan memotong rintangan!")
+            print(f"Tambahkan titik sebelumnya ke path optimal")
             O_path.append(P[i-1])
-            # print(f"Path optimal saat ini : {O_path}")
+            print(f"Path optimal saat ini : {O_path}")
             front = P[i-1]  # Perbarui titik_depan
         # else:
-            # print(f"Status : Aman")
-    # print(f"Titik {jumpPoint} adalah titik akhir")
-    # print(f"Selesai")
+            print(f"Status : Aman")
+    print(f"Titik {jumpPoint} adalah titik akhir")
+    print(f"Selesai")
     O_path.append(P[-1])  # Tambahkan titik akhir
     return O_path

@@ -21,7 +21,7 @@ def draw_text(text, surface, x, y, font_size=14, color=(0, 0, 0)):
     surface.blit(img, (x + 2, y + 2))  # Sedikit offset biar tidak mepet
 
 # Tampilkan grid ke layar
-def show(grid, window_size=512, name="None", path=None, openlist=None, closelist=None):
+def show(grid, window_size=512, name="None", path=None, path2=None, openlist=None, closelist=None):
     rows, cols = grid.shape
     cell_w = window_size / cols
     cell_h = window_size / rows
@@ -37,7 +37,7 @@ def show(grid, window_size=512, name="None", path=None, openlist=None, closelist
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Grid Viewer")
 
-    def draw_path(path, surface, color=(255, 64, 255), thickness=6):
+    def draw_path(path, surface, color=9, thickness=6):
         if len(path) < 2:
             return
         for i in range(len(path) - 1):
@@ -45,7 +45,7 @@ def show(grid, window_size=512, name="None", path=None, openlist=None, closelist
             x2, y2 = path[i + 1][::-1]
             start_pos = (x1 * cell_size + cell_size / 2, y1 * cell_size + cell_size / 2)
             end_pos = (x2 * cell_size + cell_size / 2, y2 * cell_size + cell_size / 2)
-            pygame.draw.line(surface, hex_to_rgb(colors[9]), start_pos, end_pos, int(cell_size // 5))
+            pygame.draw.line(surface, hex_to_rgb(colors[color]), start_pos, end_pos, int(cell_size // 5))
 
         for pt in path:
             x, y = pt[::-1]  # dibalik jika path berupa (row, col)
@@ -81,16 +81,16 @@ def show(grid, window_size=512, name="None", path=None, openlist=None, closelist
                         pygame.draw.rect(screen, hex_to_rgb(colors[5]),
                                         (x * cell_size, y * cell_size, cell_size, cell_size))
 
-                # # Open List
-                # openlist = sorted(openlist, key=lambda node: (node[0], node[1]))
-                # offset = len(closelist)
-                # for idx, item in enumerate(openlist, 1):
-                #     node = item[1] if isinstance(item, tuple) and len(item) > 1 else item
-                #     if grid[node[0]][node[1]] not in (2, 3):
-                #         y, x = node
-                #         pygame.draw.rect(screen, hex_to_rgb(colors[5]),
-                #                         (x * cell_size, y * cell_size, cell_size, cell_size))
-                #         draw_text(str(idx + offset), screen, x * cell_size, y * cell_size)
+                # Open List
+                openlist = sorted(openlist, key=lambda node: (node[0], node[1]))
+                offset = len(closelist)
+                for idx, item in enumerate(openlist, 1):
+                    node = item[1] if isinstance(item, tuple) and len(item) > 1 else item
+                    if grid[node[0]][node[1]] not in (2, 3):
+                        y, x = node
+                        pygame.draw.rect(screen, hex_to_rgb(colors[5]),
+                                        (x * cell_size, y * cell_size, cell_size, cell_size))
+                        draw_text(str(idx + offset), screen, x * cell_size, y * cell_size)
 
             # Closed List
             if closelist:
@@ -101,22 +101,25 @@ def show(grid, window_size=512, name="None", path=None, openlist=None, closelist
                                         (x * cell_size, y * cell_size, cell_size, cell_size))
                         
 
-                # # Closed List
-                # closelist = sorted(closelist, key=lambda node: (node[0], node[1]))
-                # for idx, node in enumerate(closelist, 1):
-                #     if grid[node[0]][node[1]] not in (2, 3):
-                #         y, x = node
-                #         pygame.draw.rect(screen, hex_to_rgb(colors[6]),
-                #                         (x * cell_size, y * cell_size, cell_size, cell_size))
-                #         draw_text(str(idx), screen, x * cell_size, y * cell_size)
+                # Closed List
+                closelist = sorted(closelist, key=lambda node: (node[0], node[1]))
+                for idx, node in enumerate(closelist, 1):
+                    if grid[node[0]][node[1]] not in (2, 3):
+                        y, x = node
+                        pygame.draw.rect(screen, hex_to_rgb(colors[6]),
+                                        (x * cell_size, y * cell_size, cell_size, cell_size))
+                        draw_text(str(idx), screen, x * cell_size, y * cell_size)
 
             # Gambar garis grid terakhir agar tidak tertimpa
             for y in range(rows):
                 for x in range(cols):
                     pygame.draw.rect(screen, (200, 200, 200), (x * cell_size, y * cell_size, cell_size, cell_size), 1)
 
+            if path2:
+                draw_path(path2, screen, color=8)
             if path:
-                draw_path(path, screen)
+                draw_path(path, screen, color=9)
+
 
             pygame.image.save(screen, f'Map/Image/{name}.jpg')
             pygame.display.flip()

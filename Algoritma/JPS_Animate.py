@@ -114,10 +114,15 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal, jump_points_visual_list
 
     nX = currentX + moveX
     nY = currentY + moveY
+
+    print(f"Dari ({currentX}, {currentY}) bergerak ke arah ({nX}, {nY})")
+
     if blocked(nX, nY, 0, 0, matrix):
+        print(f"Arah pergerakan ke ({moveX}, {moveY}) terhalang")
         return None
 
     if (nX, nY) == goal:
+        print(f"Titik {nX, nY} adalah goal")
         if jump_points_visual_list is not None:
             jump_points_visual_list.append((nX, nY))
         return (nX, nY)
@@ -130,6 +135,8 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal, jump_points_visual_list
         if jump_points_visual_list is not None:
             jump_points_visual_list.append((oX, oY))
 
+        print(f"Dari {oX-moveX, oY-moveY} dengan pergerakan {moveX, moveY} lanjut pengecekan ke titik {oX, oY}.")
+
         if moveX != 0 and moveY != 0:
             if (
                 not blocked(oX, oY, -moveX, moveY, matrix)
@@ -137,12 +144,14 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal, jump_points_visual_list
                 or not blocked(oX, oY, moveX, -moveY, matrix)
                 and blocked(oX, oY, 0, -moveY, matrix)
             ):
+                print(f"Forced neighbor ditemukan di ({oX}, {oY}) → Jump Point")
                 return (oX, oY)
 
             if (
                 jump(oX, oY, moveX, 0, matrix, goal, jump_points_visual_list) != None
                 or jump(oX, oY, 0, moveY, matrix, goal, jump_points_visual_list) != None
             ):
+                print(f"Forced neighbor ditemukan di ({oX}, {oY}) → Jump Point")
                 return (oX, oY)
 
         else: # moveX == 0 or moveY == 0 (straight moves)
@@ -153,6 +162,7 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal, jump_points_visual_list
                     or not blocked(oX, oY, moveX, -1, matrix)
                     and blocked(oX, oY, 0, -1, matrix)
                 ):
+                    print(f"Forced neighbor ditemukan di ({oX}, {oY}) → Jump Point")
                     return (oX, oY)
             else: # Vertical move
                 if (
@@ -161,8 +171,9 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal, jump_points_visual_list
                     or not blocked(oX, oY, -1, moveY, matrix)
                     and blocked(oX, oY, -1, 0, matrix)
                 ):
+                    print(f"Forced neighbor ditemukan di ({oX}, {oY}) → Jump Point")
                     return (oX, oY)
-
+                
         oX += moveX
         oY += moveY
 
@@ -178,13 +189,20 @@ def jump(currentX, currentY, moveX, moveY, matrix, goal, jump_points_visual_list
 
 def identifySuccessors(currentX, currentY, came_from, matrix, goal, jump_points_visual_list=None):
     successors = []
+
+    print(f"Dalam menentukan setiap arah pencarian, perlu dilakukan identifikasi arah tetangga mana saya yang valid atau tidak terhalang, tetangga atau penerus yang tidak terhalang pada posisi ini adalah:")
     neighbours = nodeNeighbours(currentX, currentY, came_from.get((currentX, currentY), 0), matrix)
 
     for cell in neighbours:
         moveX = cell[0] - currentX
         moveY = cell[1] - currentY
+        print(f"{cell} untuk pergerakan {moveX, moveY}")
 
-        # Pass the visualization list to the jump function
+    for cell in neighbours:
+
+        moveX = cell[0] - currentX
+        moveY = cell[1] - currentY
+
         jumpPoint = jump(currentX, currentY, moveX, moveY, matrix, goal, jump_points_visual_list)
 
         if jumpPoint != None:
@@ -198,6 +216,8 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(matrix)
         clock = pygame.time.Clock()
+
+    print(matrix)
 
     came_from = {}
     close_list = set()
@@ -218,17 +238,17 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
 
         current = heapq.heappop(open_list)[1]
         if current == goal:
-            print(f"Goal ditemukan")
-            print(f"Rekonstruksi Jalur")
+            print(f"Pada iterasi ini goal ditemukan melalui titik {came_from[current]}, langkah selanjutnya adalah mengurut mundur titik saat ini (goal) hingga ke titik awal (start), maka:")
             data = []
             while current in came_from:
+                print(f"Titik {current}, berasal dari titik {came_from[current]}")
                 data.append(current)
                 current = came_from[current]
             data.append(start)
             data = data[::-1]
+            print(f"Sehingga jalur akhir yang dihasilkan adalah : {data}")
             if PPO:
                 data = Prunning(data, matrix)
-            print(f"Jalur : {data}")
             endtime = time.time()
             if show:
                 # Clear jump_points_to_display for final render
@@ -256,18 +276,40 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
             return (data, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
+        i+=1
+
+        print(f"\nLangkah ke-{i}")
+        print(f"Pada tahap ini, titik dengan biaya total terendah pada open list adalah {current} dengan nilai fungsi biaya f({current}) = {fn[current]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
         
         current_jump_points_for_display = []
         successors = identifySuccessors(
             current[0], current[1], came_from, matrix, goal, current_jump_points_for_display
         )
 
-        i+=1
+        tetengga_valid = 0
 
-        print(f"\nIterasi ke-{i}")
-        print(f"Lanjutkan titik dengan biaya terendah : {current}")
-        print(f"Biaya titik saat ini f{current} : {fn[current]:.3f}")
-        print(f"Cari Titik Lompatan :")
+        for successor in successors:
+            jumpPoint = successor
+
+            if (
+                jumpPoint in close_list
+            ):  # and tentative_gn >= gn.get(jumpPoint,0):
+                continue
+
+            tentative_gn = gn[current] + lenght(
+                current, jumpPoint, hchoice
+            )
+
+            if tentative_gn < gn.get(
+                jumpPoint, 0
+            ) or jumpPoint not in [i[1] for i in open_list]:
+                tetengga_valid += 1
+
+            if tetengga_valid > 0:
+                print(f"\nDari titik {current}, dihitung biaya ke lompatan yang valid (tidak terhalang atau keluar dari peta) sebagai berikut:")
+            else:
+                print(f"Dari titik {current}, tidak ada lompatan yang memenuhi syarat atau menghasilkan tetangga dengan nilai g yang lebih kecil, sehingga open list dan close list tetap")
+
 
         for successor in successors:
             jumpPoint = successor
@@ -303,10 +345,13 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                     ) + v1 + v3
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
 
-                print(f"f{jumpPoint} = {gn[jumpPoint]:.3f} + {(heuristic(
-                        jumpPoint, 
-                        goal, 
-                        hchoice) * (1-math.log(v2))):.3f} + BR{v2} = {fn[jumpPoint]:.3f}")
+                if not (tentative_gn < gn.get(jumpPoint, 0)):
+                    print(f"Titik {jumpPoint} memiliki nilai f{jumpPoint} = g{jumpPoint} + h{jumpPoint} = {tentative_gn:.3f} + {heuristic(jumpPoint, goal, hchoice):.3f} = {fn[jumpPoint]:.3f}")
+
+                # print(f"f{jumpPoint} = {gn[jumpPoint]:.3f} + {(heuristic(
+                #         jumpPoint, 
+                #         goal, 
+                #         hchoice) * (1-math.log(v2))):.3f} + BR {v2} = {fn[jumpPoint]:.3f}")
 
             if show:
                 # Temporary list to accumulate points for rendering
@@ -331,15 +376,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                             pygame.quit()
                             exit()
-                
-                # After the loop, current_jump_points_for_display already holds the full jump path.
-                # You might want a final render of the complete path for this jump before clearing.
-                # This is effectively already done by the last iteration of the loop,
-                # but an explicit call here can ensure it's shown for a moment longer if desired.
-                # Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, None, current_jump_points_for_display)
-                # clock.tick(speed) 
-                
-                # Clear the list for the next iteration (important for new jump paths)
+
                 current_jump_points_for_display.clear() 
                 
                 # Handle Pygame events after the full jump path (if not cleared)
@@ -351,10 +388,10 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                         pygame.quit()
                         exit()
 
-        print(f"open list adalah :")
+        print(f"Setelah perhitungan, open list diperbarui menjadi:")
         for biaya, titik in prev_openlist:
-            print(f"f{titik} : {biaya:.3f}, asal {came_from[titik]}")
-        print(f"close list adalah : {close_list}")
+            print(f"{titik} dengan f : {biaya:.3f}, asal {came_from[titik]}")
+        print(f"Sehingga close list berisi simpul yang telah dikunjungi, yaitu : {close_list}")
         prev_openlist = open_list
         # for close in close_list:
         #     print(f"{close}")

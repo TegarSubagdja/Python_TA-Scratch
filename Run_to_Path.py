@@ -34,7 +34,7 @@ detector = aruco.ArucoDetector(detector_dict, detector_params)
 
 # Inisialisasi Variabel
 path = None
-pid = PID(Kp=0.7, Ki=0.1, Kd=0.14, dt=0.1, output_limit=MAX_SPEED, integral_limit=MAX_SPEED)
+pid = PID(Kp=0.7, Ki=0.15, Kd=0.14, dt=0.1, output_limit=MAX_SPEED, integral_limit=MAX_SPEED)
 degree_buffer = deque(maxlen=3)
 last_time = marker_lost_time = time.time()
 
@@ -74,7 +74,7 @@ while True:
             path = None
 
         # Jika belum sampai titik saat ini → navigasi
-        elif errDist < 1*marksize:
+        elif errDist < 1.5 * marksize:
             # if ser: pwm(ser, 0, 0)
             # pid.reset()
             path.pop(0)

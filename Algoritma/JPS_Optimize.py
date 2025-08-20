@@ -213,6 +213,8 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
 
     starttime = time.time()
 
+    v2 = BR(start, goal, matrix) or 1 if BRC else 1
+
     while open_list:
 
         current = heapq.heappop(open_list)[1]
@@ -280,10 +282,9 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 came_from[jumpPoint] = current
                 gn[jumpPoint] = tentative_gn
                 if BRC:
-                    fn[jumpPoint] = tentative_gn + (heuristic(
-                        jumpPoint, 
-                        goal, 
-                        hchoice) * (1-math.log(v2))) + v1 + v3
+                    fn[jumpPoint] = tentative_gn + (
+                        heuristic(jumpPoint, goal, hchoice) * (-v2*(1-math.log(v2))+2)
+                    ) + v1 + v3
                 else:
                     fn[jumpPoint] = tentative_gn + heuristic(
                         jumpPoint, 
@@ -346,6 +347,8 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
     startTime = time.time()
     meet_point = None
 
+    v2 = BR(start, goal, matrix) or 1 if BRC else 1
+
     while open_f and open_b and not meet_point:
         
         # ============ Forward Expand ============
@@ -361,7 +364,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
                 # Single-line conditional calculations
                 v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, k) if TPF else 0
-                v2 = BR(current_f, goal, matrix) or 1 if BRC else 1
+                v2 = BR(start, goal, matrix) or 1 if BRC else 1
                 v3 = GL(start, goal, succ) if GLF else 0
 
                 tentative_g = gn_f[current_f] + lenght(current_f, succ, hchoice)
@@ -398,7 +401,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
                 # Single-line conditional calculations
                 v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, k) if TPF else 0
-                v2 = BR(current_b, start, matrix) or 1 if BRC else 1
+                v2 = BR(start, goal, matrix) or 1 if BRC else 1
                 v3 = GL(goal, start, succ) if GLF else 0
 
                 tentative_g = gn_b[current_b] + lenght(current_b, succ, hchoice)

@@ -4,27 +4,17 @@ def barrierRaster(awal, akhir, peta):
     x1, y1 = awal
     x2, y2 = akhir
 
-    # Pastikan batas tidak keluar peta
-    y2 = min(y2, peta.shape[0])
-    x2 = min(x2, peta.shape[1])
+    x1, x2 = sorted([x1, x2])
+    y1, y2 = sorted([y1, y2])
 
-    area = peta[y1:y2, x1:x2]  # Ambil potongan area
+    area = peta[x1:x2+1, y1:y2+1]  # Ambil potongan area
 
     jumlah = np.count_nonzero(area == 255)  # Hitung jumlah 255 lebih cepat
     lebar = x2 - x1
     tinggi = y2 - y1
     luas = lebar * tinggi if lebar * tinggi > 0 else 1
 
-    # print(f"Titik saat ini : {awal}")
-    # print(f"Titik tujuan : {akhir}")
-    # print(f"Area :", area)
-    # print(f"Lebar : {lebar}")
-    # print(f"Tinggi : {tinggi}")
-    # print(f"Luas : {luas}")
-    # print(f"Jumlah rintangan : {jumlah}")
-    # Keperluan Debuging
-    # print(f"Area")
+    # print(f" >>>> current {awal} {akhir} Jumlahnya adalah : {jumlah} dan luas {luas}")
     # print(area)
-    # print(f"Jumlah Rintangan : {jumlah}")
 
     return jumlah / luas

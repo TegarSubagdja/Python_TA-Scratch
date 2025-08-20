@@ -9,88 +9,104 @@ if __name__ == "__main__":
     # runPengujianAvgLength()
     # generate_keseluruhan_excel()
     # rekap_avg_semua_sheet()
+    # print(GL((0,0), (11,11), (4,10)))
     # sys.exit()
 
     timesArr = []
 
-    # for i in range(1):
+    size = [16, 32, 64, 128]
 
-    mapChoice = 0
+    for sz in range(1):
 
-    if mapChoice < 1:
-        nameMap = "Map"
-    else:
-        nameMap = f"Map_{mapChoice}"
-    map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
+        for i in range(1):
 
-    # map = cv2.imread('Map/Foto/WIN_20250806_03_22_35_Pro.jpg')
-    # map = cv2.cvtColor(map, cv2.COLOR_BGR2GRAY)
-    # start = ((70*20, 20*20), 0)
-    # goal = ((30*20, 20*20), 0)
-    # map = Prep(map, start, goal, 10, scale=20)
-    # start, goal = PrepCoord(start, goal)
+            mapChoice = 17
 
-    matrix = map.copy()
-    map = Z_GetMap.upscale(map, 128)
-    start = (0, 0)
-    goal = (map.shape[1]-1, map.shape[0]-1)
+            if mapChoice < 1:
+                nameMap = "Map"
+            else:
+                nameMap = f"Map_{mapChoice}"
+            map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
 
-    map = map.astype(np.uint8)
+            # map = Z_GetMap.upscale(map, 10)
+            matrix = map.copy()
 
-    np.place(matrix, matrix == 1, 255)
-    np.place(map, map == 2, 0)
-    np.place(map, map == 3, 0)
-    tempTimes = []
-    tempPaths = []
-    tempOpens = []
-    tempCloses = []
-    tempTurns = []
-    tempLengths = []
-    for i in range(1):
-        (path, times), openlist, closelist = Algoritm(
-            matrix, start, goal, 2,
-            # JPS=True,
-            # BRC=True,
-            PPO=True,
-            # GLF=True,
-            # TPF=True,
-            # BDS=True,
-            # show=True,
-        speed=100,
-        )
+            start = (4, 0)
+            goal = (map.shape[1]-1, map.shape[0]-1)
 
-        if path:
-            timesArr.append(times)
-            tempTimes.append(times)
-            tempPaths.append(len(path))
-            # tempLengths.append(path_length(path))
-            tempOpens.append(len(openlist))
-            tempCloses.append(len(closelist))
-            tempTurns.append(len(Turn(path)))
-            belokan = len(Turn(path)) if path else None
+            map = map.astype(np.uint8)
 
-    # print(f"  Map : {nameMap}")
-    # print(matrix)
-    # print(f"  Size : {sz}")
-    # print(f"  Metod Name : {method_name}")
-    # print(f"  Path adalah Asli : {path}")
-    if path:
-        print(f"  Waktu Pencarian : {times}")
-        print(f"  Panjang Jalur : {path_length(path)}")
-        print(f"  Jumlah Open Set : {len(openlist)}")
-        print(f"  Jumlah Close Set : {len(closelist)}")
-        print(f"  Jumlah Open + Close di i {i} : {len(openlist) + len(closelist)}")
-        print(f"  Jumlah Belokan : {belokan}")
+            df = pd.DataFrame(map)
+            df.to_excel("Grid.xlsx")
 
-    # except Exception as e:
-    #     print(f"[!] Error di iterasi : {e}")
+            np.place(matrix, matrix == 1, 255)
+            np.place(map, map == 2, 0)
+            np.place(map, map == 3, 0)
+            tempTimes = []
+            tempPaths = []
+            tempOpens = []
+            tempCloses = []
+            tempTurns = []
+            tempLengths = []
+            for i in range(1):
+                (path, times), openlist, closelist = Astar_Animate.methodBds(
+                    matrix, start, goal, 2,
+                    # JPS=True,
+                    # BRC=True,
+                    # PPO=True,
+                    # GLF=True,
+                    # TPF=True,
+                    # BDS=True,
+                    # show=True,
+                speed=0.2,
+                )
 
-    print(f"Rate : {np.mean(tempTimes)}")
+                # (path2, times), openlist, closelist = Algoritm(
+                #     matrix, start, goal, 2,
+                #     # JPS=True,
+                #     # BRC=True,
+                #     # PPO=True,
+                #     # GLF=True,
+                #     # TPF=True,
+                #     # BDS=True,
+                #     # show=True,
+                # speed=1,
+                # )
 
-    # Munculkan dan simpan map
-    if not path:
-        np.place(map, map == 255, 1)
-        Z_GetMap.show(map, window_size=720, name=nameMap, path=path, openlist=openlist, closelist=closelist)
-    else:
-        np.place(map, map == 255, 1)
-        Z_GetMap.show(map, window_size=720, name=nameMap)
+                if path:
+                    timesArr.append(times)
+                    tempTimes.append(times)
+                    tempPaths.append(len(path))
+                    # tempLengths.append(path_length(path))
+                    tempOpens.append(len(openlist))
+                    tempCloses.append(len(closelist))
+                    tempTurns.append(len(Turn(path)))
+                    belokan = len(Turn(path)) if path else None
+
+            # print(f"  Map : {nameMap}")
+            # print(matrix)
+            # print(f"  Size : {sz}")
+            # print(f"  Metod Name : {method_name}")
+            # print(f"  Path adalah Asli : {path}")
+
+            # if path:
+            #     print(f"  Waktu Pencarian : {times}")
+            #     print(f"  Panjang Jalur : {path_length(path)}")
+            #     print(f"  Jumlah Open Set : {len(openlist)}")
+            #     print(f"  Jumlah Close Set : {len(closelist)}")
+            #     print(f"  Jumlah Open + Close di i {i} : {len(openlist) + len(closelist)}")
+            #     print(f"  Jumlah Belokan : {belokan}")
+            #     print(f"  Duplicate Closelist : {closelist}")
+
+            # except Exception as e:
+            #     print(f"[!] Error di iterasi : {e}")
+
+            # print(f"Rate : {np.mean(tempTimes)}")
+
+            # Munculkan dan simpan map
+            if path:
+                np.place(map, map == 255, 1)
+                Z_GetMap.show(map, window_size=720, name=nameMap, openlist=openlist, path=path, closelist=closelist) 
+            else:
+                np.place(map, map == 255, 1)
+                Z_GetMap.show(map, window_size=720, name=nameMap)

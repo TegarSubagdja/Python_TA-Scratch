@@ -107,7 +107,7 @@ while True:
         pid.Ki = ki
         pid.Kd = kd
         pid.dt = dt
-        correction = pid.calc(error_deg)
+        correction = pid.calc(avg_degree)
 
         # Clamp ke max speed dan min PWM
         left_speed = int(base_speed - correction)
@@ -118,7 +118,7 @@ while True:
         if ser: pwm(ser, left_speed, right_speed)
 
         if dist < 50:
-            if ser: pwm(ser, 0, 0)
+            # if ser: pwm(ser, 0, 0)
             # sys.exit()
             pid.reset()
             goal = (
