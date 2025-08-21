@@ -6,7 +6,7 @@ CIRCLE_RADIUS = 6  # Ukuran radius bulatan (dalam pixel)
 CIRCLE_COLOR = "#590a6f"  # Warna bulatan, misalnya tomat
 
 # Konfigurasi grid
-GRID_SIZE = 5
+GRID_SIZE = 16
 WIDTH = 512 #GRID_SIZE * CELL_SIZE
 HEIGHT = 512 #GRID_SIZE * CELL_SIZE
 CELL_SIZE = WIDTH//GRID_SIZE

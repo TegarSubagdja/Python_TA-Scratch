@@ -27,7 +27,7 @@ from Finder.GetMarker import Pos
 from Finder.GetError import Error
 from Method.TurnPenaltyFunction import Turn 
 from Method.TurnPenaltyFunction import TurnPenalty as TP 
-from Method.PathPolylineOptimization import Prunning
+from Method.PathPolylineOptimization import Prunning, bresenham, bresenham_classic
 from Method.Guideline import guidline, jarakGaris
 from PID.Pid import PID
 import Z_GetMap as Visualize
@@ -45,5 +45,5 @@ __all__ = [
     'BR', 'GL', 'TP',
     'Prunning', 'guidline', 'jarakGaris', 'Visualize', 'Z_GetMap',
     'PID', 'serial', 'pwm',
-    'Astar_Optimize', 'JPS_Optimize', 'Astar_Optimize_ELL', 'JPS_Optimize_ELL', 'JPS_Animate', 'Astar_Animate'
+    'Astar_Optimize', 'JPS_Optimize', 'Astar_Optimize_ELL', 'JPS_Optimize_ELL', 'JPS_Animate', 'Astar_Animate', 'bresenham', 'bresenham_classic'
 ]

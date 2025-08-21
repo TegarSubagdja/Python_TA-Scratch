@@ -51,63 +51,108 @@ def supercover_line(awal, akhir):
 
     return points
 
-def bresenham(x0, y0, x1, y1):
-    """Mengembalikan list titik antara (x0,y0) ke (x1,y1) dengan Bresenham"""
+def bresenham_classic(x1, y1, x2, y2):
     points = []
-    dx = abs(x1 - x0)
-    dy = abs(y1 - y0)
-    x, y = x0, y0
-    sx = -1 if x0 > x1 else 1
-    sy = -1 if y0 > y1 else 1
-    if dx > dy:
-        err = dx / 2.0
-        while x != x1:
-            points.append((x, y))
-            err -= dy
-            if err < 0:
-                y += sy
-                err += dx
-            x += sx
+    dx = x2 - x1
+    dy = y2 - y1
+    i1 = 2 * dy
+    i2 = 2 * (dy - dx)
+    d = i1 - dx
+
+    if dx < 0:
+        x = x2
+        y = y2
+        x_end = x1
     else:
-        err = dy / 2.0
-        while y != y1:
+        x = x1
+        y = y1
+        x_end = x2
+
+    points.append((x, y))
+
+    while x < x_end:
+        if d < 0:
+            d += i1
+        else:
+            d += i2
+            y += 1
+        x += 1
+        points.append((x, y))
+
+    return points
+
+def bresenham_pure(x0, y0, x1, y1):
+    """Original Bresenham line drawing (only works for slope 0 <= m <= 1, x0 < x1)."""
+    points = []
+    dx = x1 - x0
+    dy = y1 - y0
+    d = 2*dy - dx  # decision parameter
+    y = y0
+
+    for x in range(x0, x1 + 1):
+        points.append((x, y))
+        if d > 0:
+            y += 1
+            d -= 2*dx
+        d += 2*dy
+
+    return points
+
+if __name__ == "__main__":
+    print(bresenham_pure(0,0,3,8))
+
+def bresenham(x1, y1, x2, y2):
+    points = []
+    dx = abs(x2 - x1)
+    dy = abs(y2 - y1)
+    x, y = x1, y1
+    sx = 1 if x2 > x1 else -1
+    sy = 1 if y2 > y1 else -1
+
+    if dy <= dx:  # slope <= 1
+        d = 2*dy - dx
+        for _ in range(dx+1):
             points.append((x, y))
-            err -= dx
-            if err < 0:
+            if d >= 0:
+                y += sy
+                d -= 2*dx
+            x += sx
+            d += 2*dy
+    else:  # slope > 1
+        d = 2*dx - dy
+        for _ in range(dy+1):
+            points.append((x, y))
+            if d >= 0:
                 x += sx
-                err += dy
+                d -= 2*dy
             y += sy
-    points.append((x1, y1))
+            d += 2*dx
     return points
 
 def Prunning(P, map):
 
     print(f"Path Asli : {P}")
     O_path = [P[0]]  # Tambahkan titik awal
-    print(f"Tambahkan titik pertama ke path optimal : {O_path}")
-    front = P[0]
-    print(f"Tentukan nilai titik lompatan awal : {front}")
+    front = P[1]
+    print(f"Pada tahap awal titik pertama pada jalur dijadikan sebagai titik awal {P[0]}, kemudian mulai lompatan ke titik selanjutnya yaitu {front}")
 
     for i in range(1, len(P)):
         jumpPoint = P[i]
-        print(f"\nTitik Lompatan : {jumpPoint}")
-        print(f"Titik yang dilewati  : ")
+        # print(f"\nTitik Lompatan : {jumpPoint}")
+        print(f"Titik yang dilalui oleh untuk melompat ke titik {jumpPoint} adalah:")
         line = bresenham(front[0], front[1], jumpPoint[0], jumpPoint[1])
-        [print((x, y), "Aman" if map[x][y]== 0 else "Rintangan") for x, y in line]
+        [print((x, y), f"bernilai {map[x][y]} yang bukan merupakan rintangan." if map[x][y]== 0 else f"bernilai {map[x][y]} yang merupakan rintangan!") for x, y in line]
         # Cek apakah ada rintangan (255)
         block = any(
             map[x][y] == 255 for (x, y) in line
         )
         if block:
             # Tambahkan titik sebelumnya ke hasil
-            print(f"Lompatan memotong rintangan!")
-            print(f"Tambahkan titik sebelumnya ke path optimal")
             O_path.append(P[i-1])
-            print(f"Path optimal saat ini : {O_path}")
+            print(f"Karena pada loncatan ke titik {jumpPoint} memotong rintangan, maka titik sebelumnya yaitu {P[i-1]} ditambahkan ke lintasan optimal, sehingga jalur optimal saat ini adalah: {O_path}")
             front = P[i-1]  # Perbarui titik_depan
-        # else:
-            print(f"Status : Aman")
-    print(f"Titik {jumpPoint} adalah titik akhir")
-    print(f"Selesai")
+        else:
+            print(f"Karena tidak ada titik rintangan yang terpotong maka melanjutkan lompatan ke titik selanjutnya yaitu {P[i+1] if i !=len(P)-1 else "sudah mencapai titik akhir."}")
     O_path.append(P[-1])  # Tambahkan titik akhir
+    print(f"Maka setelah penghapusan titik tidak penting ini jalur optimal yang dihasilkan adalah: {O_path}")
     return O_path

@@ -28,7 +28,7 @@ if __name__ == "__main__":
                 nameMap = f"Map_{mapChoice}"
             map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
 
-            # map = Z_GetMap.upscale(map, 10)
+            # map = Z_GetMap.upscale(map, size[sz])
             matrix = map.copy()
 
             start = (4, 0)
@@ -49,11 +49,11 @@ if __name__ == "__main__":
             tempTurns = []
             tempLengths = []
             for i in range(1):
-                (path, times), openlist, closelist = Astar_Animate.methodBds(
+                (path, times), openlist, closelist = Astar_Optimize.method(
                     matrix, start, goal, 2,
                     # JPS=True,
                     # BRC=True,
-                    # PPO=True,
+                    PPO=True,
                     # GLF=True,
                     # TPF=True,
                     # BDS=True,
