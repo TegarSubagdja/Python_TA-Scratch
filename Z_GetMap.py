@@ -90,7 +90,7 @@ def show(grid, window_size=512, name="None", path=None, path2=None, openlist=Non
                         y, x = node
                         pygame.draw.rect(screen, hex_to_rgb(colors[5]),
                                         (x * cell_size, y * cell_size, cell_size, cell_size))
-                        draw_text(str(idx + offset), screen, x * cell_size, y * cell_size)
+                        # draw_text(str(idx + offset), screen, x * cell_size, y * cell_size)
 
             # Closed List
             if closelist:
@@ -108,7 +108,7 @@ def show(grid, window_size=512, name="None", path=None, path2=None, openlist=Non
                         y, x = node
                         pygame.draw.rect(screen, hex_to_rgb(colors[6]),
                                         (x * cell_size, y * cell_size, cell_size, cell_size))
-                        draw_text(str(idx), screen, x * cell_size, y * cell_size)
+                        # draw_text(str(idx), screen, x * cell_size, y * cell_size)
 
             # Gambar garis grid terakhir agar tidak tertimpa
             for y in range(rows):

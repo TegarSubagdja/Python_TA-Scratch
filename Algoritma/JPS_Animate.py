@@ -279,7 +279,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
         i+=1
 
         print(f"\nLangkah ke-{i}")
-        print(f"Pada tahap ini, titik dengan biaya total terendah pada open list adalah {current} dengan nilai fungsi biaya f({current}) = {fn[current]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
+        print(f"Pada tahap ini, titik dengan biaya total terendah pada open list adalah {current} dengan nilai fungsi biaya f{current} = {fn[current]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
         
         current_jump_points_for_display = []
         successors = identifySuccessors(
@@ -346,7 +346,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 heapq.heappush(open_list, (fn[jumpPoint], jumpPoint))
 
                 if not (tentative_gn < gn.get(jumpPoint, 0)):
-                    print(f"Titik {jumpPoint} memiliki nilai f{jumpPoint} = g{jumpPoint} + h{jumpPoint} = {tentative_gn:.3f} + {heuristic(jumpPoint, goal, hchoice):.3f} = {fn[jumpPoint]:.3f}")
+                    print(f"f{jumpPoint}=g{jumpPoint}+h{jumpPoint}={tentative_gn:.3f}+{heuristic(jumpPoint, goal, hchoice):.3f}={fn[jumpPoint]:.3f}")
 
                 # print(f"f{jumpPoint} = {gn[jumpPoint]:.3f} + {(heuristic(
                 #         jumpPoint, 

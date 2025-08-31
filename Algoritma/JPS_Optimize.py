@@ -159,6 +159,86 @@ def jump(cX, cY, dX, dY, matrix, goal):
                 if (oX, nY) == goal:
                     return (oX, nY)
 
+        if dY != 0:
+            while True:
+                if (
+                    not blocked(nX, oY, 1, dY, matrix)
+                    and blocked(nX, oY, 1, 0, matrix)
+                    or not blocked(nX, oY, -1, dY, matrix)
+                    and blocked(nX, oY, -1, 0, matrix)
+                ):
+                    return (nX, oY)
+
+                oY += dY
+
+                if blocked(nX, oY, 0, 0, matrix):
+                    return None
+
+                if (nX, oY) == goal:
+                    return (nX, oY)
+
+        return jump(nX, nY, dX, dY, matrix, goal) #Rekursif
+    
+
+def jump(cX, cY, dX, dY, matrix, goal):
+
+    nX = cX + dX
+    nY = cY + dY
+    if blocked(nX, nY, 0, 0, matrix):
+        return None
+
+    if (nX, nY) == goal:
+        return (nX, nY)
+
+    oX = nX
+    oY = nY
+
+    if dX != 0 and dY != 0:
+        while True:
+            if (
+                not blocked(oX, oY, -dX, dY, matrix)
+                and blocked(oX, oY, -dX, 0, matrix)
+                or not blocked(oX, oY, dX, -dY, matrix)
+                and blocked(oX, oY, 0, -dY, matrix)
+            ):
+                return (oX, oY)
+
+            if (
+                jump(oX, oY, dX, 0, matrix, goal) != None
+                or jump(oX, oY, 0, dY, matrix, goal) != None
+            ):
+                return (oX, oY)
+
+            oX += dX
+            oY += dY
+
+            if blocked(oX, oY, 0, 0, matrix):
+                return None
+
+            if dblock(oX, oY, dX, dY, matrix):
+                return None
+
+            if (oX, oY) == goal:
+                return (oX, oY)
+    else:
+        if dX != 0:
+            while True:
+                if (
+                    not blocked(oX, nY, dX, 1, matrix)
+                    and blocked(oX, nY, 0, 1, matrix)
+                    or not blocked(oX, nY, dX, -1, matrix)
+                    and blocked(oX, nY, 0, -1, matrix)
+                ):
+                    return (oX, nY)
+
+                oX += dX
+
+                if blocked(oX, nY, 0, 0, matrix):
+                    return None
+
+                if (oX, nY) == goal:
+                    return (oX, nY)
+
         else:
             while True:
                 if (
@@ -177,7 +257,7 @@ def jump(cX, cY, dX, dY, matrix, goal):
                 if (nX, oY) == goal:
                     return (nX, oY)
 
-    # return jump(nX, nY, moveX, moveY, matrix, goal) #Rekursif
+    return jump(nX, nY, dX, dY, matrix, goal)
 
 
 def identifySuccessors(cX, cY, came_from, matrix, goal):
@@ -269,7 +349,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 continue
 
             v1 = TP(came_from.get(jumpPoint, jumpPoint), current, jumpPoint, k) if TPF else 0
-            v2 = BR(current, goal, matrix) or 1 if BRC else 1
+            # v2 = BR(current, goal, matrix) or 1 if BRC else 1
             v3 = GL(start, goal, jumpPoint) if GLF else 0
 
             tentative_gn = gn[current] + lenght(
@@ -283,7 +363,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 gn[jumpPoint] = tentative_gn
                 if BRC:
                     fn[jumpPoint] = tentative_gn + (
-                        heuristic(jumpPoint, goal, hchoice) * (-v2*(1-math.log(v2))+2)
+                        heuristic(jumpPoint, goal, hchoice) * (1-math.log(v2))
                     ) + v1 + v3
                 else:
                     fn[jumpPoint] = tentative_gn + heuristic(
@@ -364,7 +444,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
                 # Single-line conditional calculations
                 v1 = TP(came_from_f.get(current_f, current_f), current_f, succ, k) if TPF else 0
-                v2 = BR(start, goal, matrix) or 1 if BRC else 1
+                # v2 = BR(start, goal, matrix) or 1 if BRC else 1
                 v3 = GL(start, goal, succ) if GLF else 0
 
                 tentative_g = gn_f[current_f] + lenght(current_f, succ, hchoice)
@@ -401,7 +481,7 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
                 # Single-line conditional calculations
                 v1 = TP(came_from_b.get(current_b, current_b), current_b, succ, k) if TPF else 0
-                v2 = BR(start, goal, matrix) or 1 if BRC else 1
+                # v2 = BR(start, goal, matrix) or 1 if BRC else 1
                 v3 = GL(goal, start, succ) if GLF else 0
 
                 tentative_g = gn_b[current_b] + lenght(current_b, succ, hchoice)

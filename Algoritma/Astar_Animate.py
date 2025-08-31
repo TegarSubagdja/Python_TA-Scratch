@@ -1,5 +1,21 @@
 from Utils import *
 
+import builtins
+
+# Simpan print asli
+old_print = print
+
+def print(*args, **kwargs):
+    new_args = []
+    for arg in args:
+        if isinstance(arg, float):
+            # Format angka float → ganti '.' dengan ','
+            arg = str(arg).replace('.', ',')
+        else:
+            arg = str(arg).replace('.', ',') if isinstance(arg, str) else arg
+        new_args.append(arg)
+    old_print(*new_args, **kwargs)
+
 def blocked(cX, cY, dX, dY, matrix):
     if cX + dX < 0 or cX + dX >= matrix.shape[0]:
         return True
@@ -97,7 +113,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
 
         i+=1
         print(f"\nLangkah ke-{i}")
-        print(f"Pada tahap ini, titik dengan biaya total terendah pada open list adalah {current} dengan nilai fungsi biaya f({current}) = {fn[current]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
+        print(f"Pada tahap ini, titik dengan biaya total terendah pada open list adalah {current} dengan nilai fungsi biaya f{current} = {fn[current]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
         tetengga_valid = 0
         for dX, dY in [
             (0, 1),
@@ -191,7 +207,7 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                     ) + v1 + v3 
                 
                 if not (tentative_gn < gn.get(neighbour, 0)):
-                    print(f"Titik {neighbour} memiliki nilai f{neighbour} = g{neighbour} + h{neighbour} = {tentative_gn:.3f} + {heuristic(neighbour, goal, hchoice):.3f} = {fn[neighbour]:.3f}")
+                    print(f"f{neighbour}=g{neighbour}+h{neighbour}={tentative_gn:.3f}+{heuristic(neighbour, goal, hchoice):.3f}={fn[neighbour]:.3f}")
 
                 # print(f"f{neighbour} = {gn[neighbour]:.3f} + {heuristic(neighbour, goal, hchoice):.3f} nilai BRC={(heuristic(
                 #         neighbour, 
@@ -264,6 +280,8 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
     startTime = time.time()
     meet_point = None
 
+    v2 = BR(start, goal, map) or 1 if BRC else 1
+
     while open_f and open_b and not meet_point:
 
         # --- Forward Search ---
@@ -273,7 +291,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
 
             i+=1
             print(f"\nLangkah ke-{i}")
-            print(f"Pada arah maju, titik dengan biaya total terendah pada open list (maju) adalah {current_f} dengan nilai fungsi biaya f({current_f}) = {f_f[current_f]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
+            print(f"Pada arah maju, titik dengan biaya total terendah pada open list (maju) adalah {current_f} dengan nilai fungsi biaya f{current_f} = {f_f[current_f]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
 
             tetengga_valid = 0
             for dX, dY in [
@@ -338,7 +356,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     continue
 
                 v1 = TP(came_from_f.get(current_f, current_f), current_f, neighbour, k) if TPF else 0
-                v2 = BR(neighbour, goal, map) or 1 if BRC else 1
+                # v2 = BR(neighbour, goal, map) or 1 if BRC else 1
                 v3 = GL(start, goal, neighbour) if GLF else 0
 
                 if tentative_gn < g_f.get(neighbour, 0):
@@ -357,7 +375,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     heapq.heappush(open_f, (f_f[neighbour], neighbour))
 
                     if not (tentative_gn < g_f.get(neighbour, 0)):
-                        print(f"Titik {neighbour} memiliki nilai f{neighbour} = g{neighbour} + h{neighbour} = {tentative_gn:.3f} + {heuristic(neighbour, goal, hchoice):.3f} = {f_f[neighbour]:.3f}")
+                        print(f"f{neighbour}=g{neighbour}+h{neighbour}={tentative_gn:.3f}+{heuristic(neighbour, goal, hchoice):.3f}={f_f[neighbour]:.3f}")
 
             print(f"Setelah perhitungan, open list untuk arah maju diperbarui menjadi:")
             for biaya, titik in prev_openlist_f:
@@ -368,7 +386,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
         if open_b and not meet_point:
             _, current_b = heapq.heappop(open_b)
             close_b.add(current_b)
-            print(f"Pada arah mundur, titik dengan biaya total terendah pada open list (mundur) adalah {current_f} dengan nilai fungsi biaya f({current_f}) = {f_f[current_f]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
+            print(f"Pada arah mundur, titik dengan biaya total terendah pada open list (mundur) adalah {current_b} dengan nilai fungsi biaya f{current_b} = {f_b[current_b]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
 
             tetengga_valid = 0
             for dX, dY in [
@@ -428,7 +446,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     cost = math.sqrt(2) if dX != 0 and dY != 0 else 1
 
                 v1 = TP(came_from_b.get(current_b, current_b), current_b, neighbour, k) if TPF else 0
-                v2 = BR(neighbour, start, map) or 1 if BRC else 1
+                # v2 = BR(neighbour, start, map) or 1 if BRC else 1
                 v3 = GL(goal, start, neighbour) if GLF else 0
 
                 if tentative_gn < g_b.get(neighbour, 0):
@@ -453,7 +471,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                     heapq.heappush(open_b, (f_b[neighbour], neighbour))
 
                     if not (tentative_gn < g_b.get(neighbour, 0)):
-                        print(f"Titik {neighbour} memiliki nilai f{neighbour} = g{neighbour} + h{neighbour} = {tentative_gn:.3f} + {heuristic(neighbour, goal, hchoice):.3f} = {f_b[neighbour]:.3f}")
+                        print(f"f{neighbour}=g{neighbour}+h{neighbour}={tentative_gn:.3f}+{heuristic(neighbour, start, hchoice):.3f}={f_b[neighbour]:.3f}")
 
             print(f"Setelah perhitungan, open list diperbarui menjadi:")
             for biaya, titik in prev_openlist_b:
@@ -506,8 +524,7 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
     endTime = time.time()
 
     if show:
-        # Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path)
-        Z_GetMap.show(map, window_size=512, path=path, openlist=open_f + open_b, closelist=close_f.union(close_b))
+        Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path)
         clock.tick(speed)
 
         # Tunggu sampai tombol ditekan

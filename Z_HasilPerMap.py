@@ -51,7 +51,7 @@ for sheet in sheets:
 
         # Ubah dari wide ke long
         hasil = baris.melt(id_vars='Kombinasi', value_vars=ukuran_kolom,
-                        var_name='Ukuran', value_name='Nilai')
+                        var_name='Ukuran', value_name='value')
 
         # Tambahkan informasi Map ke kolom baru
         hasil['Map'] = map_name
@@ -83,7 +83,7 @@ for sheet in sheets:
         df = pd.read_excel(f'Excel/Validasi/Hasil_Pengujian_{map_name}_128_avg_length.xlsx', sheet_name=sheet)
 
         # Filter hanya kombinasi yang diinginkan
-        baris = df[df['Kombinasi'].isin(['A*', 'JPS', 'GL', 'BRC', 'PPO'])]
+        baris = df[df['Kombinasi'].isin(['A*', 'JPS', 'GL', 'BRC', 'PPO', 'TPF', 'BDS'])]
 
         # Kolom ukuran
         ukuran_kolom = ['16', '32', '64', '128']
@@ -139,12 +139,15 @@ for sheet in sheets:
 
     # Pisahkan data A* dan Optimized
     data_astar = gabungan[gabungan['Kombinasi'] == 'A*'].copy().reset_index(drop=True)
-    data_opt = gabungan[gabungan['Kombinasi'] == 'A*', 'JPS', 'GL', 'BRC', 'PPO'].copy().reset_index(drop=True)
+    data_opt = gabungan[gabungan['Kombinasi'].isin(['A*', 'JPS', 'GL', 'BRC', 'PPO', 'BDS', 'TPF'])].copy().reset_index(drop=True)
+    # data_opt = gabungan[gabungan['Kombinasi'] == 'A*', 'JPS', 'GL', 'BRC', 'PPO', 'BDS', 'TPF'].copy().reset_index(drop=True)
 
     # Hitung persentase perubahan
+    print(data_opt)
     df_perbandingan = data_astar.copy()
-    df_perbandingan['Optimized'] = data_opt['Nilai']
-    df_perbandingan['Persentase Perubahan (%)'] = (((data_astar['Nilai'] - data_opt['Nilai']) / data_astar['Nilai']))
+    df_perbandingan['Optimized'] = data_opt['value']
+
+    df_perbandingan['Persentase Perubahan (%)'] = (((data_astar['value'] - data_opt['value']) / data_astar['value']))
 
     # Tambahkan label peningkatan atau penurunan
     df_perbandingan['Peningkatan'] = df_perbandingan['Persentase Perubahan (%)'].apply(

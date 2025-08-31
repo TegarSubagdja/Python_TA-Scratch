@@ -1,6 +1,6 @@
 from Utils import *
 
-def Prep(img, start, goal, markSize, scale=20, buffer=2):
+def Prep(img, start, goal, markSize=0, scale=20, buffer=2):
     # Grayscale
     if len(img.shape) == 3:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

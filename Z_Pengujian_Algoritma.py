@@ -3,14 +3,18 @@ from Pengujian.GetData import runPengujianAvgLength, path_length
 from Pengujian.GetAverageMap import generate_keseluruhan_excel
 from Pengujian.GetAverageAll import rekap_avg_semua_sheet
 
+# Inisialisasi Aruco Marker
+detector_params = aruco.DetectorParameters()
+detector_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
+detector = aruco.ArucoDetector(detector_dict, detector_params)
+
 # Contoh pemanggilan:
 if __name__ == "__main__":
 
-    # runPengujianAvgLength()
-    # generate_keseluruhan_excel()
-    # rekap_avg_semua_sheet()
-    # print(GL((0,0), (11,11), (4,10)))
-    # sys.exit()
+    runPengujianAvgLength()
+    generate_keseluruhan_excel()
+    rekap_avg_semua_sheet()
+    sys.exit()
 
     timesArr = []
 
@@ -20,12 +24,17 @@ if __name__ == "__main__":
 
         for i in range(1):
 
-            mapChoice = 17
+            mapChoice = 8
 
             if mapChoice < 1:
                 nameMap = "Map"
             else:
                 nameMap = f"Map_{mapChoice}"
+
+            # foto = cv2.imread("C:/Users/kingt/Desktop/Sample Foto/0829.png")
+            # start, goal, marksize = Pos(img=foto, detector=detector)
+            # print(marksize)
+            # map = Prep(img=foto, start=None, goal=None, markSize=marksize, scale=20)
             map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
 
             # map = Z_GetMap.upscale(map, size[sz])
@@ -48,17 +57,20 @@ if __name__ == "__main__":
             tempCloses = []
             tempTurns = []
             tempLengths = []
+
+            show = True
+
             for i in range(1):
-                (path, times), openlist, closelist = Astar_Optimize.method(
+                (path, times), openlist, closelist = Astar_Animate.methodBds(
                     matrix, start, goal, 2,
                     # JPS=True,
                     # BRC=True,
-                    PPO=True,
+                    # PPO=True,
                     # GLF=True,
                     # TPF=True,
                     # BDS=True,
-                    # show=True,
-                speed=0.2,
+                    show=True,
+                    speed=30,
                 )
 
                 # (path2, times), openlist, closelist = Algoritm(
@@ -68,9 +80,9 @@ if __name__ == "__main__":
                 #     # PPO=True,
                 #     # GLF=True,
                 #     # TPF=True,
-                #     # BDS=True,
+                #     BDS=True,
                 #     # show=True,
-                # speed=1,
+                #     speed=30,
                 # )
 
                 if path:
@@ -89,14 +101,14 @@ if __name__ == "__main__":
             # print(f"  Metod Name : {method_name}")
             # print(f"  Path adalah Asli : {path}")
 
-            # if path:
-            #     print(f"  Waktu Pencarian : {times}")
-            #     print(f"  Panjang Jalur : {path_length(path)}")
-            #     print(f"  Jumlah Open Set : {len(openlist)}")
-            #     print(f"  Jumlah Close Set : {len(closelist)}")
-            #     print(f"  Jumlah Open + Close di i {i} : {len(openlist) + len(closelist)}")
-            #     print(f"  Jumlah Belokan : {belokan}")
-            #     print(f"  Duplicate Closelist : {closelist}")
+            if path:
+                print(f"  Waktu Pencarian : {times}")
+                print(f"  Panjang Jalur : {path_length(path)}")
+                print(f"  Jumlah Open Set : {len(openlist)}")
+                print(f"  Jumlah Close Set : {len(closelist)}")
+                print(f"  Jumlah Open + Close di i {i} : {len(openlist) + len(closelist)}")
+                print(f"  Jumlah Belokan : {belokan}")
+                # print(f"  Duplicate Closelist : {closelist}")
 
             # except Exception as e:
             #     print(f"[!] Error di iterasi : {e}")
@@ -104,9 +116,10 @@ if __name__ == "__main__":
             # print(f"Rate : {np.mean(tempTimes)}")
 
             # Munculkan dan simpan map
-            if path:
-                np.place(map, map == 255, 1)
-                Z_GetMap.show(map, window_size=720, name=nameMap, openlist=openlist, path=path, closelist=closelist) 
-            else:
-                np.place(map, map == 255, 1)
-                Z_GetMap.show(map, window_size=720, name=nameMap)
+            if show:
+                if path:
+                    np.place(map, map == 255, 1)
+                    Z_GetMap.show(map, window_size=720, name=nameMap, path=path, openlist=openlist, closelist=closelist) 
+                else:
+                    np.place(map, map == 255, 1)
+                    Z_GetMap.show(map, window_size=720, name=nameMap)

@@ -30,3 +30,7 @@ def rekap_avg_semua_sheet():
 
     print("✅ File berhasil dibuat: Excel/Rekap/Avg_Keseluruhan_All.xlsx")
     print(df_result)
+
+    os.startfile('Excel/Rekap/Avg_Keseluruhan_All.xlsx')
+
+# rekap_avg_semua_sheet()
