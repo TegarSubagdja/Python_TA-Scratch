@@ -11,10 +11,10 @@ detector = aruco.ArucoDetector(detector_dict, detector_params)
 # Contoh pemanggilan:
 if __name__ == "__main__":
 
-    runPengujianAvgLength()
-    generate_keseluruhan_excel()
-    rekap_avg_semua_sheet()
-    sys.exit()
+    # runPengujianAvgLength()
+    # generate_keseluruhan_excel()
+    # rekap_avg_semua_sheet()
+    # sys.exit()
 
     timesArr = []
 
@@ -22,9 +22,9 @@ if __name__ == "__main__":
 
     for sz in range(1):
 
-        for i in range(1):
+        for i in range(5):
 
-            mapChoice = 8
+            mapChoice = i
 
             if mapChoice < 1:
                 nameMap = "Map"
@@ -33,20 +33,24 @@ if __name__ == "__main__":
 
             # foto = cv2.imread("C:/Users/kingt/Desktop/Sample Foto/0829.png")
             # start, goal, marksize = Pos(img=foto, detector=detector)
-            # print(marksize)
+            # start, goal = PrepCoord(start, goal)
+            # print(f"Ini start {start}")
+            # print(f"Ini goal {goal}")
+            # print(f"Ini marksize {marksize}")
             # map = Prep(img=foto, start=None, goal=None, markSize=marksize, scale=20)
             map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
 
             # map = Z_GetMap.upscale(map, size[sz])
+            # map = Z_GetMap.upscale(map, 128)
             matrix = map.copy()
 
-            start = (4, 0)
+            start = (0, 0)
             goal = (map.shape[1]-1, map.shape[0]-1)
 
             map = map.astype(np.uint8)
 
-            df = pd.DataFrame(map)
-            df.to_excel("Grid.xlsx")
+            # df = pd.DataFrame(map)
+            # df.to_excel("Grid.xlsx")
 
             np.place(matrix, matrix == 1, 255)
             np.place(map, map == 2, 0)
@@ -61,29 +65,29 @@ if __name__ == "__main__":
             show = True
 
             for i in range(1):
-                (path, times), openlist, closelist = Astar_Animate.methodBds(
+                (path, times), openlist, closelist = Algoritm(
                     matrix, start, goal, 2,
-                    # JPS=True,
+                    JPS=True,
+                    BRC=True,
+                    PPO=True,
+                    GLF=True,
+                    # TPF=True,
+                    # BDS=True,
+                    # show=True,
+                    speed=30,
+                )
+
+                (path2, times), openlist, closelist = Algoritm(
+                    matrix, start, goal, 2,
+                    JPS=True,
                     # BRC=True,
                     # PPO=True,
                     # GLF=True,
                     # TPF=True,
                     # BDS=True,
-                    show=True,
+                    # show=True,
                     speed=30,
                 )
-
-                # (path2, times), openlist, closelist = Algoritm(
-                #     matrix, start, goal, 2,
-                #     # JPS=True,
-                #     # BRC=True,
-                #     # PPO=True,
-                #     # GLF=True,
-                #     # TPF=True,
-                #     BDS=True,
-                #     # show=True,
-                #     speed=30,
-                # )
 
                 if path:
                     timesArr.append(times)
@@ -119,7 +123,7 @@ if __name__ == "__main__":
             if show:
                 if path:
                     np.place(map, map == 255, 1)
-                    Z_GetMap.show(map, window_size=720, name=nameMap, path=path, openlist=openlist, closelist=closelist) 
+                    Z_GetMap.show(map, window_size=1080, name=nameMap, path=path, path2=path2, openlist=openlist, closelist=closelist) 
                 else:
                     np.place(map, map == 255, 1)
-                    Z_GetMap.show(map, window_size=720, name=nameMap)
+                    Z_GetMap.show(map, window_size=1080, name=nameMap)

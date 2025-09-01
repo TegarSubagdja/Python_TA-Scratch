@@ -23,7 +23,7 @@ def heuristic(start, goal, hchoice):
     if hchoice == 2:
         return math.sqrt((goal[0] - start[0]) ** 2 + (goal[1] - start[1]) ** 2)
 
-def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=30, k=0.5):
+def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=False, show=False, speed=30, k=2):
 
     if show:
         surface, cell_size = Z_GetMap.Init_Visual(map)
@@ -52,9 +52,9 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
                 current = came_from[current]
             path.append(start)
             path = path[::-1]
+            endtime = time.time()
             if PPO: 
                 path = Prunning(path, map)
-            endtime = time.time()
             if show:
                 Z_GetMap.Render(surface, map, cell_size, open_list, close_list, path)
                 clock.tick(speed)  # Batasi ke 200 FPS
@@ -313,10 +313,10 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
     # Combine path tanpa duplikasi
     path = path_fwd + path_bwd
 
+    endTime = time.time()
+
     if PPO:
         path = Prunning(path, map)
-
-    endTime = time.time()
 
     if show:
         Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path)

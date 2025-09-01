@@ -15,24 +15,26 @@ def TurnPenalty(prev, current, next_point, K=1):
 
     return K if slope1 != slope2 else 0
 
+def TurnPenalty(prev, current, next_point, K=1):
 
-# def TurnPenalty(prev, current, next_point, K=1):
-
-#     if prev == (0, 0) or current == (0, 0) or next_point == (0, 0):
-#         return 0
+    if prev == (0, 0) or current == (0, 0) or next_point == (0, 0):
+        return 0
     
-#     n1, n2 = current
-#     g1, g2 = next_point
-#     s1, s2 = prev
+    n1, n2 = current
+    g1, g2 = next_point
+    s1, s2 = prev
 
-#     dx1 = abs(g1 - n1)
-#     dy1 = abs(g2 - n2)
+    dx1 = abs(g1 - n1)
+    dy1 = abs(g2 - n2)
 
-#     dx2 = abs(g1 - s1)
-#     dy2 = abs(g2 - s2)
+    dx2 = abs(g1 - s1)
+    dy2 = abs(g2 - s2)
 
-#     penalty = abs(dx1 * dy2 - dx2 * dy1) * K
-#     return penalty
+    penalty = abs(dx1 * dy2 - dx2 * dy1) * K
+
+    # print(f"Dari titik {prev} ke titik {current} ke titik {next_point} nilai penalty = {penalty}")
+
+    return penalty
 
 def normalize(dx, dy):
     if dx == 0 and dy == 0:

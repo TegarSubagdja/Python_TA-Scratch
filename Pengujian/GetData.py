@@ -60,8 +60,8 @@ def runPengujianAvgLength(size = [16, 32, 64, 128]):
             for flags in kombinasi_flags:
                 JPS, BDS, GLF, BRC, TPF, PPO = flags
 
-                if TPF and JPS:
-                    continue
+                # if TPF and JPS:
+                #     continue
 
                 aktif_flags = []
                 if JPS: aktif_flags.append("JPS")
@@ -141,3 +141,4 @@ def runPengujianAvgLength(size = [16, 32, 64, 128]):
             pivot_open.to_excel(writer, sheet_name="Jumlah Open", index=False)
             pivot_close.to_excel(writer, sheet_name="Jumlah Close", index=False)
             pivot_belok.to_excel(writer, sheet_name="Jumlah Belok", index=False)
+        

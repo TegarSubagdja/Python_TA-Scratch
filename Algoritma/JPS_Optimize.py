@@ -305,9 +305,9 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 current = came_from[current]
             path.append(start)
             path = path[::-1]
+            endtime = time.time()
             if PPO:
                 path = Prunning(path, matrix)
-            endtime = time.time()
             if show:
 
                 Z_GetMap.Render(surface, matrix, cell_size, open_list, close_list, path)
@@ -348,8 +348,8 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
             ):  # and tentative_gn >= gn.get(jumpPoint,0):
                 continue
 
-            v1 = TP(came_from.get(jumpPoint, jumpPoint), current, jumpPoint, k) if TPF else 0
-            # v2 = BR(current, goal, matrix) or 1 if BRC else 1
+            v1 = TP(came_from.get(current, current), current, jumpPoint, k) if TPF else 0
+            v2 = BR(current, goal, matrix) or 1 if BRC else 1
             v3 = GL(start, goal, jumpPoint) if GLF else 0
 
             tentative_gn = gn[current] + lenght(
@@ -542,11 +542,10 @@ def methodBds(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO
 
     # Combine path tanpa duplikasi
     path = path_f + path_b
+    endTime = time.time()
 
     if PPO:
         path = Prunning(path, matrix)
-
-    endTime = time.time()
 
     if show:
         Z_GetMap.Render(surface, matrix, cell_size, open_f + open_b, close_f | close_b, path)
