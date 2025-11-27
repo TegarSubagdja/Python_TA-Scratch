@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
         for i in range(5):
 
-            mapChoice = i
+            mapChoice = 2
 
             if mapChoice < 1:
                 nameMap = "Map"
@@ -38,21 +38,18 @@ if __name__ == "__main__":
             # print(f"Ini goal {goal}")
             # print(f"Ini marksize {marksize}")
             # map = Prep(img=foto, start=None, goal=None, markSize=marksize, scale=20)
-            map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
 
-            # map = Z_GetMap.upscale(map, size[sz])
+            map = Z_GetMap.load_grid(path=f"Map/JSON/{nameMap}.json", s=True)
+            map = Z_GetMap.upscale(map, size[sz])
             # map = Z_GetMap.upscale(map, 128)
             matrix = map.copy()
-
             start = (0, 0)
             goal = (map.shape[1]-1, map.shape[0]-1)
-
             map = map.astype(np.uint8)
+            df = pd.DataFrame(map)
+            df.to_excel("Grid.xlsx")
 
-            # df = pd.DataFrame(map)
-            # df.to_excel("Grid.xlsx")
-
-            np.place(matrix, matrix == 1, 255)
+            np.place(map, map == 1, 255)
             np.place(map, map == 2, 0)
             np.place(map, map == 3, 0)
             tempTimes = []
@@ -66,7 +63,7 @@ if __name__ == "__main__":
 
             for i in range(1):
                 (path, times), openlist, closelist = Algoritm(
-                    matrix, start, goal, 2,
+                    map, start, goal, 2,
                     JPS=True,
                     BRC=True,
                     PPO=True,
@@ -74,20 +71,20 @@ if __name__ == "__main__":
                     # TPF=True,
                     # BDS=True,
                     # show=True,
-                    speed=30,
+                    speed=300,
                 )
 
-                (path2, times), openlist, closelist = Algoritm(
-                    matrix, start, goal, 2,
-                    JPS=True,
-                    # BRC=True,
-                    # PPO=True,
-                    # GLF=True,
-                    # TPF=True,
-                    # BDS=True,
-                    # show=True,
-                    speed=30,
-                )
+                # (path2, times), openlist, closelist = Algoritm(
+                #     matrix, start, goal, 2,
+                #     # JPS=True,
+                #     # BRC=True,
+                #     # PPO=True,
+                #     # GLF=True,
+                #     # TPF=True,
+                #     # BDS=True,
+                #     # show=True,
+                #     speed=30,
+                # )
 
                 if path:
                     timesArr.append(times)
@@ -123,7 +120,7 @@ if __name__ == "__main__":
             if show:
                 if path:
                     np.place(map, map == 255, 1)
-                    Z_GetMap.show(map, window_size=1080, name=nameMap, path=path, path2=path2, openlist=openlist, closelist=closelist) 
+                    Z_GetMap.show(map, window_size=1080, name=nameMap, path=path, closelist=closelist, openlist=openlist, size="opt") 
                 else:
                     np.place(map, map == 255, 1)
-                    Z_GetMap.show(map, window_size=1080, name=nameMap)
+                    Z_GetMap.show(map, window_size=1080, name=nameMap, size=sz)

@@ -53,6 +53,9 @@ file = f"D:\SEMHAS\Grafik\Rename\hasil_gabungan_transpose_{namaFile}_Rename.xlsx
 df = pd.read_excel(file)
 df["JBP%"] = (df["A*"] - df["JBP"]) / df["A*"] * 100
 df["JGBP%"] = (df["A*"] - df["JGBP"]) / df["A*"] * 100
+df["JGBP%"] = (df["A*"] - df["JGBP"]) / df["A*"] * 100
+df["JGBP%"] = (df["A*"] - df["JGBP"]) / df["A*"] * 100
+df["JGBP%"] = (df["A*"] - df["JGBP"]) / df["A*"] * 100
 # df["JGBP%"] = (df["A*"] - df["JGBP"]) / df["A*"] * 100
 
 print(df[["Map","JBP%", "JGBP%"]])

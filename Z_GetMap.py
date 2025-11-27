@@ -21,7 +21,7 @@ def draw_text(text, surface, x, y, font_size=14, color=(0, 0, 0)):
     surface.blit(img, (x + 2, y + 2))  # Sedikit offset biar tidak mepet
 
 # Tampilkan grid ke layar
-def show(grid, window_size=512, name="None", path=None, path2=None, openlist=None, closelist=None):
+def show(grid, window_size=512, name="None", path=None, path2=None, openlist=None, closelist=None, size=None):
     rows, cols = grid.shape
     cell_w = window_size / cols
     cell_h = window_size / rows
@@ -50,8 +50,8 @@ def show(grid, window_size=512, name="None", path=None, path2=None, openlist=Non
         for pt in path:
             x, y = pt[::-1]  # dibalik jika path berupa (row, col)
             center = (int(x * cell_size + cell_size / 2), int(y * cell_size + cell_size / 2))
-            pygame.draw.circle(surface, colors[10], center, int(cell_size // 4))
-
+            pygame.draw.circle(surface, colors[10], center, int(cell_size // 4))\
+            
         pygame.draw.circle(surface, colors[2], (path[0][1] * cell_size + cell_size / 2, path[0][0] * cell_size + cell_size / 2), int(cell_size // 3))
         pygame.draw.circle(surface, colors[8], (path[-1][1] * cell_size + cell_size / 2, path[-1][0] * cell_size + cell_size / 2), int(cell_size // 3))
 
@@ -115,13 +115,26 @@ def show(grid, window_size=512, name="None", path=None, path2=None, openlist=Non
                 for x in range(cols):
                     pygame.draw.rect(screen, (200, 200, 200), (x * cell_size, y * cell_size, cell_size, cell_size), 1)
 
+            # pygame.draw.rect(
+            #     screen,
+            #     colors[2],  # merah
+            #     (path[0][1] * cell_size, path[0][0] * cell_size, cell_size, cell_size)
+            # )
+            # pygame.draw.rect(
+            #     screen,
+            #     colors[3],  # hijau
+            #     (path[-1][1] * cell_size, path[-1][0] * cell_size, cell_size, cell_size)
+            # )
+
             if path2:
-                draw_path(path2, screen, color=8)
+                draw_path(path2, screen, color=3)
             if path:
                 draw_path(path, screen, color=9)
 
-
-            pygame.image.save(screen, f'Map/Image/{name}.jpg')
+            if size != None:
+                pygame.image.save(screen, f'Map/Image/{name}_{size}.jpg')
+            else:
+                pygame.image.save(screen, f'Map/Image/{name}.jpg')
             pygame.display.flip()
 
     pygame.quit()
@@ -190,7 +203,7 @@ def Init_Visual(grid):
     surface = pygame.display.set_mode((cols * cell_size, rows * cell_size))
     return surface, cell_size
 
-def Render(surface, grid, cell_size, open_list=False, close_list=False, path=None, point=None):
+def Render(surface, grid, cell_size, open_list=False, close_list=False, path=None, point=None, i=""):
     rows, cols = grid.shape
     surface.fill((255, 255, 255))
 
@@ -247,13 +260,20 @@ def Render(surface, grid, cell_size, open_list=False, close_list=False, path=Non
             y, x = point
             pygame.draw.rect(surface, gray,
                              (x * cell_size, y * cell_size, cell_size, cell_size))
+        
+    y,x = (4, 0)
+    pygame.draw.rect(surface, colors[2],
+                                (x * cell_size, y * cell_size, cell_size, cell_size))
+    y,x = (4, 4)
+    pygame.draw.rect(surface, colors[3],
+                                (x * cell_size, y * cell_size, cell_size, cell_size))
 
     # Gambar garis grid terakhir agar tidak tertimpa
     for y in range(rows):
         for x in range(cols):
             pygame.draw.rect(surface, (200, 200, 200), (x * cell_size, y * cell_size, cell_size, cell_size), 1)
 
-    pygame.image.save(surface, 'Map/Image/Map.jpg')
+    pygame.image.save(surface, f'Map/Image/Map{i}.jpg')
     pygame.display.flip()
 
 # Simpan grid ke gambar tanpa tampil

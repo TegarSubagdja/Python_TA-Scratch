@@ -153,6 +153,9 @@ running = True
 is_dragging = False
 show_coordinates = False
 
+arrow_start = None
+arrows = []  # list of (start, end)
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -194,7 +197,7 @@ while running:
                 astar_state = reset_astar_state()
             elif mods & pygame.KMOD_CTRL and mods & pygame.KMOD_SHIFT and event.key == pygame.K_o:
                 map_grid[map_grid == 1] = 0
-            elif event.key == pygame.K_1:
+            elif event.key == pygame.K_o:
                 active_mode = 1
             elif event.key == pygame.K_2:
                 active_mode = 2
@@ -222,18 +225,29 @@ while running:
         for col in range(GRID_SIZE):
             value = map_grid[row, col]
             color = COLOR_DICT.get(value, (255, 255, 255))
-            pygame.draw.rect(screen, color, (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-            pygame.draw.rect(screen, (200, 200, 200), (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE), 1)
+            pygame.draw.rect(screen, color,
+                            (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+            pygame.draw.rect(screen, (200, 200, 200),
+                            (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE), 1)
 
+            # ==== fn value di tengah kotak ====
             fn_val = astar_state["fn_map"].get((row, col))
             if fn_val is not None:
                 label = font.render(f"{fn_val:.3f}", True, (255, 0, 0))
-                screen.blit(label, (col * CELL_SIZE + 2, row * CELL_SIZE + 2))
+                label_rect = label.get_rect(center=(
+                    col * CELL_SIZE + CELL_SIZE // 2,
+                    row * CELL_SIZE + CELL_SIZE // 2
+                ))
+                screen.blit(label, label_rect)
 
+            # ==== koordinat juga di tengah kotak ====
             if show_coordinates:
                 coord_text = font.render(f"{row},{col}", True, (0, 0, 0))
-                text_width, text_height = font.size(f"{row},{col}")
-                screen.blit(coord_text, (col * CELL_SIZE + CELL_SIZE - text_width - 2, row * CELL_SIZE + CELL_SIZE - text_height - 2))
+                coord_rect = coord_text.get_rect(center=(
+                    col * CELL_SIZE + CELL_SIZE // 2,
+                    row * CELL_SIZE + CELL_SIZE // 2
+                ))
+                screen.blit(coord_text, coord_rect)
 
     mode_texts = {
         1: "Mode: Obstacle (1)",
@@ -241,10 +255,11 @@ while running:
         3: "Mode: Goal (3 / Ctrl+G)",
         10: "Mode: Manual A* (K)"
     }
-    mode_label = font.render(mode_texts.get(active_mode, "Unknown"), True, (0, 0, 0))
+
+    # mode_label = font.render(mode_texts.get(active_mode, "Unknown"), True, (0, 0, 0))
     heuristic_label = font.render(f"Heuristic: {current_heuristic.title()} (H) ", True, (0, 0, 0))
-    screen.blit(mode_label, (10, HEIGHT - 50))
-    screen.blit(heuristic_label, (10, HEIGHT - 30))
+    # screen.blit(mode_label, (10, HEIGHT - 50))
+    # screen.blit(heuristic_label, (10, HEIGHT - 30))
 
     pygame.display.flip()
 

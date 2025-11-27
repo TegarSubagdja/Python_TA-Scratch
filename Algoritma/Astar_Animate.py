@@ -84,29 +84,6 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
             if PPO:
                 path = Prunning(path, map)
             endtime = time.time()
-            if show:
-                Z_GetMap.Render(surface, map, cell_size, open_list, close_list, path)
-                clock.tick(speed)  
-
-                # Tunggu sampai tombol ditekan
-                waiting = True
-                while waiting:
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            pygame.quit()
-                            exit()
-                        elif event.type == pygame.KEYDOWN:
-                            waiting = False
-
-                # Handle event disini
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        exit()
-                    elif event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            pygame.quit()
-                            exit()
             return (path, round(endtime - starttime, 6)), open_list, close_list
 
         close_list.add(current)
@@ -216,19 +193,19 @@ def method(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=Fal
 
                 heapq.heappush(open_list, (fn[neighbour], neighbour))
 
-            if show:
-                Z_GetMap.Render(surface, map, cell_size, open_list, close_list)
-                clock.tick(speed)  
+        if show:
+            Z_GetMap.Render(surface, map, cell_size, open_list, close_list, i=i)
+            clock.tick(speed)  
 
-                # Handle event disini
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
+            # Handle event disini
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
                         pygame.quit()
                         exit()
-                    elif event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            pygame.quit()
-                            exit()
 
         print(f"Setelah perhitungan, open list diperbarui menjadi:")
         for biaya, titik in prev_openlist:
@@ -284,12 +261,13 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
 
     while open_f and open_b and not meet_point:
 
+        i+=1
+
         # --- Forward Search ---
         if open_f:
             _, current_f = heapq.heappop(open_f)
             close_f.add(current_f)
 
-            i+=1
             print(f"\nLangkah ke-{i}")
             print(f"Pada arah maju, titik dengan biaya total terendah pada open list (maju) adalah {current_f} dengan nilai fungsi biaya f{current_f} = {f_f[current_f]:.3f} Titik ini kemudian dipilih sebagai titik aktif untuk diperluas.") 
 
@@ -488,6 +466,20 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
                         pygame.quit()
                         exit()
 
+        if show:
+            Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), i=i)
+            clock.tick(speed)  
+
+            # Handle event disini
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                        exit()
+
     if meet_point is None:
         endTime = time.time()
         return (0, round(endTime - startTime, 6)), 0, 0
@@ -523,23 +515,23 @@ def methodBds(map, start, goal, hchoice=2, TPF=False, BRC=False, GLF=False, PPO=
 
     endTime = time.time()
 
-    if show:
-        Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path)
-        clock.tick(speed)
+    # if show:
+    #     Z_GetMap.Render(surface, map, cell_size, open_f + open_b, close_f.union(close_b), path)
+    #     clock.tick(speed)
 
-        # Tunggu sampai tombol ditekan
-        waiting = True
-        while waiting:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-                elif event.type == pygame.KEYDOWN:
-                    waiting = False
+    #     # Tunggu sampai tombol ditekan
+    #     waiting = True
+    #     while waiting:
+    #         for event in pygame.event.get():
+    #             if event.type == pygame.QUIT:
+    #                 pygame.quit()
+    #                 exit()
+    #             elif event.type == pygame.KEYDOWN:
+    #                 waiting = False
                     
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                pygame.quit()
-                exit()
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+    #             pygame.quit()
+    #             exit()
 
     return (path, round(endTime - startTime, 6)), open_f + open_b, close_f.union(close_b)

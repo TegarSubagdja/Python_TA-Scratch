@@ -135,7 +135,12 @@ while True:
         # Hitung path baru
         map = Prep(gray.copy(), start, goal, markSize=marksize, scale=20, buffer=3)
         pStart, pGoal = PrepCoord(start, goal)
-        (path, _), *_ = JPS_Optimize.methodBds(map, pStart, pGoal, 2, BRC=True, GLF=True, PPO=True, show=False)
+        (path, _), *_ = Algoritm(map, pStart, pGoal, 2,
+                                 JPS=True,
+                                 GLF=True,
+                                 PPO=True,
+                                 BRC=True,
+                                  show=False)
         if path:
             pStart, pGoal, path = PrepCoord(pStart, pGoal, path, scale=20)
             path.pop(0)

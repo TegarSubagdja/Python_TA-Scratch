@@ -349,7 +349,7 @@ def method(matrix, start, goal, hchoice, TPF=False, BRC=False, GLF=False, PPO=Fa
                 continue
 
             v1 = TP(came_from.get(current, current), current, jumpPoint, k) if TPF else 0
-            v2 = BR(current, goal, matrix) or 1 if BRC else 1
+            # v2 = BR(current, goal, matrix) or 1 if BRC else 1
             v3 = GL(start, goal, jumpPoint) if GLF else 0
 
             tentative_gn = gn[current] + lenght(
